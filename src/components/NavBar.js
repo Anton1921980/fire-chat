@@ -1,7 +1,7 @@
 import { AppBar, Button, Grid, Toolbar, Typography } from '@mui/material'
 import React, { useContext } from 'react'
 import { NavLink } from 'react-router-dom'
-import { LOGIN_ROUTE } from '../utils/consts'
+import { HOME_ROUTE, LOGIN_ROUTE } from '../utils/consts'
 import { Context } from '../index'
 import {useAuthState} from "react-firebase-hooks/auth";
 
@@ -16,27 +16,21 @@ function NavBar() {
     return (
         <AppBar position="static" color="">
             <Toolbar variant="dense">
+            <NavLink to={HOME_ROUTE}>
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                     Fire_Chat
                 </Typography>
+                </NavLink>
                 <Grid container justifyContent={"flex-end"}>
                     {!user ?
                         <NavLink to={LOGIN_ROUTE}>
                             <Button>Login</Button>
                         </NavLink>
-                        :
-                       
-                            <Button onClick={()=>auth.signOut()}>Logout</Button>
-                       
+                        :                       
+                            <Button onClick={()=>auth.signOut()}>Logout</Button>                       
                     }
 
-                </Grid>
-                {/* <IconButton edge="start" color="inherit" aria-label="menu" sx={{ mr: 2 }}>
-                    <MenuIcon />
-                </IconButton>
-                <Typography variant="h6" color="inherit" component="div">
-                    Photos
-                </Typography> */}
+                </Grid>             
             </Toolbar>
         </AppBar>
     )
