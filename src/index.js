@@ -6,7 +6,7 @@ import firebase from "firebase";
 import 'firebase/firestore'
 import 'firebase/auth'
 
-firebase.initializeApp({
+export const app = firebase.initializeApp({
   apiKey: "AIzaSyCskLHsuHy6UIhpT3tp3be9ktYvRuqwHFE",
   authDomain: "fire-chat-4eb9b.firebaseapp.com",
   projectId: "fire-chat-4eb9b",
