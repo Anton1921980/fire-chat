@@ -60,7 +60,7 @@ function Chat() {
         scrollToBottom()
     }, [messages]);
 
-   
+
     if (loading) {
         return <Loader />
     }
@@ -118,7 +118,7 @@ function Chat() {
         bgcolor: 'background.paper',
         border: 'none',
         padding: 0,
-        boxShadow: 24,       
+        boxShadow: 24,
     };
 
     return (
@@ -195,7 +195,7 @@ function Chat() {
                                 ref={messagesEndRef}
                             // style={{ width: 70, height: 70, backgroundColor: 'grey' }}
                             >
-                                {message.url && (message.url).includes('.png' || '.jpg') ?
+                                {message.url && (message.url).includes('.png' || '.jpg' || '.jpeg' || '.gif') ?
                                     <>
                                         <img
                                             style={{ width: 70, height: 70, cursor: 'pointer' }}
@@ -221,7 +221,7 @@ function Chat() {
                     )}
                     <Modal
                         open={open}
-                        onClose={handleClose}                     
+                        onClose={handleClose}
                     >
                         <Box sx={style}>
                             <img src={imgUrl} style={{ width: '100%', height: '100%' }} />
