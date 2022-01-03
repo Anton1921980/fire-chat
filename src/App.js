@@ -7,14 +7,13 @@ import { useAuthState } from "react-firebase-hooks/auth"
 import Loader from './components/Loader';
 
 function App() {
-
   const { auth } = useContext(Context)
   const [user, loading, error] = useAuthState(auth)
 
   if (loading) {
     <Loader />
   }
-  
+
   return (
     <div>
       <BrowserRouter>
