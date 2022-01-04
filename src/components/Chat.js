@@ -167,7 +167,7 @@ function Chat() {
                                 style={{
                                     lineHeight: '35px',
                                     marginLeft: 5,
-                                    color: ( name=== user.displayName) ? 'green' : 'lightgrey',
+                                    color: ( name=== user.displayName) ? 'blue' : 'grey',
                                 }}
                             > {name}
                             </div>
@@ -201,10 +201,11 @@ function Chat() {
                                     style={{
                                         lineHeight: '35px',
                                         marginLeft: 5,
-                                        color: (userId && message.uid === userId) ? 'green' : 'lightgrey',
+                                        color: (userId && message.uid === userId) ? 'blue' : 'grey',
                                     }}
-                                >{message.displayName}<div>{(userId && message.uid === userId) ?' online':' offline'}</div>
+                                >{message.displayName}
                                 </div>
+                                <div>{(userId && message.uid === userId) ?' online':' offline'}</div>
                             </Grid>
                             <div
                                 style={{
