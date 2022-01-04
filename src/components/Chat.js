@@ -6,9 +6,10 @@ import { Avatar, Button, Container, Grid, Modal, TextField, Typography } from '@
 import Loader from './Loader';
 import firebase from 'firebase';
 import 'firebase/auth';
-
+import 'firebase/database';
 // import { AccessAlarm, ThreeDRotation } from '@mui/icons-material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import FileOpenIcon from '@mui/icons-material/FileOpen';
 import { Box } from '@mui/system';
 
 
@@ -25,9 +26,32 @@ function Chat() {
         firestore.collection("messages").orderBy('createdAt')
     )
 
+    const database = firebase.database()
+    console.log("database: ", database);
+
+    const userId = user.uid;
+    console.log("userId: ", userId);
+
+    useEffect(() => {
+        // if user is logged in   
+
+        const reference = database.ref(`/online/${userId}`);
+        // Set the /users/:userId value to true
+        reference
+            .set(true)
+            .then(() => console.log('Online presence set'));
+        reference
+            .onDisconnect()
+            .remove()
+            .then(() => console.log('On disconnect function configured.'));
+    }, []);
+
+
+
+
     let mes = []
     messages && messages.map(message => {
-        console.log("message: ", message.displayName);
+        // console.log("message: ", message.displayName);
         mes.push(message.displayName)
     })
     const users1 = new Set(mes)
@@ -79,7 +103,8 @@ function Chat() {
                     .getDownloadURL()
                     .then(imgUrl => {
                         setUrl(imgUrl)
-                        console.log("uploaded", url)
+                        console.log("imgUrl: ", imgUrl);
+
                     })
             })
     }
@@ -129,23 +154,22 @@ function Chat() {
                 justifyContent={'center'}
             >
                 <h4>in chat:</h4>
-                {users.map(user =>
+                {users.map(name =>
                     <div
-                        key={user}
+                        key={name}
                         style={{
                             width: 'fit-content',
-                            // marginLeft: user.uid === message.uid ? 'auto' : '10px',
                         }}
                     >
-                        {/* {console.log("messages: ", messages)} */}
                         <Grid container>
                             {/* <Avatar src={message.photoURL} /> */}
                             <div
                                 style={{
                                     lineHeight: '35px',
-                                    marginLeft: 5
+                                    marginLeft: 5,
+                                    color: ( name=== user.displayName) ? 'green' : 'lightgrey',
                                 }}
-                            > {user}
+                            > {name}
                             </div>
                         </Grid>
                     </div>
@@ -169,23 +193,26 @@ function Chat() {
                         >
                             {/* {console.log("message: ", message)} */}
 
-                            <Grid container>
+                            <Grid container
+                                style={{ marginTop: 50, }}
+                            >
                                 <Avatar src={message.photoURL} />
                                 <div
                                     style={{
                                         lineHeight: '35px',
-                                        marginLeft: 5
+                                        marginLeft: 5,
+                                        color: (userId && message.uid === userId) ? 'green' : 'lightgrey',
                                     }}
-                                >{message.displayName}
+                                >{message.displayName}<div>{(userId && message.uid === userId) ?' online':' offline'}</div>
                                 </div>
                             </Grid>
                             <div
                                 style={{
                                     margin: 10,
                                     padding: 15,
+                                    minWidth: 100,
                                     border: '1px solid transparent',
                                     borderRadius: 100,
-                                    padding: 25,
                                     backgroundColor: user.uid === message.uid ? 'lightgrey' : 'gray',
                                     width: 'fit-content',
                                 }}
@@ -195,27 +222,36 @@ function Chat() {
                                 ref={messagesEndRef}
                             // style={{ width: 70, height: 70, backgroundColor: 'grey' }}
                             >
-                                {message.url && (message.url).includes('.png' || '.jpg' || '.jpeg' || '.gif') ?
-                                    <>
+                                {messages[i].url && (
+                                    (messages[i].url).includes('jpg') ||
+                                    (messages[i].url).includes('jpeg') ||
+                                    (messages[i].url).includes('gif') ||
+                                    (messages[i].url).includes('png')) ?
+
+                                    <div
+                                        style={{ cursor: 'pointer' }}
+                                        onClick={() => { handleOpen(messages[i].url) }}>
+                                        <FileOpenIcon style={{ position: 'relative', top: 1, right: 3 }} />
                                         <img
-                                            style={{ width: 70, height: 70, cursor: 'pointer' }}
-                                            src={message.url}
-                                            onClick={() => { handleOpen(messages[i].url) }}
+                                            style={{ width: 70, height: 70, }}
+                                            src={messages[i].url}
                                         >
                                         </img>
-                                    </>
-                                    : null
+                                    </div>
+                                    :
+                                    //  null
+                                    message.url &&
+                                    <div
+                                    //   onClick={() => download(message.url)}
+                                    >
+                                        <a href={message.url} download>
+                                            <FileDownloadIcon style={{ position: 'relative', top: 7 }} /> {message.fileName}
+                                        </a>
+                                    </div>
+
                                 }
                             </div>
-                            {message.url &&
-                                <div
-                                //   onClick={() => download(message.url)}
-                                >
-                                    <a href={message.url} download>
-                                        <FileDownloadIcon style={{ position: 'relative', top: 7 }} /> {message.fileName}
-                                    </a>
-                                </div>
-                            }
+
 
                         </div>
                     )}
@@ -236,19 +272,31 @@ function Chat() {
                 >
                     <TextField
                         fullWidth
-                        // rowsMin={2}
                         variant={'outlined'}
+                        required
+                        label="input message"
                         value={value}
                         placeholder='type message'
                         onChange={e => setValue(e.target.value)}
+                        onKeyPress={(ev) => {
+                            // console.log(`Pressed keyCode ${ev.key}`);
+                            if (value.length && ev.key === 'Enter') {
+                                // Do code here
+                                ev.preventDefault();
+                                sendMessage()
+                            }
+                        }}
                     />
                     <input type="file" onChange={onChange}></input>
-                    <Button onClick={sendMessage}>Send</Button>
+                    {console.log("uploaded", url)}
+                    <Button
+                        disabled={value.length < 1}
+                        onClick={sendMessage}>
+                        Send
+                    </Button>
                 </Grid>
             </Grid>
-
         </Container>
-
     )
 }
 export default Chat

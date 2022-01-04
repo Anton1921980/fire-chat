@@ -13,7 +13,8 @@ export const app = firebase.initializeApp({
   storageBucket: "fire-chat-4eb9b.appspot.com",
   messagingSenderId: "557296480263",
   appId: "1:557296480263:web:e332e12d422f8bef9ebaa2",
-  measurementId: "G-VQ08SFFMVG"
+  measurementId: "G-VQ08SFFMVG",
+  databaseURL: "https://fire-chat-4eb9b-default-rtdb.europe-west1.firebasedatabase.app",
 }
 );
 
