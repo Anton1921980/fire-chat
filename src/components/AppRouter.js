@@ -9,7 +9,7 @@ import { CHAT_ROUTE, LOGIN_ROUTE } from '../utils/consts'
 function AppRouter() {
     const {auth} = useContext(Context)
     const [user] = useAuthState(auth)
-    console.log("user: ", user);
+    // console.log("user: ", user);
     // const user = false
     return user ?
         (<Switch>

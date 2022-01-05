@@ -4,15 +4,23 @@ import { NavLink } from 'react-router-dom'
 import { HOME_ROUTE, LOGIN_ROUTE } from '../utils/consts'
 import { Context } from '../index'
 import {useAuthState} from "react-firebase-hooks/auth";
+import firebase from 'firebase';
+import 'firebase/database';
+
 
 function NavBar() {
 
 
     const {auth} = useContext(Context)
     const [user] = useAuthState(auth)
-    console.log("user: ", user);
+    // console.log("user: ", user);
     // const user = true
-
+    const database = firebase.database()
+    const statusOffline =()=>{
+    const refStatus = database.ref(`/status/${user.displayName}`);
+            refStatus.set('offline');
+     
+    }
     return (
         <AppBar position="static" color="">
             <Toolbar variant="dense">
@@ -27,7 +35,7 @@ function NavBar() {
                             <Button>Login</Button>
                         </NavLink>
                         :                       
-                            <Button onClick={()=>auth.signOut()}>Logout</Button>                       
+                            <Button onClick={()=>{auth.signOut();statusOffline()}}>Logout</Button>                       
                     }
 
                 </Grid>             

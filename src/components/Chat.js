@@ -7,56 +7,92 @@ import Loader from './Loader';
 import firebase from 'firebase';
 import 'firebase/auth';
 import 'firebase/database';
+import { useList, useObject } from 'react-firebase-hooks/database';
 // import { AccessAlarm, ThreeDRotation } from '@mui/icons-material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import { Box } from '@mui/system';
-
+import 'emoji-mart/css/emoji-mart.css'
+import { Picker } from 'emoji-mart'
 
 function Chat() {
 
     const { auth, firestore } = useContext(Context)
     const [user] = useAuthState(auth)
-
     console.log("user: ", user);
 
     const [value, setValue] = useState('')
 
-    const [messages, loading] = useCollectionData(
+    const [messages, loading1] = useCollectionData(
         firestore.collection("messages").orderBy('createdAt')
     )
-
     const database = firebase.database()
-    console.log("database: ", database);
 
     const userId = user.uid;
     console.log("userId: ", userId);
 
+    const [online, setOnline] = useState([])
+    const [regUsers, setRegUsers] = useState([])
+    const [statusAllUsers, setStatusAllUsers] = useState([])
+    console.log("regUsers: ", regUsers);
+    const [showEmoji, setShowEmoji] = useState(false)
     useEffect(() => {
         // if user is logged in   
-
         const reference = database.ref(`/online/${userId}`);
         // Set the /users/:userId value to true
         reference
-            .set(true)
-            .then(() => console.log('Online presence set'));
+            .set(user.displayName)
+            .then(() => console.log('Online presence set', reference.key));
         reference
             .onDisconnect()
             .remove()
             .then(() => console.log('On disconnect function configured.'));
-    }, []);
 
+        const referenceAll = database.ref(`/online`);
+        referenceAll.on("value", function (snapshot) {
+            let onlineUsers = snapshot.val()
+            console.log('onlineUsers', onlineUsers)
+            setOnline(Object.values(onlineUsers))
 
+        });
 
+        const refUsers = database.ref(`/users/${userId}`);
+        refUsers.set(user.displayName)
+        const refUsersAll = database.ref(`/users`);
+        refUsersAll.on("value", function (snapshot) {
+            let allUsers = snapshot.val()
+            console.log('allUsers', allUsers)
+            setRegUsers(Object.values(allUsers))
+        });
 
-    let mes = []
-    messages && messages.map(message => {
-        // console.log("message: ", message.displayName);
-        mes.push(message.displayName)
-    })
-    const users1 = new Set(mes)
-    const users = Array.from(users1)
-    console.log("users: ", users);
+        const refStatus = database.ref(`/status/${user.displayName}`);
+        refStatus.set('online')
+        refStatus
+            .onDisconnect()
+            .remove()
+        document.onvisibilitychange = (e) => {
+            if (document.visibilityState === 'hidden') {
+                refStatus.set('away')
+            }
+            else if (user === null) {
+                refStatus.set('offline');
+            }
+            else {
+                refStatus.set('online');
+            }
+        };
+        const refStatusAll = database.ref(`/status`);
+        refStatusAll.on("value", function (snapshot) {
+            let statusUsers = snapshot.val()
+            console.log('statusUsers', statusUsers)
+            setStatusAllUsers(Object.values(statusUsers))
+        });
+
+    }, [user]);
+
+    console.log("online: ", online);
+    // User navigates to a new tab, case 3
+
 
     const [fileName, setFileName] = useState(null)
     const [url, setUrl] = useState(null)
@@ -85,7 +121,7 @@ function Chat() {
     }, [messages]);
 
 
-    if (loading) {
+    if (loading1) {
         return <Loader />
     }
 
@@ -108,19 +144,9 @@ function Chat() {
                     })
             })
     }
-    // const getFile = async () => {
-    //     firebase.storage()
-    //         .ref(`images/${fileName}`)
-    //         .getDownloadURL()
-    //         .then(imgUrl => {
-    //             setUrl(imgUrl)
-    //             console.log(imgUrl);
 
-    //         })
-    // }
     const sendMessage = async () => {
-        // console.log(value)
-        // await getFile()
+
         await firestore.collection('messages').add({
             uid: user.uid,
             displayName: user.displayName,
@@ -131,7 +157,6 @@ function Chat() {
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         })
         setValue('')
-        // await getFile()
     }
     const style = {
         position: 'absolute',
@@ -146,17 +171,23 @@ function Chat() {
         boxShadow: 24,
     };
 
+    const handleEmojiShow = () => {
+        setShowEmoji((v) => !v)
+    }
+    const handleEmojiSelect = (e) => {
+        setValue((text) => (text += e.native))
+    }
     return (
-        <Container>
+        <Container style={{ height: window.innerHeight - 70 }}>
             <Grid container
-                style={{ height: window.innerHeight / 15 }}
+                style={{ height: window.innerHeight / 20 }}
                 alignItems={'center'}
                 justifyContent={'center'}
             >
                 <h4>in chat:</h4>
-                {users.map(name =>
+                {regUsers && regUsers.map(regUser =>
                     <div
-                        key={name}
+                        key={regUser}
                         style={{
                             width: 'fit-content',
                         }}
@@ -167,21 +198,33 @@ function Chat() {
                                 style={{
                                     lineHeight: '35px',
                                     marginLeft: 5,
-                                    color: ( name=== user.displayName) ? 'blue' : 'grey',
+                                    // color: (regUser === user.uid) ? 'blue' : 'grey',
+                                    color: (online.includes(regUser)) ? 'blue' : 'grey',
                                 }}
-                            > {name}
+                            > {regUser}
                             </div>
                         </Grid>
                     </div>
                 )}
             </Grid>
-
+            {/* <div>
+                <p>
+                    <React.Fragment>
+                        <span>
+                            List:{' '}
+                            {
+                                online && online.length > 0 && <span>{online}</span>
+                            }
+                        </span>
+                    </React.Fragment>
+                </p>
+            </div> */}
             <Grid container
-                style={{ height: window.innerHeight - 50 }}
+                style={{ height: window.innerHeight - 450 }}
                 alignItems={'center'}
                 justifyContent={'center'}
             >
-                <div style={{ width: '80%', height: '70vh', border: '1px solid grey', overflowY: 'auto' }}>
+                <div style={{ width: '80%', height: '65vh', border: '1px solid grey', overflowY: 'auto' }}>
                     {messages.map((message, i) =>
 
                         <div
@@ -201,11 +244,12 @@ function Chat() {
                                     style={{
                                         lineHeight: '35px',
                                         marginLeft: 5,
-                                        color: (userId && message.uid === userId) ? 'blue' : 'grey',
+                                        // color: (userId && message.uid === userId) ? 'blue' : 'grey',
+                                        color: (online.includes(message.displayName)) ? 'blue' : 'grey',
                                     }}
                                 >{message.displayName}
                                 </div>
-                                <div>{(userId && message.uid === userId) ?' online':' offline'}</div>
+                                <div>{(online.includes(message.displayName)) ? ' online' : ' offline'}</div>
                             </Grid>
                             <div
                                 style={{
@@ -269,7 +313,7 @@ function Chat() {
                     container
                     direction={'column'}
                     alignItems={'flex-end'}
-                    style={{ width: '80%' }}
+                    style={{ width: '80%', marginTop: 15 }}
                 >
                     <TextField
                         fullWidth
@@ -288,13 +332,22 @@ function Chat() {
                             }
                         }}
                     />
-                    <input type="file" onChange={onChange}></input>
-                    {console.log("uploaded", url)}
-                    <Button
-                        disabled={value.length < 1}
-                        onClick={sendMessage}>
-                        Send
-                    </Button>
+                    <Grid
+                        container
+                        direction={'row'}
+                        justifyItems={'flex-end'}
+                        style={{ width: '80%', marginTop: 15 }}
+                    >
+                        {showEmoji && <Picker onSelect={handleEmojiSelect} emojiSize={20} />}
+                        <Button onClick={handleEmojiShow}>EMO</Button>
+                        <input style={{ marginTop: 15 }} type="file" onChange={onChange}></input>
+                        {console.log("uploaded", url)}
+                        <Button
+                            disabled={value.length < 1}
+                            onClick={sendMessage}>
+                            Send
+                        </Button>
+                    </Grid>
                 </Grid>
             </Grid>
         </Container>
