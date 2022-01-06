@@ -85,7 +85,7 @@ function Chat() {
         refStatusAll.on("value", function (snapshot) {
             let statusUsers = snapshot.val()
             console.log('statusUsers', statusUsers)
-            setStatusAllUsers(Object.values(statusUsers))
+            setStatusAllUsers(statusUsers)
         });
 
     }, [user]);
@@ -198,27 +198,18 @@ function Chat() {
                                 style={{
                                     lineHeight: '35px',
                                     marginLeft: 5,
-                                    // color: (regUser === user.uid) ? 'blue' : 'grey',
-                                    color: (online.includes(regUser)) ? 'blue' : 'grey',
+                                    color: Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'online') && 'blue'||
+                                    Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'away')&&'pink'||
+                                    Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'offline')&&'grey'
                                 }}
                             > {regUser}
                             </div>
+                        
                         </Grid>
                     </div>
                 )}
             </Grid>
-            {/* <div>
-                <p>
-                    <React.Fragment>
-                        <span>
-                            List:{' '}
-                            {
-                                online && online.length > 0 && <span>{online}</span>
-                            }
-                        </span>
-                    </React.Fragment>
-                </p>
-            </div> */}
+          
             <Grid container
                 style={{ height: window.innerHeight - 450 }}
                 alignItems={'center'}
@@ -296,8 +287,6 @@ function Chat() {
 
                                 }
                             </div>
-
-
                         </div>
                     )}
                     <Modal
