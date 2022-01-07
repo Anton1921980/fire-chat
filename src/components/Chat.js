@@ -14,7 +14,8 @@ import FileOpenIcon from '@mui/icons-material/FileOpen';
 import { Box } from '@mui/system';
 import 'emoji-mart/css/emoji-mart.css'
 import { Picker } from 'emoji-mart'
-
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import smile from '../img/smile.png'
 function Chat() {
 
     const { auth, firestore } = useContext(Context)
@@ -177,6 +178,9 @@ function Chat() {
     const handleEmojiSelect = (e) => {
         setValue((text) => (text += e.native))
     }
+
+
+
     return (
         <Container style={{ height: window.innerHeight - 70 }}>
             <Grid container
@@ -198,18 +202,18 @@ function Chat() {
                                 style={{
                                     lineHeight: '35px',
                                     marginLeft: 5,
-                                    color: Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'online') && 'blue'||
-                                    Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'away')&&'pink'||
-                                    Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'offline')&&'grey'
+                                    color: Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'online') && 'blue' ||
+                                        Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'away') && 'pink' ||
+                                        Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'offline') && 'grey'
                                 }}
                             > {regUser}
                             </div>
-                        
+
                         </Grid>
                     </div>
                 )}
             </Grid>
-          
+
             <Grid container
                 style={{ height: window.innerHeight - 450 }}
                 alignItems={'center'}
@@ -300,43 +304,66 @@ function Chat() {
                 </div>
                 <Grid
                     container
-                    direction={'column'}
-                    alignItems={'flex-end'}
+                    direction={'row'}
+                    // alignItems={'flex-end'}
                     style={{ width: '80%', marginTop: 15 }}
                 >
-                    <TextField
-                        fullWidth
-                        variant={'outlined'}
-                        required
-                        label="input message"
-                        value={value}
-                        placeholder='type message'
-                        onChange={e => setValue(e.target.value)}
-                        onKeyPress={(ev) => {
-                            // console.log(`Pressed keyCode ${ev.key}`);
-                            if (value.length && ev.key === 'Enter') {
-                                // Do code here
-                                ev.preventDefault();
-                                sendMessage()
-                            }
-                        }}
-                    />
                     <Grid
                         container
                         direction={'row'}
-                        justifyItems={'flex-end'}
-                        style={{ width: '80%', marginTop: 15 }}
+                        position={'relative'}
+                    // justifyItems={'flex-end'}
+                    // style={{ width: '80%', marginTop: 15 }}
                     >
-                        {showEmoji && <Picker onSelect={handleEmojiSelect} emojiSize={20} />}
-                        <Button onClick={handleEmojiShow}>EMO</Button>
-                        <input style={{ marginTop: 15 }} type="file" onChange={onChange}></input>
+                      
+                        <Grid
+                            container
+                            direction={'row'}
+                            // alignItems={'flex-end'}
+                            style={{ width: '75%' }}
+                        >
+                            <TextField
+                                fullWidth
+                                variant={'outlined'}
+                                required
+                                label="input message"
+                                value={value}
+                                placeholder='type message'
+                                onChange={e => setValue(e.target.value)}
+                                onKeyPress={(ev) => {
+                                    // console.log(`Pressed keyCode ${ev.key}`);
+                                    if (value.length && ev.key === 'Enter') {
+                                        // Do code here
+                                        ev.preventDefault();
+                                        sendMessage()
+                                    }
+                                }}
+                            />
+                        </Grid>
+                        {showEmoji && <Picker
+                            onSelect={handleEmojiSelect}
+                            emojiSize={25}
+                            title={'fire_chat Emoji'}
+                            theme={'light'}
+                            showPreview={false}
+                            showSkinTones={false}
+                            set={'twitter'}
+                            style={{ position: 'absolute', bottom: '10vh', right: '0vh', }} 
+                            />}
+                        <Button  style={{ background:`url(${smile}) no-repeat  center/50%`}}  onClick={handleEmojiShow}></Button>
+
+                        <div><input style={{ marginTop: 15 }} type="file" onChange={onChange} className="custom-file-input"></input></div>
                         {console.log("uploaded", url)}
+                        {url && url.length ? <div style={{ position: 'absolute' }}>uploaded: {fileName}</div> : null}
+
                         <Button
+                            variant='outlined'
                             disabled={value.length < 1}
                             onClick={sendMessage}>
                             Send
                         </Button>
                     </Grid>
+
                 </Grid>
             </Grid>
         </Container>
