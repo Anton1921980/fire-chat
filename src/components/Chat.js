@@ -14,8 +14,8 @@ import FileOpenIcon from '@mui/icons-material/FileOpen';
 import { Box } from '@mui/system';
 import 'emoji-mart/css/emoji-mart.css'
 import { Picker } from 'emoji-mart'
-import { NULL } from 'node-sass';
-
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import smile from '../img/smile.png'
 function Chat() {
 
     const { auth, firestore } = useContext(Context)
@@ -179,21 +179,7 @@ function Chat() {
         setValue((text) => (text += e.native))
     }
 
-    function file(event) {
-        console.log("event: ", event);
 
-        // var count = 0;
-        // for (let i = 0; i < event.path.length; i++ ) {
-        //     var tmpObj = event.path[i];
-            
-        //     if ( tmpObj.value !== undefined ) {
-        //         alert(tmpObj.value);
-        //         count++;
-        //     }
-        // }
-        
-        // alert(count + " file" + (count==1?"":"s") + " parsed.");
-    }
 
     return (
         <Container style={{ height: window.innerHeight - 70 }}>
@@ -325,25 +311,16 @@ function Chat() {
                     <Grid
                         container
                         direction={'row'}
-                        // justifyItems={'flex-end'}
+                        position={'relative'}
+                    // justifyItems={'flex-end'}
                     // style={{ width: '80%', marginTop: 15 }}
                     >
-                        {showEmoji && <Picker
-                            onSelect={handleEmojiSelect}
-                            emojiSize={25}
-                            title={'fire_chat Emoji'}
-                            theme={'light'}
-                            showPreview={false}
-                            showSkinTones={false}
-                            set={'twitter'}
-                            style={{ position: 'absolute', bottom: '23.5vh', left: '42.8vh' }} />}
-                        <Button onClick={handleEmojiShow}>EMO</Button>
-
+                      
                         <Grid
                             container
                             direction={'row'}
                             // alignItems={'flex-end'}
-                            style={{ width: '59%', marginTop: 15 }}
+                            style={{ width: '75%' }}
                         >
                             <TextField
                                 fullWidth
@@ -363,12 +340,24 @@ function Chat() {
                                 }}
                             />
                         </Grid>
+                        {showEmoji && <Picker
+                            onSelect={handleEmojiSelect}
+                            emojiSize={25}
+                            title={'fire_chat Emoji'}
+                            theme={'light'}
+                            showPreview={false}
+                            showSkinTones={false}
+                            set={'twitter'}
+                            style={{ position: 'absolute', bottom: '10vh', right: '0vh', }} 
+                            />}
+                        <Button  style={{ background:`url(${smile}) no-repeat  center/50%`}}  onClick={handleEmojiShow}></Button>
 
                         <div><input style={{ marginTop: 15 }} type="file" onChange={onChange} className="custom-file-input"></input></div>
                         {console.log("uploaded", url)}
-                        {/* {url?<div>uploaded {url}</div>:null} */}
+                        {url && url.length ? <div style={{ position: 'absolute' }}>uploaded: {fileName}</div> : null}
 
                         <Button
+                            variant='outlined'
                             disabled={value.length < 1}
                             onClick={sendMessage}>
                             Send
