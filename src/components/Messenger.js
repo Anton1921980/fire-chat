@@ -17,20 +17,18 @@ import { Picker } from 'emoji-mart'
 import smile from '../img/smile.png'
 
 
-function Chat() {
+function Messenger() {
 
     const { auth, firestore } = useContext(Context)
     const [user] = useAuthState(auth)
     const [value, setValue] = useState('')
-    const [messages, loading1] = useCollectionData(
-        firestore.collection("messages").orderBy('createdAt')
-    )
+
     const database = firebase.database()
 
     const userId = user.uid;
     console.log("userId: ", userId);
 
-    const [online, setOnline] = useState([])
+    // const [online, setOnline] = useState([])
     const [regUsers, setRegUsers] = useState([])
     const [statusAllUsers, setStatusAllUsers] = useState([])
     const [showEmoji, setShowEmoji] = useState(false)
@@ -38,24 +36,24 @@ function Chat() {
     console.log("regUsers: ", regUsers);
 
     useEffect(() => {
-        // if user is logged in   
-        const reference = database.ref(`/online/${userId}`);
-        // Set the /users/:userId value to true
-        reference
-            .set(user.displayName)
-            .then(() => console.log('Online presence set', reference.key));
-        reference
-            .onDisconnect()
-            .remove()
-            .then(() => console.log('On disconnect function configured.'));
+        // // if user is logged in   
+        // const reference = database.ref(`/online/${userId}`);
+        // // Set the /users/:userId value to true
+        // reference
+        //     .set(user.displayName)
+        //     .then(() => console.log('Online presence set', reference.key));
+        // reference
+        //     .onDisconnect()
+        //     .remove()
+        //     .then(() => console.log('On disconnect function configured.'));
 
-        const referenceAll = database.ref(`/online`);
-        referenceAll.on("value", function (snapshot) {
-            let onlineUsers = snapshot.val()
-            console.log('onlineUsers', onlineUsers)
-            setOnline(Object.values(onlineUsers))
+        // const referenceAll = database.ref(`/online`);
+        // referenceAll.on("value", function (snapshot) {
+        //     let onlineUsers = snapshot.val()
+        //     console.log('onlineUsers', onlineUsers)
+        //     setOnline(Object.values(onlineUsers))
 
-        });
+        // });
 
         const refUsers = database.ref(`/users/${userId}`);
         refUsers.set(user.displayName)
@@ -91,7 +89,7 @@ function Chat() {
 
     }, [user]);
 
-    console.log("online: ", online);
+    // console.log("online: ", online);
     // User navigates to a new tab, case 3
 
 
@@ -117,8 +115,6 @@ function Chat() {
     }
 
 
-
-
     let file
     const onChange = (e) => {
         file = e.target.files[0];
@@ -138,6 +134,30 @@ function Chat() {
             })
     }
 
+    const [chatId, setChatId] = useState(null)
+
+    const openPersonalChat = (e) => {
+        console.log("e: ", e.target.innerText);
+        // срабатывает только на второе нажатие!!!???
+        // chatId === null &&
+         setChatId([user.displayName, e.target.innerText].sort().join(''))
+        console.log("chatId: ", chatId);        
+    }
+
+
+
+    const [messages, loading1] = useCollectionData(
+        // (chatId !== null) ? 
+        // firestore.collection("messages").orderBy('createdAt') 
+        // : null
+        // (chatId !== null) ? 
+        firestore.collection("messages")
+            .where("chatId", "==", chatId)
+        // .orderBy("createdAt", "asc") не работает будем фильтровать на клиенте
+        //   : null
+    )
+
+
     const sendMessage = async () => {
 
         await firestore.collection('messages').add({
@@ -147,7 +167,8 @@ function Chat() {
             text: value,
             url: url,
             fileName: fileName,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            chatId: chatId, //"создаем значение переменной во время первого создания чата складываем имена"
         })
         setValue('')
         file = null
@@ -216,9 +237,11 @@ function Chat() {
                                 <div>
                                     {/* <Avatar src={regUser===messages} /> */}
                                     <div
+                                        onClick={(e) => { openPersonalChat(e) }}
                                         style={{
                                             lineHeight: '35px',
                                             marginLeft: 5,
+                                            cursor: 'pointer',
                                             color:
                                                 Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'online') && 'blue' ||
                                                 Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'away') && 'pink' ||
@@ -238,7 +261,7 @@ function Chat() {
                     justifyContent={'center'}
                 >
                     <div style={{ width: '100%', height: '70vh', border: '1px solid lightgrey', overflowY: 'auto', background: '#6ef9b236' }}>
-                        {messages.map((message, i) =>
+                        {messages && messages.map((message, i) =>
                             <div
                                 ref={messagesEndRef}
                                 key={i}
@@ -248,37 +271,38 @@ function Chat() {
                                 }}
                             >
                                 {/* {console.log("message: ", message)} */}
-                                <div style={{ display: 'none' }}>{i > 1 ? j = i - 1 : j = 1}</div>
+                                {/* <div style={{ display: 'none' }}>{i > 1 ? j = i - 1 : j = 1}</div> */}
 
                                 {
-                                    j > 0 &&
-                                    (message.photoURL !== ((messages[j]).photoURL)) &&
-                                    <Grid container
-                                        style={{
-                                            marginTop: 50,
-                                            //  color: (online.includes(message.displayName)) ? 'blue' : 'grey', 
-                                            color:
-                                                Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'online') && 'blue' ||
-                                                Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'away') && 'pink' ||
-                                                'grey'
-                                        }}
-                                    >
-                                        <Avatar src={message.photoURL} />
-                                        <div
-                                            style={{
-                                                lineHeight: '35px',
-                                                marginLeft: 5,
-                                            }}
-                                        >{message.displayName ? message.displayName : 'Incognito'}
-                                        </div>
-                                        <div style={{ fontSize: 10, fontStyle: 'italic' }}>
-                                            {/* {(online.includes(message.displayName)) ? ' online ' : ' offline'} */}
-                                            {Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'online') && 'online' ||
-                                                Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'away') && 'away' ||
-                                                'offline'}
-                                        </div>
+                                    // j > 0 &&
+                                    // message.photoURL&&(messages[j]).photoURL && (message.photoURL !== ((messages[j]).photoURL)) &&
 
-                                    </Grid>
+                                    // <Grid container
+                                    //     style={{
+                                    //         marginTop: 50,
+                                    //         //  color: (online.includes(message.displayName)) ? 'blue' : 'grey', 
+                                    //         color:
+                                    //             Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'online') && 'blue' ||
+                                    //             Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'away') && 'pink' ||
+                                    //             'grey'
+                                    //     }}
+                                    // >
+                                    //     <Avatar src={message.photoURL} />
+                                    //     <div
+                                    //         style={{
+                                    //             lineHeight: '35px',
+                                    //             marginLeft: 5,
+                                    //         }}
+                                    //     >{message.displayName ? message.displayName : 'Incognito'}
+                                    //     </div>
+                                    //     <div style={{ fontSize: 10, fontStyle: 'italic' }}>
+                                    //         {/* {(online.includes(message.displayName)) ? ' online ' : ' offline'} */}
+                                    //         {Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'online') && 'online' ||
+                                    //             Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'away') && 'away' ||
+                                    //             'offline'}
+                                    //     </div>
+
+                                    // </Grid>
                                 }
 
                                 <div
@@ -301,11 +325,11 @@ function Chat() {
                                             fontSize: 10,
                                             fontStyle: 'italic',
                                             color: 'darkgrey'
-                                        }}                                        
-                                    >                                        
-                                        {(message.createdAt !== null) &&( (message.createdAt).toDate().getHours())}
-                                         : {(message.createdAt !== null) &&((message.createdAt).toDate().getMinutes() > 9 ? 
-                                         (message.createdAt).toDate().getMinutes() : '0' + (message.createdAt).toDate().getMinutes())}                                        
+                                        }}
+                                    >
+                                        {(message.createdAt !== null) && ((message.createdAt).toDate().getHours())}
+                                        : {(message.createdAt !== null) && ((message.createdAt).toDate().getMinutes() > 9 ?
+                                            (message.createdAt).toDate().getMinutes() : '0' + (message.createdAt).toDate().getMinutes())}
                                     </div>
                                 </div>
 
@@ -402,7 +426,7 @@ function Chat() {
                                 {console.log("uploaded", url)}
 
                                 {url && url.length ?
-                                    <div style={{ position: 'absolute', right: '23%',top: '85%'}}>
+                                    <div style={{ position: 'absolute', right: '23%', top: '85%' }}>
                                         <FileUploadIcon style={{ position: 'relative', top: 6, right: 2 }} />{fileName}</div> :
                                     null}
                                 <Button
@@ -418,5 +442,8 @@ function Chat() {
             </Grid>
         </Container>
     )
+
+
 }
-export default Chat
+
+export default Messenger
