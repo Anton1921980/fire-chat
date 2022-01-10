@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Context } from '../index'
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollectionData } from "react-firebase-hooks/firestore"
@@ -8,6 +8,7 @@ import Loader from './Loader';
 import firebase from 'firebase';
 import 'firebase/auth';
 import 'firebase/database';
+
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
@@ -17,7 +18,8 @@ import { Picker } from 'emoji-mart'
 import smile from '../img/smile.png'
 
 
-function Messenger() {
+
+const Messenger = () => {
 
     const { auth, firestore } = useContext(Context)
     const [user] = useAuthState(auth)
@@ -28,32 +30,22 @@ function Messenger() {
     const userId = user.uid;
     console.log("userId: ", userId);
 
-    // const [online, setOnline] = useState([])
+    const [online, setOnline] = useState([])
     const [regUsers, setRegUsers] = useState([])
     const [statusAllUsers, setStatusAllUsers] = useState([])
     const [showEmoji, setShowEmoji] = useState(false)
 
     console.log("regUsers: ", regUsers);
 
+
+    const [chatId, setChatId] = useState(null)
+
+    const [chatUser, setChatUser] = useState(null)
+    useMemo(() => {
+        setChatId([user.displayName, chatUser].sort().join(''))
+    }, [chatUser]);
+
     useEffect(() => {
-        // // if user is logged in   
-        // const reference = database.ref(`/online/${userId}`);
-        // // Set the /users/:userId value to true
-        // reference
-        //     .set(user.displayName)
-        //     .then(() => console.log('Online presence set', reference.key));
-        // reference
-        //     .onDisconnect()
-        //     .remove()
-        //     .then(() => console.log('On disconnect function configured.'));
-
-        // const referenceAll = database.ref(`/online`);
-        // referenceAll.on("value", function (snapshot) {
-        //     let onlineUsers = snapshot.val()
-        //     console.log('onlineUsers', onlineUsers)
-        //     setOnline(Object.values(onlineUsers))
-
-        // });
 
         const refUsers = database.ref(`/users/${userId}`);
         refUsers.set(user.displayName)
@@ -87,7 +79,7 @@ function Messenger() {
             setStatusAllUsers(statusUsers)
         });
 
-    }, [user]);
+    }, []);
 
     // console.log("online: ", online);
     // User navigates to a new tab, case 3
@@ -106,11 +98,11 @@ function Messenger() {
 
 
     const [open, setOpen] = useState(false);
-    // const handleOpen = (url) => setOpen(true); setImgUrl(url);
+  
     const handleClose = () => setOpen(false);
 
-    const handleOpen = (url) => {
-        setImgUrl(url);
+    const handleOpen = (messUrl) => {
+        setImgUrl(messUrl);
         setOpen(true);
     }
 
@@ -134,27 +126,37 @@ function Messenger() {
             })
     }
 
-    const [chatId, setChatId] = useState(null)
 
-    const openPersonalChat = (e) => {
-        console.log("e: ", e.target.innerText);
-        // срабатывает только на второе нажатие!!!???
+
+    function openPersonalChat(e) {
+        e.preventDefault();
         // chatId === null &&
-         setChatId([user.displayName, e.target.innerText].sort().join(''))
-        console.log("chatId: ", chatId);        
+        setChatId([user.displayName, e.target.innerText].sort().join(''))
     }
 
-
-
-    const [messages, loading1] = useCollectionData(
-        // (chatId !== null) ? 
-        // firestore.collection("messages").orderBy('createdAt') 
-        // : null
-        // (chatId !== null) ? 
+ 
+    // АЛЬТЕРНАТИВА useCollectionData
+    // let messages = []
+    // let loading1
+    // useEffect(() => {
+    //     firestore.collection("messages")
+    //     .where("chatId", "==", chatId)
+    //     .get()
+    //     .then((querySnapshot) => {
+    //         console.log("querySnapshot: ", querySnapshot && querySnapshot.docs);        
+         
+    //         querySnapshot && (querySnapshot.docs).map(doc=>{
+    //             messages.push(doc.data())
+    //         })
+    //         console.log("messages: ", messages);
+    //     });
+    // }, [chatId]);
+    
+//перерендерится вся страница  useCollectionData ИЗЗА ЛОАДЕРА !!!
+    const [messages, loading1] = useCollectionData(       
         firestore.collection("messages")
             .where("chatId", "==", chatId)
-        // .orderBy("createdAt", "asc") не работает будем фильтровать на клиенте
-        //   : null
+        // .orderBy("createdAt", "asc") не работает, будем фильтровать на клиенте      
     )
 
 
@@ -201,67 +203,77 @@ function Messenger() {
         scrollToBottom()
     }, [messages]);
 
-    if (loading1) {
-        return <Loader />
-    }
+    // //ПЕРЕРЕНДЕ ВСЕГО БЫЛ ИЗЗА ЭТОГО ЛОАДЕРА!!!
+    // if (loading1) {
+    //     return <Loader />
+    // }
+
     let j
 
     return (
-        <Container maxWidth="xl"
-        //  style={{ height: window.innerHeight - 70, }}
+        <>
+    <Container
+            maxWidth="xl"
+            // style={{ background: 'lightgrey' , height: '90vh'}}
         >
-            <Grid container
+              <Grid container
                 columnSpacing={' xs: 2, sm: 2 '}
             //  style={{ height: window.innerHeight - 70, }}
             >
-                <Grid container item xs={2}
-                    style={{ height: window.innerHeight / 20, marginTop: 20 }}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                >
-                    {/* <div><h4>in chat:</h4></div> */}
-                    <Stack direction="row" spacing={2}>
-                        <div>users: {regUsers.length}</div>
-                        <div style={{ color: 'blue' }}>online: {(Object.values(statusAllUsers).filter(value => value === 'online')).length}</div>
-                        <div style={{ color: 'pink' }}>away: {(Object.values(statusAllUsers).filter(value => value === 'away')).length}</div>
+            <Grid container item xs={2}
+                style={{ height: window.innerHeight / 20, marginTop: 20, background: 'red' }}
+                alignItems={'center'}
+                justifyContent={'center'}
+            >
+                {/* <div><h4>in chat:</h4></div> */}
+                <Stack direction="row" spacing={2}>
+                    <div>users: {regUsers.length}</div>
+                    <div style={{ color: 'blue' }}>online: {(Object.values(statusAllUsers).filter(value => value === 'online')).length}</div>
+                    <div style={{ color: 'pink' }}>away: {(Object.values(statusAllUsers).filter(value => value === 'away')).length}</div>
 
-                    </Stack>
-                    <Stack mt={2}>
-                        {regUsers && regUsers.map(regUser =>
-                            <div
-                                key={regUser}
-                                style={{
-                                    width: 'fit-content',
-                                }}
-                            >
-                                <div>
-                                    {/* <Avatar src={regUser===messages} /> */}
-                                    <div
-                                        onClick={(e) => { openPersonalChat(e) }}
-                                        style={{
-                                            lineHeight: '35px',
-                                            marginLeft: 5,
-                                            cursor: 'pointer',
-                                            color:
-                                                Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'online') && 'blue' ||
-                                                Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'away') && 'pink' ||
-                                                'grey'
-                                        }}
-                                    > {regUser}
-                                    </div>
+                </Stack>
+                <Stack mt={2}
+                    onClick={openPersonalChat}
+                >
+                    {regUsers && regUsers.map(regUser =>
+                        <div
+                            key={regUser}
+                            style={{
+                                width: 'fit-content',
+                            }}
+                        >
+                            <div>
+                                {/* <Avatar src={regUser===messages} /> */}
+                                <div
+                                    // onClick={() => openPersonalChat(regUser)}
+                                    // onClick={() => setChatUser(regUser)}
+                                    style={{
+                                        lineHeight: '35px',
+                                        marginLeft: 5,
+                                        cursor: 'pointer',
+                                        color:
+                                            Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'online') && 'blue' ||
+                                            Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'away') && 'pink' ||
+                                            'grey'
+                                    }}
+                                > {regUser}
                                 </div>
                             </div>
-                        )}
-                    </Stack>
-                </Grid>
+                        </div>
+                    )}
+                </Stack>
+            </Grid>
 
-                <Grid container item xs={10}
-                    // style={{ height: window.innerHeight - 300 }}
-                    alignItems={'center'}
-                    justifyContent={'center'}
-                >
-                    <div style={{ width: '100%', height: '70vh', border: '1px solid lightgrey', overflowY: 'auto', background: '#6ef9b236' }}>
-                        {messages && messages.map((message, i) =>
+            <Grid container item xs={10}
+                // style={{ height: window.innerHeight - 300 }}
+                alignItems={'center'}
+                justifyContent={'center'}
+            >
+                <div style={{ width: '100%', height: '70vh', border: '1px solid lightgrey', overflowY: 'auto', background: '#6ef9b236' }}>
+                    {console.log('messages2',messages)}
+                    {messages && messages.length>0 && messages
+                        .sort((a, b) => (a.createdAt > b.createdAt) ? 1 : ((b.createdAt > a.createdAt) ? -1 : 0))
+                        .map((message, i) =>
                             <div
                                 ref={messagesEndRef}
                                 key={i}
@@ -270,40 +282,7 @@ function Messenger() {
                                     marginLeft: user.uid === message.uid ? 'auto' : '10px',
                                 }}
                             >
-                                {/* {console.log("message: ", message)} */}
-                                {/* <div style={{ display: 'none' }}>{i > 1 ? j = i - 1 : j = 1}</div> */}
 
-                                {
-                                    // j > 0 &&
-                                    // message.photoURL&&(messages[j]).photoURL && (message.photoURL !== ((messages[j]).photoURL)) &&
-
-                                    // <Grid container
-                                    //     style={{
-                                    //         marginTop: 50,
-                                    //         //  color: (online.includes(message.displayName)) ? 'blue' : 'grey', 
-                                    //         color:
-                                    //             Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'online') && 'blue' ||
-                                    //             Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'away') && 'pink' ||
-                                    //             'grey'
-                                    //     }}
-                                    // >
-                                    //     <Avatar src={message.photoURL} />
-                                    //     <div
-                                    //         style={{
-                                    //             lineHeight: '35px',
-                                    //             marginLeft: 5,
-                                    //         }}
-                                    //     >{message.displayName ? message.displayName : 'Incognito'}
-                                    //     </div>
-                                    //     <div style={{ fontSize: 10, fontStyle: 'italic' }}>
-                                    //         {/* {(online.includes(message.displayName)) ? ' online ' : ' offline'} */}
-                                    //         {Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'online') && 'online' ||
-                                    //             Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'away') && 'away' ||
-                                    //             'offline'}
-                                    //     </div>
-
-                                    // </Grid>
-                                }
 
                                 <div
                                     style={{
@@ -369,14 +348,14 @@ function Messenger() {
                                 </div>
                             </div>
                         )}
-                        <Modal
-                            open={open}
-                            onClose={handleClose}
-                        >
-                            <Box sx={style}><img src={imgUrl} style={{ width: '100%', height: '100%' }} /></Box>
-                        </Modal>
-                    </div>
-                    <Grid
+                    <Modal
+                        open={open}
+                        onClose={handleClose}
+                    >
+                        <Box sx={style}><img src={imgUrl} style={{ width: '100%', height: '100%' }} /></Box>
+                    </Modal>
+                </div>
+                <Grid
                         container
                         direction={'row'}
                         style={{ width: '100%', marginTop: 15 }}
@@ -438,9 +417,11 @@ function Messenger() {
                             </Grid>
                         </Grid>
                     </Grid>
-                </Grid>
             </Grid>
-        </Container>
+            </Grid>
+            </Container>
+        </>
+
     )
 
 
