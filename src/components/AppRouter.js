@@ -19,7 +19,7 @@ function AppRouter() {
                     path={path}
                     component={Component} exact={true} />
             )}
-            {/* <Redirect to={CHAT_ROUTE} /> */}
+            <Redirect to={CHAT_ROUTE} />
         </Switch>)
         :
         (<Switch>
@@ -29,7 +29,7 @@ function AppRouter() {
                     path={path}
                     component={Component} exact={true} />
             )}
-            {/* <Redirect to={LOGIN_ROUTE} /> */}
+            <Redirect to={LOGIN_ROUTE} />
         </Switch>)
 }
 
