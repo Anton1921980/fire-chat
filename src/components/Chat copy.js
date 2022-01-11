@@ -99,18 +99,15 @@ function Chat() {
         //     setStatusAllUsers(statusUsers)
         // });
         const refUsers = database.ref(`/users/${user.displayName}/displayName`);
-        refUsers.set(user.displayName)
-        const refUid = database.ref(`/users/${user.displayName}/uid`);
-        refUid.set(user.uid)
+        refUsers.set(user.uid)
         const refPhoto = database.ref(`/users/${user.displayName}/photoURL`);
         refPhoto.set(user.photoURL)
        
-        const refStatus = database.ref(`/status/${user.displayName}`);
+        const refStatus = database.ref(`/users/${user.displayName}/status`);
         refStatus.set('online')
         refStatus
             .onDisconnect()
             .remove()
-
         document.onvisibilitychange = (e) => {
             if (document.visibilityState === 'hidden') {
                 refStatus.set('away')
@@ -122,10 +119,7 @@ function Chat() {
                 refStatus.set('online');
             }
         };
-
-
-
-        const refStatusAll = database.ref(`/status`);
+        const refStatusAll = database.ref(`/users/${user.displayName}/status`);
         refStatusAll.on("value", function (snapshot) {
             let statusUsers = snapshot.val()
             console.log('statusUsers', statusUsers)
@@ -139,7 +133,7 @@ function Chat() {
             setRegUsers(Object.keys(allUsers))
         });
 
-    }, []);
+    }, [user]);
 
     console.log("online: ", online);
     // User navigates to a new tab, case 3

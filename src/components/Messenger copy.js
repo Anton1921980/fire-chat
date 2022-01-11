@@ -36,98 +36,31 @@ const Messenger = () => {
     const [friend, setFriend] = useState(null)
     const [regUsers, setRegUsers] = useState([])
     const [statusAllUsers, setStatusAllUsers] = useState([])
-    const [showEmoji, setShowEmoji] = useState(false) 
+    const [showEmoji, setShowEmoji] = useState(false)
+
+    console.log("regUsers: ", regUsers);
+
+
     const [chatId, setChatId] = useState(null)
-    const [fileName, setFileName] = useState(null)
-    const [url, setUrl] = useState(null)
-    const [imgUrl, setImgUrl] = useState(null)
-    const [open, setOpen] = useState(false);
+
     // const [chatUser, setChatUser] = useState(null)
 
     // useMemo(() => {
     //     setChatId([user.displayName, chatUser].sort().join(''))
     // }, [chatUser]);
 
-    useEffect(() => {   
+    useMemo(() => {
 
-        // const refUsers = database.ref(`/users/${user.displayName}/displayName`);
-        // refUsers.set(user.displayName)
-        // const refUid = database.ref(`/users/${user.displayName}/uid`);
-        // refUid.set(user.uid)
-        // const refPhoto = database.ref(`/users/${user.displayName}/photoURL`);
-        // refPhoto.set(user.photoURL)
-       
-        // const refStatus = database.ref(`/users/${user.displayName}/status`);
-        // refStatus.set('online')
-        // refStatus
-        //     .onDisconnect()
-        //     .set('offline')            
-            
-        // document.onvisibilitychange = (e) => {
-
-        //     if (document.visibilityState === 'hidden') {
-        //         refStatus.set('away')
-        //     }
-        //     else if (user === null) {
-        //         refStatus.set('offline');
-        //     }
-        //     else {
-        //         refStatus.set('online');
-        //     }
-        // };
-
-        // const refStatusAll = database.ref(`/users/${user.displayName}/status`);
-        // refStatusAll.on("value", function (snapshot) {
-        //     let statusUsers = snapshot.val()
-        //     console.log('statusUsers', statusUsers)
-        //     setStatusAllUsers(statusUsers)
-        // });
-
-        // const refUsersAll = database.ref(`/users`);
-        // refUsersAll.on("value", function (snapshot) {
-        //     let allUsers = snapshot.val()
-        //     console.log('allUsers', allUsers)
-        //     setRegUsers(Object.keys(allUsers))
-        // });
-
-        // // const refStatus = database.ref(`/status/${user.displayName}`);
-        // // refStatus.set('online')
-        // // refStatus
-        // //     .onDisconnect()
-        // //     .remove()
-        // // document.onvisibilitychange = (e) => {
-        // //     if (document.visibilityState === 'hidden') {
-        // //         refStatus.set('away')
-        // //     }
-        // //     else if (user === null) {
-        // //         refStatus.set('offline');
-        // //     }
-        // //     else {
-        // //         refStatus.set('online');
-        // //     }
-        // // };
-        // // const refStatusAll = database.ref(`/status`);
-        // // refStatusAll.on("value", function (snapshot) {
-        // //     let statusUsers = snapshot.val()
-        // //     console.log('statusUsers', statusUsers)
-        // //     setStatusAllUsers(statusUsers)
-        // // });
-     
-
-       
         const refUsers = database.ref(`/users/${user.displayName}/displayName`);
-        refUsers.set(user.displayName)
-        const refUid = database.ref(`/users/${user.displayName}/uid`);
-        refUid.set(user.uid)
+        refUsers.set(user.uid)
         const refPhoto = database.ref(`/users/${user.displayName}/photoURL`);
         refPhoto.set(user.photoURL)
        
-        const refStatus = database.ref(`/status/${user.displayName}`);
+        const refStatus = database.ref(`/users/${user.displayName}/status`);
         refStatus.set('online')
         refStatus
             .onDisconnect()
             .remove()
-
         document.onvisibilitychange = (e) => {
             if (document.visibilityState === 'hidden') {
                 refStatus.set('away')
@@ -139,10 +72,7 @@ const Messenger = () => {
                 refStatus.set('online');
             }
         };
-
-
-
-        const refStatusAll = database.ref(`/status`);
+        const refStatusAll = database.ref(`/users/${user.displayName}/status`);
         refStatusAll.on("value", function (snapshot) {
             let statusUsers = snapshot.val()
             console.log('statusUsers', statusUsers)
@@ -156,24 +86,55 @@ const Messenger = () => {
             setRegUsers(Object.keys(allUsers))
         });
 
+        // const refStatus = database.ref(`/status/${user.displayName}`);
+        // refStatus.set('online')
+        // refStatus
+        //     .onDisconnect()
+        //     .remove()
+        // document.onvisibilitychange = (e) => {
+        //     if (document.visibilityState === 'hidden') {
+        //         refStatus.set('away')
+        //     }
+        //     else if (user === null) {
+        //         refStatus.set('offline');
+        //     }
+        //     else {
+        //         refStatus.set('online');
+        //     }
+        // };
+        // const refStatusAll = database.ref(`/status`);
+        // refStatusAll.on("value", function (snapshot) {
+        //     let statusUsers = snapshot.val()
+        //     console.log('statusUsers', statusUsers)
+        //     setStatusAllUsers(statusUsers)
+        // });
+
     }, []);
-
-
-    console.log('regUsers', regUsers)
-
 
     // console.log("online: ", online);
     // User navigates to a new tab, case 3
- 
+
+
+    const [fileName, setFileName] = useState(null)
+    const [url, setUrl] = useState(null)
+    const [imgUrl, setImgUrl] = useState(null)
 
     const messagesEndRef = useRef(null)
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-    } 
+    }
+
+
+
+
+    const [open, setOpen] = useState(false);
 
     const handleClose = () => setOpen(false);
 
-    const handleOpen = (messUrl) => {setImgUrl(messUrl); setOpen(true); }
+    const handleOpen = (messUrl) => {
+        setImgUrl(messUrl);
+        setOpen(true);
+    }
 
 
     let file
@@ -202,6 +163,7 @@ const Messenger = () => {
 
         setFriend(e.target.innerText)
         setChatId([user.displayName, e.target.innerText].sort().join(''))
+
     }
 
 
@@ -272,7 +234,6 @@ const Messenger = () => {
     useEffect(() => {
         scrollToBottom()
     }, [messages]);
-    console.log("messages: ", messages);
 
     // //ПЕРЕРЕНДЕ ВСЕГО БЫЛ ИЗЗА ЭТОГО ЛОАДЕРА!!!
     // if (loading1) {
@@ -280,7 +241,6 @@ const Messenger = () => {
     // }
 
     let j
-
 
     return (
         <>
@@ -300,7 +260,6 @@ const Messenger = () => {
                         {/* <div><h4>in chat:</h4></div> */}
                         <Stack direction="row" spacing={2}>
                             <div style={{ color: 'grey' }}>offline: {regUsers.length - (Object.values(statusAllUsers).filter(value => value === 'online')).length - (Object.values(statusAllUsers).filter(value => value === 'away')).length}</div>
-                           
                             <div style={{ color: 'blue' }}>online: {(Object.values(statusAllUsers).filter(value => value === 'online')).length}</div>
                             <div style={{ color: 'pink' }}>away: {(Object.values(statusAllUsers).filter(value => value === 'away')).length}</div>
 
@@ -365,7 +324,7 @@ const Messenger = () => {
                                         }}
                                     >
                                         <div style={{ display: 'none' }}>{i >= 1 ? j = i - 1 : j = 0}</div>
-                                        {(messages[i].createdAt !== null) &&(messages[j].createdAt !== null)&&
+                                        {(messages[i].createdAt !== null) &&
                                             ((messages[0].createdAt === messages[i].createdAt) || ((message.createdAt).toDate().getDay()) !== ((messages[j].createdAt).toDate().getDay())) &&
                                             <div style={{ color: 'grey', fontStyle: 'italic', marginTop: 50, position: 'relative', left: user.uid !== message.uid ? '75vh' : null, right: user.uid === message.uid ? '75vh' : null }}>
                                                 {((message.createdAt).toDate().toJSON().slice(0, 10).split('-').reverse().join('.'))}
