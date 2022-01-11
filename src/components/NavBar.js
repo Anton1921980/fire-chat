@@ -35,7 +35,7 @@ function NavBar() {
                             <Button>Login</Button>
                         </NavLink>
                         :                       
-                            <Button onClick={()=>{auth.signOut();statusOffline()}}>Logout</Button>                       
+                            <Button onClick={()=>{statusOffline();auth.signOut()}}>Logout</Button>                       
                     }
 
                 </Grid>             

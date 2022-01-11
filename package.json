@@ -20,6 +20,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "5.0.0",
     "react-url-image-downloader": "^1.0.2",
+    "use-state-if-mounted": "^1.0.4",
     "web-vitals": "^2.1.2"
   },
   "scripts": {
