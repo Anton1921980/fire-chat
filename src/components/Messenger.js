@@ -17,9 +17,9 @@ import 'emoji-mart/css/emoji-mart.css'
 import { Picker } from 'emoji-mart'
 import smile from '../img/smile.png'
 
+// import {startPersonalChat} from '../utils/functions'
 
-
-const Messenger = () => {
+const Messenger = (props) => {
 
     const { auth, firestore } = useContext(Context)
     const [user] = useAuthState(auth)
@@ -36,7 +36,7 @@ const Messenger = () => {
     const [friend, setFriend] = useState(null)
     const [regUsers, setRegUsers] = useState([])
     const [statusAllUsers, setStatusAllUsers] = useState([])
-    const [showEmoji, setShowEmoji] = useState(false) 
+    const [showEmoji, setShowEmoji] = useState(false)
     const [chatId, setChatId] = useState(null)
     const [fileName, setFileName] = useState(null)
     const [url, setUrl] = useState(null)
@@ -48,7 +48,32 @@ const Messenger = () => {
     //     setChatId([user.displayName, chatUser].sort().join(''))
     // }, [chatUser]);
 
-    useEffect(() => {   
+    //   if(props.page==='personal'){
+    //     const [messages, loading1] = useCollectionData(
+    //         firestore.collection("messages")        
+    //             .where("chatId", "==", chatId)
+
+    //         // .orderBy("createdAt", "asc") не работает c where, будем фильтровать на клиенте      
+    //     )
+    // }else{
+    //     const [messages, loading1] = useCollectionData(
+    //         firestore.collection("messages")
+    //         // .orderBy('createdAt')
+    //     )
+    // }
+
+    const [messages, loading1] = useCollectionData(
+        (props.page === 'personal') || friend ?
+            (
+                firestore.collection("messages")
+                    .where("chatId", "==", chatId)
+            ) :
+            (firestore.collection("messages").orderBy('createdAt'))
+
+        // .orderBy("createdAt", "asc") не работает c where, будем фильтровать на клиенте      
+    )
+
+    useEffect(() => {
 
         // const refUsers = database.ref(`/users/${user.displayName}/displayName`);
         // refUsers.set(user.displayName)
@@ -56,13 +81,13 @@ const Messenger = () => {
         // refUid.set(user.uid)
         // const refPhoto = database.ref(`/users/${user.displayName}/photoURL`);
         // refPhoto.set(user.photoURL)
-       
+
         // const refStatus = database.ref(`/users/${user.displayName}/status`);
         // refStatus.set('online')
         // refStatus
         //     .onDisconnect()
         //     .set('offline')            
-            
+
         // document.onvisibilitychange = (e) => {
 
         //     if (document.visibilityState === 'hidden') {
@@ -112,16 +137,16 @@ const Messenger = () => {
         // //     console.log('statusUsers', statusUsers)
         // //     setStatusAllUsers(statusUsers)
         // // });
-     
 
-       
+
+
         const refUsers = database.ref(`/users/${user.displayName}/displayName`);
         refUsers.set(user.displayName)
         const refUid = database.ref(`/users/${user.displayName}/uid`);
         refUid.set(user.uid)
         const refPhoto = database.ref(`/users/${user.displayName}/photoURL`);
         refPhoto.set(user.photoURL)
-       
+
         const refStatus = database.ref(`/status/${user.displayName}`);
         refStatus.set('online')
         refStatus
@@ -164,16 +189,16 @@ const Messenger = () => {
 
     // console.log("online: ", online);
     // User navigates to a new tab, case 3
- 
+
 
     const messagesEndRef = useRef(null)
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-    } 
+    }
 
     const handleClose = () => setOpen(false);
 
-    const handleOpen = (messUrl) => {setImgUrl(messUrl); setOpen(true); }
+    const handleOpen = (messUrl) => { setImgUrl(messUrl); setOpen(true); }
 
 
     let file
@@ -223,11 +248,7 @@ const Messenger = () => {
     // }, [chatId]);
 
     //перерендерится вся страница  useCollectionData ИЗЗА ЛОАДЕРА !!!
-    const [messages, loading1] = useCollectionData(
-        firestore.collection("messages")
-            .where("chatId", "==", chatId)
-        // .orderBy("createdAt", "asc") не работает, будем фильтровать на клиенте      
-    )
+
 
 
     const sendMessage = async () => {
@@ -280,7 +301,7 @@ const Messenger = () => {
     // }
 
     let j
-
+    console.log("chatId: ", chatId);
 
     return (
         <>
@@ -300,7 +321,7 @@ const Messenger = () => {
                         {/* <div><h4>in chat:</h4></div> */}
                         <Stack direction="row" spacing={2}>
                             <div style={{ color: 'grey' }}>offline: {regUsers.length - (Object.values(statusAllUsers).filter(value => value === 'online')).length - (Object.values(statusAllUsers).filter(value => value === 'away')).length}</div>
-                           
+
                             <div style={{ color: 'blue' }}>online: {(Object.values(statusAllUsers).filter(value => value === 'online')).length}</div>
                             <div style={{ color: 'pink' }}>away: {(Object.values(statusAllUsers).filter(value => value === 'away')).length}</div>
 
@@ -344,14 +365,15 @@ const Messenger = () => {
                         justifyContent={'center'}
                     >
 
-                        {friend && <div style={{ width: '100%', height: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ width: '100%', height: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             {/* {friend  && messages && messages.length > 0  ? //если он еще не писал личные сообщ то не и аватарки можно в редакс сохранять конечно 
                             <Avatar src={(messages.find(message => message.displayName === friend)).photoURL} />
                             :null} */}
-                            <div><span style={{ fontStyle: 'italic', fontSize: 12, color: 'blue' }}>chatting with:&nbsp; </span>{friend}</div>
-                        </div>}
+                            <div>{friend && <span style={{ fontStyle: 'italic', fontSize: 12, color: 'blue' }}>chatting with:&nbsp; </span>}{friend}</div>
+                        </div>
 
                         <div style={{ width: '100%', height: '70vh', border: '1px solid lightgrey', overflowY: 'auto', background: '#6ef9b236' }}>
+
 
                             {messages && messages.length > 0 && messages
                                 .sort((a, b) => (a.createdAt > b.createdAt) ? 1 : ((b.createdAt > a.createdAt) ? -1 : 0))
@@ -365,7 +387,44 @@ const Messenger = () => {
                                         }}
                                     >
                                         <div style={{ display: 'none' }}>{i >= 1 ? j = i - 1 : j = 0}</div>
-                                        {(messages[i].createdAt !== null) &&(messages[j].createdAt !== null)&&
+
+
+
+                                        {
+                                            !friend && (props.page === 'group') &&
+                                            ((messages[0].createdAt === messages[i].createdAt) ||
+                                                (message.photoURL !== ((messages[j]).photoURL))) &&
+                                            <Grid container
+                                                style={{
+                                                    marginTop: 50,
+                                                    //  color: (online.includes(message.displayName)) ? 'blue' : 'grey', 
+                                                    color:
+                                                        Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'online') && 'blue' ||
+                                                        Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'away') && 'pink' ||
+                                                        'grey'
+                                                }}
+                                            >
+                                                <Avatar src={message.photoURL} />
+                                                <div
+                                                    style={{
+                                                        lineHeight: '35px',
+                                                        marginLeft: 5,
+                                                    }}
+                                                >{message.displayName ? message.displayName : 'Incognito'}
+                                                </div>
+                                                <div style={{ fontSize: 10, fontStyle: 'italic' }}>
+                                                    {/* {(online.includes(message.displayName)) ? ' online ' : ' offline'} */}
+                                                    {Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'online') && 'online' ||
+                                                        Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'away') && 'away' ||
+                                                        'offline'}
+                                                </div>
+
+                                            </Grid>
+                                        }
+
+
+
+                                        {(messages[i].createdAt !== null) && (messages[j].createdAt !== null) &&
                                             ((messages[0].createdAt === messages[i].createdAt) || ((message.createdAt).toDate().getDay()) !== ((messages[j].createdAt).toDate().getDay())) &&
                                             <div style={{ color: 'grey', fontStyle: 'italic', marginTop: 50, position: 'relative', left: user.uid !== message.uid ? '75vh' : null, right: user.uid === message.uid ? '75vh' : null }}>
                                                 {((message.createdAt).toDate().toJSON().slice(0, 10).split('-').reverse().join('.'))}

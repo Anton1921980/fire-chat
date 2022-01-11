@@ -5,6 +5,8 @@ import Messenger from "./components/Messenger";
 import All from "./components/All"
 import { CHAT_ROUTE, LOGIN_ROUTE, HOME_ROUTE, MESSENGER_ROUTE } from "./utils/consts";
 import ContainerMain from "./components/ContainerMain";
+import PersonalChat from "./pages/PersonalChat";
+import GroupChat from "./pages/GroupChat";
 
 
 export const publicRoutes = [
@@ -21,11 +23,13 @@ export const publicRoutes = [
 export const privateRoutes = [
     {
         path: CHAT_ROUTE,
-        Component: Chat
+        // Component: Chat
+        Component: GroupChat
     },
     {
         path: MESSENGER_ROUTE,
-        Component: Messenger
+        // Component: Messenger
         // Component: ContainerMain
+        Component: PersonalChat
     }
 ]
