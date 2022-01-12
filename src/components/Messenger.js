@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Context } from '../index'
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollectionData } from "react-firebase-hooks/firestore"
-import { Avatar, Button, Container, Grid, Modal, TextField, } from '@mui/material';
+import { Avatar, Button, Container, Divider, Grid, ListItemIcon, ListItemText, MenuItem, MenuList, Modal, TextField, Typography, } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import Loader from './Loader';
 import firebase from 'firebase';
@@ -12,18 +12,23 @@ import 'firebase/database';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
-import { Box } from '@mui/system';
+import { Box, display } from '@mui/system';
 import 'emoji-mart/css/emoji-mart.css'
 import { Picker } from 'emoji-mart'
 import smile from '../img/smile.png'
-
+import { Cloud, ContentCopy, ContentCut, ContentPaste } from '@mui/icons-material';
+import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import FaceIcon from '@mui/icons-material/Face';
+import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
+import FaceRetouchingOffIcon from '@mui/icons-material/FaceRetouchingOff';
 // import {startPersonalChat} from '../utils/functions'
 
 const Messenger = (props) => {
 
     const { auth, firestore } = useContext(Context)
     const [user] = useAuthState(auth)
-    const [value, setValue] = useState('')
+
 
     const database = firebase.database()
 
@@ -32,7 +37,7 @@ const Messenger = (props) => {
 
     console.log("userId: ", userId);
 
-    const [online, setOnline] = useState([])
+    const [value, setValue] = useState('')
     const [friend, setFriend] = useState(null)
     const [regUsers, setRegUsers] = useState([])
     const [statusAllUsers, setStatusAllUsers] = useState([])
@@ -42,112 +47,43 @@ const Messenger = (props) => {
     const [url, setUrl] = useState(null)
     const [imgUrl, setImgUrl] = useState(null)
     const [open, setOpen] = useState(false);
-    // const [chatUser, setChatUser] = useState(null)
 
-    // useMemo(() => {
-    //     setChatId([user.displayName, chatUser].sort().join(''))
-    // }, [chatUser]);
 
-    //   if(props.page==='personal'){
-    //     const [messages, loading1] = useCollectionData(
-    //         firestore.collection("messages")        
-    //             .where("chatId", "==", chatId)
+    const [allRegUsers, setAllRegUsers] = useState(null)
 
-    //         // .orderBy("createdAt", "asc") не работает c where, будем фильтровать на клиенте      
-    //     )
-    // }else{
-    //     const [messages, loading1] = useCollectionData(
-    //         firestore.collection("messages")
-    //         // .orderBy('createdAt')
-    //     )
-    // }
 
+    //if group chat chatId === null added in every group message
+    // if personal chat we have friend and chatId !==null
     const [messages, loading1] = useCollectionData(
-        (props.page === 'personal') || friend ?
+        (props.page === 'personal') || friend
+            ?
             (
                 firestore.collection("messages")
                     .where("chatId", "==", chatId)
             ) :
-            (firestore.collection("messages").orderBy('createdAt'))
-
-        // .orderBy("createdAt", "asc") не работает c where, будем фильтровать на клиенте      
+            (firestore.collection("messages")
+                .where("chatId", "==", null)
+                // .orderBy('createdAt') // .orderBy("createdAt", "asc") не работает c where, будем фильтровать на клиенте  
+            )
     )
 
     useEffect(() => {
 
-        // const refUsers = database.ref(`/users/${user.displayName}/displayName`);
-        // refUsers.set(user.displayName)
-        // const refUid = database.ref(`/users/${user.displayName}/uid`);
-        // refUid.set(user.uid)
-        // const refPhoto = database.ref(`/users/${user.displayName}/photoURL`);
-        // refPhoto.set(user.photoURL)
+        const nullName = `Incognito_${user.uid.slice(0, 4)}`
 
-        // const refStatus = database.ref(`/users/${user.displayName}/status`);
-        // refStatus.set('online')
-        // refStatus
-        //     .onDisconnect()
-        //     .set('offline')            
+        const refUsers = database.ref(user.displayName === null ? `/users/${nullName}/displayName` : `/users/${user.displayName}/displayName`);
+        refUsers.set(user.displayName === null ? nullName : user.displayName)
 
-        // document.onvisibilitychange = (e) => {
-
-        //     if (document.visibilityState === 'hidden') {
-        //         refStatus.set('away')
-        //     }
-        //     else if (user === null) {
-        //         refStatus.set('offline');
-        //     }
-        //     else {
-        //         refStatus.set('online');
-        //     }
-        // };
-
-        // const refStatusAll = database.ref(`/users/${user.displayName}/status`);
-        // refStatusAll.on("value", function (snapshot) {
-        //     let statusUsers = snapshot.val()
-        //     console.log('statusUsers', statusUsers)
-        //     setStatusAllUsers(statusUsers)
-        // });
-
-        // const refUsersAll = database.ref(`/users`);
-        // refUsersAll.on("value", function (snapshot) {
-        //     let allUsers = snapshot.val()
-        //     console.log('allUsers', allUsers)
-        //     setRegUsers(Object.keys(allUsers))
-        // });
-
-        // // const refStatus = database.ref(`/status/${user.displayName}`);
-        // // refStatus.set('online')
-        // // refStatus
-        // //     .onDisconnect()
-        // //     .remove()
-        // // document.onvisibilitychange = (e) => {
-        // //     if (document.visibilityState === 'hidden') {
-        // //         refStatus.set('away')
-        // //     }
-        // //     else if (user === null) {
-        // //         refStatus.set('offline');
-        // //     }
-        // //     else {
-        // //         refStatus.set('online');
-        // //     }
-        // // };
-        // // const refStatusAll = database.ref(`/status`);
-        // // refStatusAll.on("value", function (snapshot) {
-        // //     let statusUsers = snapshot.val()
-        // //     console.log('statusUsers', statusUsers)
-        // //     setStatusAllUsers(statusUsers)
-        // // });
-
-
-
-        const refUsers = database.ref(`/users/${user.displayName}/displayName`);
-        refUsers.set(user.displayName)
-        const refUid = database.ref(`/users/${user.displayName}/uid`);
+        const refUid = database.ref(user.displayName === null ? `/users/${nullName}/uid` : `/users/${user.displayName}/uid`);
         refUid.set(user.uid)
-        const refPhoto = database.ref(`/users/${user.displayName}/photoURL`);
+
+        const refPhoto = database.ref(user.displayName === null ? `/users/${nullName}/photoUrl` : `/users/${user.displayName}/photoUrl`);
         refPhoto.set(user.photoURL)
 
-        const refStatus = database.ref(`/status/${user.displayName}`);
+        const refSeen = database.ref(user.displayName === null ? `/users/${nullName}/seen` : `/users/${user.displayName}/seen`);
+        refSeen.set(firebase.database.ServerValue.TIMESTAMP)
+
+        const refStatus = database.ref(user.displayName === null ? `/status/${nullName}` : `/status/${user.displayName}`);
         refStatus.set('online')
         refStatus
             .onDisconnect()
@@ -156,16 +92,18 @@ const Messenger = (props) => {
         document.onvisibilitychange = (e) => {
             if (document.visibilityState === 'hidden') {
                 refStatus.set('away')
+                refSeen.set(firebase.database.ServerValue.TIMESTAMP)
             }
             else if (user === null) {
                 refStatus.set('offline');
+                refSeen.set(firebase.database.ServerValue.TIMESTAMP)
             }
             else {
                 refStatus.set('online');
+                refSeen.set(firebase.database.ServerValue.TIMESTAMP)
+
             }
         };
-
-
 
         const refStatusAll = database.ref(`/status`);
         refStatusAll.on("value", function (snapshot) {
@@ -178,6 +116,7 @@ const Messenger = (props) => {
         refUsersAll.on("value", function (snapshot) {
             let allUsers = snapshot.val()
             console.log('allUsers', allUsers)
+            setAllRegUsers(allUsers)
             setRegUsers(Object.keys(allUsers))
         });
 
@@ -185,10 +124,6 @@ const Messenger = (props) => {
 
 
     console.log('regUsers', regUsers)
-
-
-    // console.log("online: ", online);
-    // User navigates to a new tab, case 3
 
 
     const messagesEndRef = useRef(null)
@@ -199,7 +134,6 @@ const Messenger = (props) => {
     const handleClose = () => setOpen(false);
 
     const handleOpen = (messUrl) => { setImgUrl(messUrl); setOpen(true); }
-
 
     let file
     const onChange = (e) => {
@@ -220,36 +154,16 @@ const Messenger = (props) => {
             })
     }
 
-
-
     function startPersonalChat(e) {
         e.preventDefault();
 
         setFriend(e.target.innerText)
+
         setChatId([user.displayName, e.target.innerText].sort().join(''))
     }
 
 
-    // АЛЬТЕРНАТИВА useCollectionData
-    // let messages = []
-    // let loading1
-    // useEffect(() => {
-    //     firestore.collection("messages")
-    //     .where("chatId", "==", chatId)
-    //     .get()
-    //     .then((querySnapshot) => {
-    //         console.log("querySnapshot: ", querySnapshot && querySnapshot.docs);        
-
-    //         querySnapshot && (querySnapshot.docs).map(doc=>{
-    //             messages.push(doc.data())
-    //         })
-    //         console.log("messages: ", messages);
-    //     });
-    // }, [chatId]);
-
     //перерендерится вся страница  useCollectionData ИЗЗА ЛОАДЕРА !!!
-
-
 
     const sendMessage = async () => {
 
@@ -313,65 +227,125 @@ const Messenger = (props) => {
                     columnSpacing={' xs: 2, sm: 2 '}
                 //  style={{ height: window.innerHeight - 70, }}
                 >
-                    <Grid container item xs={2}
+                    <Grid container item xs={3}
                         style={{ height: window.innerHeight / 20, marginTop: 20, }}
                         alignItems={'center'}
                         justifyContent={'center'}
                     >
-                        {/* <div><h4>in chat:</h4></div> */}
+                        <MenuList style={{ width: '100%' }}>
+                            <MenuItem>
+                                <ListItemIcon>
+                                    <FaceIcon fontSize="small" />
+                                </ListItemIcon>
+                                <ListItemText>All</ListItemText>
+                                {/* <Typography variant="body2" color="text.secondary">
+                                    ⌘X
+                                </Typography> */}
+                            </MenuItem>
+                            <MenuItem>
+                                <ListItemIcon>
+                                    <FaceRetouchingNaturalIcon fontSize="small" />
+                                </ListItemIcon>
+                                <ListItemText>Registered</ListItemText>
+                                {/* <Typography variant="body2" color="text.secondary">
+                                    ⌘C
+                                </Typography> */}
+                            </MenuItem>
+                            <MenuItem>
+                                <ListItemIcon>
+                                    <FaceRetouchingOffIcon fontSize="small" />
+                                </ListItemIcon>
+                                <ListItemText>Incognito</ListItemText>
+                                {/* <Typography variant="body2" color="text.secondary">
+                                    ⌘V
+                                </Typography> */}
+                            </MenuItem>
+                            <Divider />
+                            {/* <MenuItem>
+                                <ListItemIcon>
+                                    <Cloud fontSize="small" />
+                                </ListItemIcon>
+                                <ListItemText>Web Clipboard</ListItemText>
+                            </MenuItem> */}
+                        </MenuList>
                         <Stack direction="row" spacing={2}>
-                            <div style={{ color: 'grey' }}>offline: {regUsers.length - (Object.values(statusAllUsers).filter(value => value === 'online')).length - (Object.values(statusAllUsers).filter(value => value === 'away')).length}</div>
+                            <div style={{ color: 'grey' }}>
+                                offline:
+                                {regUsers.length - (Object.values(statusAllUsers).filter(value => value === 'online')).length -
+                                    (Object.values(statusAllUsers).filter(value => value === 'away')).length}
+                            </div>
 
                             <div style={{ color: 'blue' }}>online: {(Object.values(statusAllUsers).filter(value => value === 'online')).length}</div>
                             <div style={{ color: 'pink' }}>away: {(Object.values(statusAllUsers).filter(value => value === 'away')).length}</div>
 
                         </Stack>
-                        <Stack mt={2}
+                        <Stack
+                            mt={2}
+                            style={{ width: '100%' }}
+
                             onClick={startPersonalChat}
                         >
                             {regUsers && regUsers.map(regUser =>
                                 <div
                                     key={regUser}
                                     style={{
-                                        width: 'fit-content',
+                                        width: '100%',
                                     }}
                                 >
-                                    <div>
-                                        {/* <Avatar src={regUser===messages} /> */}
-                                        <div
-                                            // onClick={() => openPersonalChat(regUser)}
-                                            // onClick={() => setChatUser(regUser)}
-                                            style={{
-                                                lineHeight: '35px',
-                                                marginLeft: 5,
-                                                cursor: 'pointer',
-                                                color:
-                                                    Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'online') && 'blue' ||
-                                                    Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'away') && 'pink' ||
-                                                    'grey'
-                                            }}
+                                    <Button style={{ textTransform: 'none', width: '100%', justifyContent: 'flex-start', }}>
+
+                                        {regUsers && allRegUsers && <Avatar src={allRegUsers[regUser].photoURL} />}
+
+                                        <div style={{
+                                            lineHeight: '35px',
+                                            marginLeft: 5,
+                                            cursor: 'pointer',
+                                            color:
+                                                Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'online') && 'blue' ||
+                                                Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'away') && 'pink' ||
+                                                'grey'
+                                        }}
                                         >
-                                            {regUser === userName ? <div onClick={(e) => e.stopPropagation()} style={{ cursor: 'default' }}> {regUser} <span style={{ fontSize: 10, fontStyle: 'italic' }}> - you</span> </div> : <div> {regUser}  </div>}
+                                            {allRegUsers && allRegUsers[regUser].uid === userId
+                                                ?
+                                                < div onClick={(e) => e.stopPropagation()} style={{ cursor: 'default' }}>
+                                                    {regUser} <span style={{ fontSize: 10, fontStyle: 'italic' }}> - you</span> </div >
+                                                :
+                                                <div style={{ display: 'flex', width: 250, justifyContent: 'space-between' }}><span>{regUser}</span><span onClick={(e) => e.stopPropagation()} style={{ fontSize: 10, fontStyle: 'italic', cursor: 'default' }}>
+
+                                                    {/* {new Date(allRegUsers[regUser].seen).getHours()}:{new Date(allRegUsers[regUser].seen).getMinutes()} */}
+
+                                                    {
+                                                     ((new Date().getHours() - (new Date(allRegUsers[regUser].seen).getHours() ) )==0)                                                     
+                                                      ?
+
+                                                      `seen ${(new Date().getMinutes()) - (new Date(allRegUsers[regUser].seen).getMinutes())<2?'just now':'min ago'} `
+
+                                                      :
+                                                      `seen at: ${new Date(allRegUsers[regUser].seen).getHours()} : ${new Date(allRegUsers[regUser].seen).getMinutes()}`
+                                                    
+                                           
+                                                    }
+                                                </span>
+                                                </div>}
                                         </div>
-                                    </div>
+                                    </Button>
                                 </div>
                             )}
                         </Stack>
                     </Grid>
 
-                    <Grid container item xs={10}
+                    <Grid container item xs={9}
                         // style={{ height: window.innerHeight - 300 }}
                         alignItems={'center'}
                         justifyContent={'center'}
                     >
 
                         <div style={{ width: '100%', height: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            {/* {friend  && messages && messages.length > 0  ? //если он еще не писал личные сообщ то не и аватарки можно в редакс сохранять конечно 
-                            <Avatar src={(messages.find(message => message.displayName === friend)).photoURL} />
-                            :null} */}
-                            <div>{friend && <span style={{ fontStyle: 'italic', fontSize: 12, color: 'blue' }}>chatting with:&nbsp; </span>}{friend}</div>
-                        </div>
 
+                            {friend && allRegUsers && <><span style={{ fontStyle: 'italic', fontSize: 12, color: 'blue' }}>chatting with:&nbsp;&nbsp; </span>
+                                <Avatar src={allRegUsers[friend].photoURL} />&nbsp;{friend}</>}
+                        </div>
                         <div style={{ width: '100%', height: '70vh', border: '1px solid lightgrey', overflowY: 'auto', background: '#6ef9b236' }}>
 
 
@@ -388,10 +362,7 @@ const Messenger = (props) => {
                                     >
                                         <div style={{ display: 'none' }}>{i >= 1 ? j = i - 1 : j = 0}</div>
 
-
-
-                                        {
-                                            !friend && (props.page === 'group') &&
+                                        {!friend && (props.page === 'group') &&
                                             ((messages[0].createdAt === messages[i].createdAt) ||
                                                 (message.photoURL !== ((messages[j]).photoURL))) &&
                                             <Grid container
@@ -422,11 +393,13 @@ const Messenger = (props) => {
                                             </Grid>
                                         }
 
-
-
                                         {(messages[i].createdAt !== null) && (messages[j].createdAt !== null) &&
-                                            ((messages[0].createdAt === messages[i].createdAt) || ((message.createdAt).toDate().getDay()) !== ((messages[j].createdAt).toDate().getDay())) &&
-                                            <div style={{ color: 'grey', fontStyle: 'italic', marginTop: 50, position: 'relative', left: user.uid !== message.uid ? '75vh' : null, right: user.uid === message.uid ? '75vh' : null }}>
+                                            ((messages[0].createdAt === messages[i].createdAt) ||
+                                                ((message.createdAt).toDate().getDay()) !== ((messages[j].createdAt).toDate().getDay())) &&
+                                            <div style={{
+                                                color: 'grey', fontStyle: 'italic', marginTop: 50, position: 'relative', left: user.uid !== message.uid
+                                                    ? '75vh' : null, right: user.uid === message.uid ? '75vh' : null
+                                            }}>
                                                 {((message.createdAt).toDate().toJSON().slice(0, 10).split('-').reverse().join('.'))}
                                             </div>
                                         }
@@ -454,8 +427,11 @@ const Messenger = (props) => {
                                             >
 
                                                 {(message.createdAt !== null) && ((message.createdAt).toDate().getHours())}
-                                                : {(message.createdAt !== null) && ((message.createdAt).toDate().getMinutes() > 9 ?
-                                                    (message.createdAt).toDate().getMinutes() : '0' + (message.createdAt).toDate().getMinutes())}
+                                                : {(message.createdAt !== null) && ((message.createdAt).toDate().getMinutes() > 9
+                                                    ?
+                                                    (message.createdAt).toDate().getMinutes()
+                                                    :
+                                                    '0' + (message.createdAt).toDate().getMinutes())}
                                             </div>
                                         </div>
 
@@ -513,7 +489,7 @@ const Messenger = (props) => {
                                 direction={'row'}
                                 position={'relative'}
                             >
-                                <Grid item xs={12} md={10}>
+                                <Grid item xs={12} md={9}>
                                     <TextField
                                         fullWidth
                                         variant={'outlined'}
@@ -532,7 +508,7 @@ const Messenger = (props) => {
                                         }}
                                     />
                                 </Grid >
-                                <Grid container item xs={12} sm={12} md={2} position={'relative'} direction={'row'} sx={{ justifyContent: 'space-between' }}>
+                                <Grid container item xs={12} sm={12} md={3} position={'relative'} direction={'row'} sx={{ justifyContent: 'space-around' }}>
                                     {showEmoji &&
                                         <Picker
                                             onSelect={handleEmojiSelect}
@@ -551,9 +527,11 @@ const Messenger = (props) => {
                                     <div><input style={{ marginTop: 15 }} type="file" onChange={onChange} className="custom-file-input"></input></div>
                                     {console.log("uploaded", url)}
 
-                                    {url && url.length ?
+                                    {url && url.length
+                                        ?
                                         <div style={{ position: 'absolute', right: '23%', top: '85%' }}>
-                                            <FileUploadIcon style={{ position: 'relative', top: 6, right: 2 }} />{fileName}</div> :
+                                            <FileUploadIcon style={{ position: 'relative', top: 6, right: 2 }} />{fileName}</div>
+                                        :
                                         null}
                                     <Button
                                         variant='outlined'
@@ -568,10 +546,7 @@ const Messenger = (props) => {
                 </Grid>
             </Container>
         </>
-
     )
-
-
 }
 
 export default Messenger

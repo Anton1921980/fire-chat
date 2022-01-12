@@ -31,8 +31,10 @@ function Login() {
     const login2 = async () => {
         firebase.auth().signInAnonymously()
             .then(() => {
-                // Signed in..
-            })
+                // Signed in..               
+             
+            })          
+
             .catch((error) => {
                 var errorCode = error.code;
                 var errorMessage = error.message;
