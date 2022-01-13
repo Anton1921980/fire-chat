@@ -1,12 +1,12 @@
 import React from 'react'
 import Messenger from '../components/Messenger'
 
-const GroupChat = () => {
+const IncognitoChat = () => {
     return (
         <div>
-            <Messenger page={'group'} />
+            <Messenger page={'incognito'} />
         </div>
     )
 }
 
-export default GroupChat
+export default IncognitoChat

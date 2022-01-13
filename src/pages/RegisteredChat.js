@@ -1,12 +1,12 @@
 import React from 'react'
 import Messenger from '../components/Messenger'
 
-const GroupChat = () => {
+const RegisteredChat = () => {
     return (
         <div>
-            <Messenger page={'group'} />
+            <Messenger page={'registered'} />
         </div>
     )
 }
 
-export default GroupChat
+export default RegisteredChat

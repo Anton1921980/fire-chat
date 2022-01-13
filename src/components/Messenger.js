@@ -22,6 +22,8 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import FaceIcon from '@mui/icons-material/Face';
 import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
 import FaceRetouchingOffIcon from '@mui/icons-material/FaceRetouchingOff';
+import { NavLink } from 'react-router-dom/cjs/react-router-dom.min';
+import { CHAT_ROUTE, INCOGNITO_CHAT_ROUTE, REGISTERED_CHAT_ROUTE } from '../utils/consts';
 // import {startPersonalChat} from '../utils/functions'
 
 const Messenger = (props) => {
@@ -55,16 +57,32 @@ const Messenger = (props) => {
     //if group chat chatId === null added in every group message
     // if personal chat we have friend and chatId !==null
     const [messages, loading1] = useCollectionData(
-        (props.page === 'personal') || friend
-            ?
-            (
-                firestore.collection("messages")
-                    .where("chatId", "==", chatId)
-            ) :
-            (firestore.collection("messages")
+
+        (friend && chatId) &&
+        (
+            firestore.collection("messages")
+                .where("chatId", "==", chatId)
+        )
+        ||
+
+        (props.page === 'registered') &&
+        (
+            firestore.collection("messages")
+                .where("displayName", "!=", null)
+        )
+        ||
+        (props.page === 'incognito') &&
+        (
+            firestore.collection("messages")
+                .where("displayName", "==", null)
+        )
+        ||
+
+        ((props.page === 'group')) &&
+        (
+            firestore.collection("messages")
                 .where("chatId", "==", null)
-                // .orderBy('createdAt') // .orderBy("createdAt", "asc") не работает c where, будем фильтровать на клиенте  
-            )
+        )
     )
 
     useEffect(() => {
@@ -105,25 +123,76 @@ const Messenger = (props) => {
             }
         };
 
-        const refStatusAll = database.ref(`/status`);
-        refStatusAll.on("value", function (snapshot) {
-            let statusUsers = snapshot.val()
-            console.log('statusUsers', statusUsers)
-            setStatusAllUsers(statusUsers)
-        });
+        let allUsers = null
 
         const refUsersAll = database.ref(`/users`);
         refUsersAll.on("value", function (snapshot) {
-            let allUsers = snapshot.val()
+            allUsers = snapshot.val()
+
             console.log('allUsers', allUsers)
+
+            // setAllRegUsers(allUsers)
+            // setRegUsers(Object.keys(allUsers))
+            return allUsers
+        });
+
+        if (allUsers && (props.page === 'registered')) {
+            const asArray = Object.entries(allUsers);
+
+            const filtered = asArray.filter(key => key[1].photoURL);
+
+            const registeredAllUsers = Object.fromEntries(filtered);
+
+            setAllRegUsers(registeredAllUsers)
+            setRegUsers(Object.keys(registeredAllUsers))
+        }
+        else if (allUsers && (props.page === 'incognito')) {
+            const asArray = Object.entries(allUsers);
+
+            const filtered = asArray.filter(key => !(key[1].photoURL));
+
+            const registeredAllUsers = Object.fromEntries(filtered);
+
+            setAllRegUsers(registeredAllUsers)
+            setRegUsers(Object.keys(registeredAllUsers))
+        }
+        else if (allUsers && (props.page === 'group')) {
             setAllRegUsers(allUsers)
             setRegUsers(Object.keys(allUsers))
+        }
+
+
+
+
+
+        const refStatusAll = database.ref(`/status`);
+        refStatusAll.on("value", function (snapshot) {
+            let statusUsers = snapshot.val()
+            setStatusAllUsers(statusUsers)
         });
 
     }, []);
 
 
-    console.log('regUsers', regUsers)
+
+
+    // useEffect(() => {
+    //     if (allRegUsers && (props.page === 'registered')) {
+    //         const asArray = Object.entries(allRegUsers);
+
+    //         const filtered = asArray.filter(key => key[1].photoURL);
+
+    //         const registeredAllUsers = Object.fromEntries(filtered);
+
+    //         setAllRegUsers(registeredAllUsers)
+    //         setRegUsers(Object.keys(registeredAllUsers))
+    //     }
+    //     else if (allRegUsers && (props.page === 'group')) {
+    //         setAllRegUsers(allRegUsers)
+    //         setRegUsers(Object.keys(allRegUsers))
+    //     }
+    // }, [props]);
+
 
 
     const messagesEndRef = useRef(null)
@@ -156,6 +225,7 @@ const Messenger = (props) => {
 
     function startPersonalChat(e) {
         e.preventDefault();
+        console.log("e: ", e);
 
         setFriend(e.target.innerText)
 
@@ -169,13 +239,14 @@ const Messenger = (props) => {
 
         await firestore.collection('messages').add({
             uid: user.uid,
-            displayName: user.displayName,
+            displayName: props.page === 'incognito' ? null : user.displayName,
             photoURL: user.photoURL,
             text: value,
             url: url,
             fileName: fileName,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             chatId: chatId, //"создаем значение переменной во время первого создания чата складываем имена"
+            page: props.page
         })
         setValue('')
         file = null
@@ -215,6 +286,7 @@ const Messenger = (props) => {
     // }
 
     let j
+    let t
     console.log("chatId: ", chatId);
 
     return (
@@ -237,7 +309,7 @@ const Messenger = (props) => {
                                 <ListItemIcon>
                                     <FaceIcon fontSize="small" />
                                 </ListItemIcon>
-                                <ListItemText>All</ListItemText>
+                                <ListItemText><NavLink to={CHAT_ROUTE}>All</NavLink></ListItemText>
                                 {/* <Typography variant="body2" color="text.secondary">
                                     ⌘X
                                 </Typography> */}
@@ -246,7 +318,7 @@ const Messenger = (props) => {
                                 <ListItemIcon>
                                     <FaceRetouchingNaturalIcon fontSize="small" />
                                 </ListItemIcon>
-                                <ListItemText>Registered</ListItemText>
+                                <ListItemText><NavLink to={REGISTERED_CHAT_ROUTE}>Registered</NavLink></ListItemText>
                                 {/* <Typography variant="body2" color="text.secondary">
                                     ⌘C
                                 </Typography> */}
@@ -255,7 +327,7 @@ const Messenger = (props) => {
                                 <ListItemIcon>
                                     <FaceRetouchingOffIcon fontSize="small" />
                                 </ListItemIcon>
-                                <ListItemText>Incognito</ListItemText>
+                                <ListItemText><NavLink to={INCOGNITO_CHAT_ROUTE}>Incognito</NavLink></ListItemText>
                                 {/* <Typography variant="body2" color="text.secondary">
                                     ⌘V
                                 </Typography> */}
@@ -292,7 +364,7 @@ const Messenger = (props) => {
                                         width: '100%',
                                     }}
                                 >
-                                    <Button style={{ textTransform: 'none', width: '100%', justifyContent: 'flex-start', }}>
+                                    <Button variant="outlined" style={{ textTransform: 'none', width: '100%', justifyContent: 'flex-start', }}>
 
                                         {regUsers && allRegUsers && <Avatar src={allRegUsers[regUser].photoURL} />}
 
@@ -316,19 +388,25 @@ const Messenger = (props) => {
                                                     {/* {new Date(allRegUsers[regUser].seen).getHours()}:{new Date(allRegUsers[regUser].seen).getMinutes()} */}
 
                                                     {
-                                                     ((new Date().getHours() - (new Date(allRegUsers[regUser].seen).getHours() ) )==0)                                                     
-                                                      ?
+                                                        ((new Date().getHours() - (new Date(allRegUsers[regUser].seen).getHours())) == 0)
+                                                            ?
 
-                                                      `seen ${(new Date().getMinutes()) - (new Date(allRegUsers[regUser].seen).getMinutes())<2?'just now':'min ago'} `
+                                                            `seen ${(new Date().getMinutes()) - (new Date(allRegUsers[regUser].seen).getMinutes()) < 5 ? 'just now' : 'min ago'} `
 
-                                                      :
-                                                      `seen at: ${new Date(allRegUsers[regUser].seen).getHours()} : ${new Date(allRegUsers[regUser].seen).getMinutes()}`
-                                                    
-                                           
+                                                            :
+                                                            `seen at: ${new Date(allRegUsers[regUser].seen).getHours()} : ${new Date(allRegUsers[regUser].seen).getMinutes()}`
+
+
                                                     }
                                                 </span>
                                                 </div>}
+                                            <div onClick={(e) => e.stopPropagation()}>
+
+                                                {messages && (t = (messages.filter(message => (message.displayName === regUser))).pop()) && t.text}
+                                                {/* { console.log("messages && messages.find(message =>(message.displayName === regUser).text): ", messages && (t=(messages.filter(message =>(message.displayName === regUser))).pop())&&t.text)} */}
+                                            </div>
                                         </div>
+
                                     </Button>
                                 </div>
                             )}
@@ -362,9 +440,12 @@ const Messenger = (props) => {
                                     >
                                         <div style={{ display: 'none' }}>{i >= 1 ? j = i - 1 : j = 0}</div>
 
-                                        {!friend && (props.page === 'group') &&
-                                            ((messages[0].createdAt === messages[i].createdAt) ||
-                                                (message.photoURL !== ((messages[j]).photoURL))) &&
+                                        {!friend && ((props.page === 'group') || (props.page === 'registered') || (props.page === 'registered'))
+                                            &&
+                                            ((messages[0].createdAt === messages[i].createdAt)
+                                                ||
+                                                (message.photoURL !== ((messages[j]).photoURL)))
+                                            &&
                                             <Grid container
                                                 style={{
                                                     marginTop: 50,
