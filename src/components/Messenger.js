@@ -17,7 +17,7 @@ import 'emoji-mart/css/emoji-mart.css'
 import { Picker } from 'emoji-mart'
 import smile from '../img/smile.png'
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
-
+import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import FaceIcon from '@mui/icons-material/Face';
 import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
 import FaceRetouchingOffIcon from '@mui/icons-material/FaceRetouchingOff';
@@ -70,7 +70,6 @@ const Messenger = (props) => {
                 .where("displayName", "==", null)
         )
         ||
-
         ((props.page === 'group')) &&
         (
             firestore.collection("messages")
@@ -116,14 +115,9 @@ const Messenger = (props) => {
         };
 
         let allUsers = {}
-
         const refUsersAll = database.ref(`/users`);
         refUsersAll.on("value", function (snapshot) {
             allUsers = snapshot.val()
-
-            console.log('allUsers', allUsers)
-            // setAllRegUsers(allUsers)
-            // setRegUsers(Object.keys(allUsers))
             return allUsers
         });
 
@@ -191,15 +185,13 @@ const Messenger = (props) => {
 
     const backRef = useRef(null)
 
+
     function startPersonalChat(e) {
-        e.preventDefault();
-        console.log("e: ", e);
+        e.preventDefault(e);
+        console.log("e: ", e.target.dataset.user)
 
-        setFriend(e.target.innerText)
-        // history.push(`/chat/${props.page}/${friend}`)
-        // history.push(`/chat/${props.page}/${friend}`)
-
-        setChatId([user.displayName, e.target.innerText].sort().join(''))
+        setFriend(e.target.dataset.user)         
+        setChatId([user.displayName, e.target.dataset.user].sort().join(''))
         backRef.current.style.visibility = 'visible'
     }
 
@@ -249,6 +241,7 @@ const Messenger = (props) => {
         setValue((text) => (text += e.native))
     }
 
+
     useEffect(() => {
         scrollToBottom()
     }, [messages]);
@@ -279,130 +272,127 @@ const Messenger = (props) => {
                         justifyContent={'center'}
                     >
                         <MenuList style={{ width: '100%' }}>
-                            <MenuItem>
-                                <ListItemIcon>
-                                    <FaceIcon fontSize="small" />
-                                </ListItemIcon>
-                                <ListItemText><NavLink to={CHAT_ROUTE}>All</NavLink></ListItemText>
-                                {/* <Typography variant="body2" color="text.secondary">
-                                    ⌘X
-                                </Typography> */}
-                            </MenuItem>
-                            <MenuItem>
-                                <ListItemIcon>
-                                    <FaceRetouchingNaturalIcon fontSize="small" />
-                                </ListItemIcon>
-                                <ListItemText><NavLink to={REGISTERED_CHAT_ROUTE}>Registered</NavLink></ListItemText>
-                                {/* <Typography variant="body2" color="text.secondary">
-                                    ⌘C
-                                </Typography> */}
-                            </MenuItem>
-                            <MenuItem>
-                                <ListItemIcon>
-                                    <FaceRetouchingOffIcon fontSize="small" />
-                                </ListItemIcon>
-                                <ListItemText><NavLink to={INCOGNITO_CHAT_ROUTE}>Incognito</NavLink></ListItemText>
-                                {/* <Typography variant="body2" color="text.secondary">
-                                    ⌘V
-                                </Typography> */}
-                            </MenuItem>
+                            <NavLink to={CHAT_ROUTE}>
+                                <MenuItem style={{ background: props.page === 'group' ? 'lightgrey' : 'none' }}>
+                                    <ListItemIcon>
+                                        <FaceIcon fontSize="small" />
+                                    </ListItemIcon>
+                                    <ListItemText>Fire_Chat</ListItemText>
+                                </MenuItem>
+                            </NavLink>
+                            <NavLink to={REGISTERED_CHAT_ROUTE}>
+                                <MenuItem style={{ background: props.page === 'registered' ? 'lightgrey' : 'none' }}>
+                                    <ListItemIcon>
+                                        <FaceRetouchingNaturalIcon fontSize="small" />
+                                    </ListItemIcon>
+                                    <ListItemText>Registered</ListItemText>
+                                </MenuItem>
+                            </NavLink>
+                            <NavLink to={INCOGNITO_CHAT_ROUTE}>
+                                <MenuItem style={{ background: props.page === 'incognito' ? 'lightgrey' : 'none' }}>
+                                    <ListItemIcon>
+                                        <FaceRetouchingOffIcon fontSize="small" />
+                                    </ListItemIcon>
+                                    <ListItemText>Incognito</ListItemText>
+                                </MenuItem>
+                            </NavLink>
                             <Divider />
                         </MenuList>
 
-                        <Stack direction="row" spacing={2}>
-                            <div style={{ color: 'grey' }}>
-                                offline:
-                                {regUsers.length - (Object.values(statusAllUsers).filter(value => value === 'online')).length -
-                                    (Object.values(statusAllUsers).filter(value => value === 'away')).length}
-                            </div>
-
-                            <div style={{ color: 'blue' }}>online: {(Object.values(statusAllUsers).filter(value => value === 'online')).length}</div>
-                            <div style={{ color: 'pink' }}>away: {(Object.values(statusAllUsers).filter(value => value === 'away')).length}</div>
-
-                        </Stack>
-                    <div
-                    style = {{width:350}}                    
-                     onClick={startPersonalChat}
-                    >
-                        <Autocomplete
-                         open={true}
-                        
-                            id="user-select"
-                            sx={{ maxWidth: 350, marginTop:2 }}
-                            disableCloseOnSelect
-                            options={regUsers}
-                            autoHighlight
-                            getOptionLabel={(regUser) => regUser}
-                            renderOption={(props, regUser) => (
-                                <Button key={regUser} variant="outlined" style={{ textTransform: 'none', width: '100%', justifyContent: 'flex-start', }}>
-
-                                {regUsers && allRegUsers && <Avatar src={allRegUsers[regUser].photoURL} />}
-
-                                <div style={{
-                                    lineHeight: '35px',
-                                    marginLeft: 5,
-                                    cursor: 'pointer',
-                                    color:
-                                        Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'online') && 'blue' ||
-                                        Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'away') && 'pink' ||
-                                        'grey'
-                                }}
-                                >
-                                    {allRegUsers && allRegUsers[regUser].uid === user.uid
-                                        ?
-                                        < div onClick={(e) => e.stopPropagation()} style={{ cursor: 'default' }}>
-                                            {regUser} <span style={{ fontSize: 10, fontStyle: 'italic' }}> - you</span> </div >
-                                        :
-                                        <div style={{ display: 'flex', width: 250, justifyContent: 'space-between' }}><span>{regUser}</span><span onClick={(e) => e.stopPropagation()} style={{ fontSize: 10, fontStyle: 'italic', cursor: 'default' }}>                                           
-
-                                            {
-                                                ((new Date().getHours() - (new Date(allRegUsers[regUser].seen).getHours())) == 0)
-                                                    ?
-                                                    `seen ${(new Date().getMinutes()) - (new Date(allRegUsers[regUser].seen).getMinutes()) < 5 ? 'just now' : 'min ago'} `
-                                                    :
-                                                    `seen at: ${new Date(allRegUsers[regUser].seen).getHours()} : ${new Date(allRegUsers[regUser].seen).getMinutes()}`
-                                            }
-                                        </span>
-                                        </div>}
-                                    <div onClick={(e) => e.stopPropagation()}>
-                                        {messages && (t = (messages.sort((a, b) => (a.createdAt > b.createdAt) ? 1 : ((b.createdAt > a.createdAt) ? -1 : 0)).filter(message => (message.displayName === regUser))).pop()) && t.text}                        
-                                    </div>
-                                </div>
-
-                            </Button>
-                            )}
-                            renderInput={(params) => (
-                                <TextField
-                                    {...params}
-                                    label="Choose User"
-                                    inputProps={{
-                                        ...params.inputProps,
-                                        autoComplete: 'new-password', // disable autocomplete and autofill
-                                    }}
-                                />
-                            )}
-                        />
-</div>
-
-
-{/*                         
-                        <Stack
-                            mt={2}
-                            style={{ width: '100%' }}
-
+                        <div
+                            style={{ width: 350 }}
                             onClick={startPersonalChat}
-                        > */}
-                            {/* {regUsers && regUsers.map(regUser =>
-                                <div
-                                    key={regUser}
-                                    style={{
-                                        width: '100%',
-                                    }}
-                                > */}
-                                   
-                                {/* </div> */}
-                            {/* )} */}
-                        {/* </Stack> */}
+                        >
+                            {(regUsers && allRegUsers) &&
+                                <Autocomplete
+                                    open={true}
+                                    id="user-select"
+                                    sx={{ maxWidth: 350, marginTop: 2 }}
+                                    // disableCloseOnSelect
+                                    options={regUsers}
+                                    freeSolo
+                                    autoHighlight
+                                    getOptionLabel={(regUser) => regUser}
+                                    renderOption={(props, regUser) => (
+                                        <Button
+
+                                            data-user={regUser}
+                                            disabled={allRegUsers[regUser].uid === user.uid}
+                                            key={regUser}
+                                            variant="outlined"
+                                            style={{
+                                                margin: 5,
+                                                font: 'inherit',
+                                                textTransform: 'none', width: '100%', justifyContent: 'flex-start',
+                                                background: (allRegUsers[regUser].uid === user.uid || friend === allRegUsers[regUser].displayName) ? 'lightgrey' : '#e4e4e430'
+                                            }}>
+
+                                            <Avatar
+                                                onClick={(e) => e.stopPropagation()}
+                                                src={allRegUsers[regUser].photoURL} />
+
+                                            <div
+                                                //   onClick={(e) => e.stopPropagation()}
+                                                data-user={regUser}
+                                                style={{
+                                                    lineHeight: '35px',
+                                                    marginLeft: 5,
+                                                    cursor: 'pointer',
+                                                    color:
+                                                        Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'online') && 'blue' ||
+                                                        Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'away') && 'pink' ||
+                                                        'grey'
+                                                }}
+                                            >
+                                                {allRegUsers[regUser].uid === user.uid
+                                                    ?
+                                                    < div
+                                                        // onClick={(e) => e.stopPropagation()}
+                                                        style={{ cursor: 'default', }}>
+                                                        {regUser} <span style={{ fontSize: 10, fontStyle: 'italic' }}> - you</span> </div >
+                                                    :
+                                                    <div style={{ display: 'flex', width: 250, justifyContent: 'space-between' }} data-user={regUser} data-target="button">
+                                                        <span data-user={regUser}
+                                                        >{regUser}</span>
+                                                        <span
+                                                            // onClick={(e) => e.stopPropagation()}
+                                                            data-user={regUser}
+                                                            style={{ fontSize: 10, fontStyle: 'italic', cursor: 'default' }}>
+
+                                                            {
+                                                                ((new Date().getHours() - (new Date(allRegUsers[regUser].seen).getHours())) == 0)
+                                                                    ?
+                                                                    `seen ${(new Date().getMinutes()) - (new Date(allRegUsers[regUser].seen).getMinutes()) < 5 ? 'just now' : 'min ago'} `
+                                                                    :
+                                                                    `seen at: ${new Date(allRegUsers[regUser].seen).getHours()} : ${new Date(allRegUsers[regUser].seen).getMinutes()}`
+                                                            }
+                                                        </span>
+                                                    </div>}
+                                                <div
+                                                    //  onClick={(e) => e.stopPropagation()}
+                                                    data-user={regUser}
+                                                >
+                                                    {messages && (t = (messages.sort((a, b) => (a.createdAt > b.createdAt) ? 1 : ((b.createdAt > a.createdAt) ? -1 : 0))
+                                                        .filter(message => (message.displayName === regUser))).pop()) && t.text}
+                                                </div>
+                                            </div>
+
+                                        </Button>
+                                    )}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label={<PersonSearchIcon />}
+                                            inputProps={{
+                                                ...params.inputProps,
+                                                autoComplete: 'new-password', // disable autocomplete and autofill
+                                            }}
+                                        />
+                                    )}
+                                />}
+                        </div>
+
+
                     </Grid>
 
                     <Grid container item xs={9}
@@ -421,6 +411,18 @@ const Messenger = (props) => {
                             </Button>
                             {friend && allRegUsers && <><span style={{ fontStyle: 'italic', fontSize: 12, color: 'blue' }}>chatting with:&nbsp;&nbsp; </span>
                                 <Avatar src={allRegUsers[friend].photoURL} />&nbsp;{friend}</>}
+
+                            <Stack direction="row" spacing={2} style={{ color: 'grey', marginLeft: '20vh', marginRight: 20 }}>
+                                <div style={{ color: 'gray', fontStyle: 'italic' }}>Users in chat: </div>
+                                <div style={{ color: 'blue' }}>online: {(Object.values(statusAllUsers).filter(value => value === 'online')).length}</div>
+                                <div style={{ color: 'pink' }}>away: {(Object.values(statusAllUsers).filter(value => value === 'away')).length}</div>
+                                <div style={{ color: 'grey', }}>
+                                    offline:&nbsp;
+                                    {regUsers.length - (Object.values(statusAllUsers).filter(value => value === 'online')).length -
+                                        (Object.values(statusAllUsers).filter(value => value === 'away')).length}
+                                </div>
+                            </Stack>
+
                         </div>
                         <div style={{ width: '100%', height: '70vh', border: '1px solid lightgrey', overflowY: 'auto', background: '#6ef9b236' }}>
 
@@ -438,7 +440,7 @@ const Messenger = (props) => {
                                     >
                                         <div style={{ display: 'none' }}>{i >= 1 ? j = i - 1 : j = 0}</div>
 
-                                        {!friend && ((props.page === 'group') || (props.page === 'registered') || (props.page === 'registered'))
+                                        {!friend && ((props.page === 'group') || (props.page === 'registered') || (props.page === 'incognito'))
                                             &&
                                             ((messages[0].createdAt === messages[i].createdAt)
                                                 ||
@@ -463,7 +465,6 @@ const Messenger = (props) => {
                                                 >{message.displayName ? message.displayName : 'Incognito'}
                                                 </div>
                                                 <div style={{ fontSize: 10, fontStyle: 'italic' }}>
-                                                    {/* {(online.includes(message.displayName)) ? ' online ' : ' offline'} */}
                                                     {Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'online') && 'online' ||
                                                         Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'away') && 'away' ||
                                                         'offline'}
@@ -569,11 +570,14 @@ const Messenger = (props) => {
                                 position={'relative'}
                             >
                                 <Grid item xs={12} md={9}>
+                                    {console.log("user", user)}
                                     <TextField
                                         fullWidth
                                         variant={'outlined'}
                                         required
-                                        label="input message"
+                                        disabled={user.displayName === null && props.page === 'registered'}
+
+                                        label={user.displayName === null && props.page === 'registered' ? 'Login from Google to write  in this chat' : 'input message'}
                                         value={value}
                                         placeholder='type message'
                                         onChange={e => setValue(e.target.value)}

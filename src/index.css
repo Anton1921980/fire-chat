@@ -10,6 +10,7 @@
 }
 a{
   text-decoration: none;
+  color: inherit;
 }
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
@@ -47,8 +48,15 @@ code {
 }
 .css-b7k0tb-MuiAutocomplete-listbox {
 
-  max-height: 51vh !important;
+  max-height: 57vh !important;
  
+}
+.css-b7k0tb-MuiAutocomplete-listbox {
+ 
+  overflow-x: hidden !important;
+}
+.css-1rwt2y5-MuiButtonBase-root-MuiButton-root{
+  border: 1px solid transparent !important;
 }
 .lds-ellipsis {
   display: inline-block;
