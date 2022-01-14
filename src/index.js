@@ -1,10 +1,11 @@
-import React, { createContext } from 'react';
+import React, { createContext, useState } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import firebase from "firebase";
 import 'firebase/firestore'
 import 'firebase/auth'
+
 
 export const app = firebase.initializeApp({
   apiKey: "AIzaSyCskLHsuHy6UIhpT3tp3be9ktYvRuqwHFE",
@@ -20,12 +21,13 @@ export const app = firebase.initializeApp({
 
 export const Context = createContext(null)
 
+
 const auth = firebase.auth()
 const firestore = firebase.firestore()
 
 
 ReactDOM.render(
-  <Context.Provider value={{
+  <Context.Provider value={{   
     firebase,
     auth,
     firestore

@@ -1,10 +1,10 @@
 import React from 'react'
 import Messenger from '../components/Messenger'
 
-const GroupChat=()=> {
+const GroupChat = () => {
     return (
         <div>
-            <Messenger page={'group'}/>
+            <Messenger page={'group'} />
         </div>
     )
 }
