@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Context } from '../index'
+import { Context2 } from '../App'
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollectionData } from "react-firebase-hooks/firestore"
 import { Autocomplete, Avatar, Button, Container, Divider, Grid, ListItemIcon, ListItemText, MenuItem, MenuList, Modal, TextField, Typography, } from '@mui/material';
@@ -8,7 +9,7 @@ import Loader from './Loader';
 import firebase from 'firebase';
 import 'firebase/auth';
 import 'firebase/database';
-
+import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
@@ -23,12 +24,16 @@ import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural
 import FaceRetouchingOffIcon from '@mui/icons-material/FaceRetouchingOff';
 import { NavLink, useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 import { CHAT_ROUTE, INCOGNITO_CHAT_ROUTE, REGISTERED_CHAT_ROUTE } from '../utils/consts';
+import NavBar from './NavBar';
 // import {startPersonalChat} from '../utils/functions'
 
 const Messenger = (props) => {
     // const history = useHistory()
     const { auth, firestore } = useContext(Context)
     const [user] = useAuthState(auth)
+
+    // const value = useContext(Context2);
+    // console.log("value: ", value);
 
     const database = firebase.database()
 
@@ -42,6 +47,7 @@ const Messenger = (props) => {
     const [url, setUrl] = useState(null)
     const [imgUrl, setImgUrl] = useState(null)
     const [open, setOpen] = useState(false);
+
 
 
     const [allRegUsers, setAllRegUsers] = useState(null)
@@ -190,7 +196,7 @@ const Messenger = (props) => {
         e.preventDefault(e);
         console.log("e: ", e.target.dataset.user)
 
-        setFriend(e.target.dataset.user)         
+        setFriend(e.target.dataset.user)
         setChatId([user.displayName, e.target.dataset.user].sort().join(''))
         backRef.current.style.visibility = 'visible'
     }
@@ -255,379 +261,410 @@ const Messenger = (props) => {
     let j
     let t
     console.log("chatId: ", chatId);
+    const { opened, setOpened } = useContext(Context2);
+    console.log("opened: ", opened);
+
 
     return (
         <>
             <Container
                 maxWidth="xl"
-            // style={{ background: 'lightgrey' , height: '90vh'}}
+                // sx={{}}
+                sx={{
+                    //  background: 'lightgrey' ,
+                    // overflow:'hidden',
+                    height: '90vh'
+                }}
             >
+
                 <Grid container
-                    columnSpacing={' xs: 2, sm: 2 '}
-                //  style={{ height: window.innerHeight - 70, }}
+                    // columnSpacing={' xs: 2, sm: 2 '}
+                    style={{ height: window.innerHeight - 70, }}
                 >
-                    <Grid container item xs={3}
-                        style={{ height: window.innerHeight / 20, marginTop: 20, }}
-                        alignItems={'center'}
-                        justifyContent={'center'}
+                    <Grid container item xs={12} lg={3}
+
+
+                        style={{
+
+                            // display: { xs: !opened ? 'none' : 'flex', lg: 'flex' },
+
+                            height: window.innerHeight - 100,
+                            marginTop: 20,
+                            // position:'relative',
+                            //   bottom:240
+                        
+                        }}
+                    alignContent={'flex-start'}
+                        // alignItems={'center'}
+                    justifyContent={'center'}
                     >
-                        <MenuList style={{ width: '100%' }}>
-                            <NavLink to={CHAT_ROUTE}>
-                                <MenuItem style={{ background: props.page === 'group' ? 'lightgrey' : 'none' }}>
-                                    <ListItemIcon>
-                                        <FaceIcon fontSize="small" />
-                                    </ListItemIcon>
-                                    <ListItemText>Fire_Chat</ListItemText>
-                                </MenuItem>
-                            </NavLink>
-                            <NavLink to={REGISTERED_CHAT_ROUTE}>
-                                <MenuItem style={{ background: props.page === 'registered' ? 'lightgrey' : 'none' }}>
-                                    <ListItemIcon>
-                                        <FaceRetouchingNaturalIcon fontSize="small" />
-                                    </ListItemIcon>
-                                    <ListItemText>Registered</ListItemText>
-                                </MenuItem>
-                            </NavLink>
-                            <NavLink to={INCOGNITO_CHAT_ROUTE}>
-                                <MenuItem style={{ background: props.page === 'incognito' ? 'lightgrey' : 'none' }}>
-                                    <ListItemIcon>
-                                        <FaceRetouchingOffIcon fontSize="small" />
-                                    </ListItemIcon>
-                                    <ListItemText>Incognito</ListItemText>
-                                </MenuItem>
-                            </NavLink>
-                            <Divider />
-                        </MenuList>
+                    <MenuList style={{ width: '100%' }}>
+                        <NavLink to={CHAT_ROUTE}>
+                            <MenuItem style={{ background: props.page === 'group' ? 'lightgrey' : 'none' }}>
+                                <ListItemIcon>
+                                    <FaceIcon fontSize="small" />
+                                </ListItemIcon>
+                                <ListItemText>Fire_Chat</ListItemText>
+                            </MenuItem>
+                        </NavLink>
+                        <NavLink to={REGISTERED_CHAT_ROUTE}>
+                            <MenuItem style={{ background: props.page === 'registered' ? 'lightgrey' : 'none' }}>
+                                <ListItemIcon>
+                                    <FaceRetouchingNaturalIcon fontSize="small" />
+                                </ListItemIcon>
+                                <ListItemText>Registered</ListItemText>
+                            </MenuItem>
+                        </NavLink>
+                        <NavLink to={INCOGNITO_CHAT_ROUTE}>
+                            <MenuItem style={{ background: props.page === 'incognito' ? 'lightgrey' : 'none' }}>
+                                <ListItemIcon>
+                                    <FaceRetouchingOffIcon fontSize="small" />
+                                </ListItemIcon>
+                                <ListItemText>Incognito</ListItemText>
+                            </MenuItem>
+                        </NavLink>
+                        <Divider />
+                    </MenuList>
 
-                        <div
-                            style={{ width: 350 }}
-                            onClick={startPersonalChat}
-                        >
-                            {(regUsers && allRegUsers) &&
-                                <Autocomplete
-                                    open={true}
-                                    id="user-select"
-                                    sx={{ maxWidth: 350, marginTop: 2 }}
-                                    // disableCloseOnSelect
-                                    options={regUsers}
-                                    freeSolo
-                                    autoHighlight
-                                    getOptionLabel={(regUser) => regUser}
-                                    renderOption={(props, regUser) => (
-                                        <Button
+                    <div
+                        style={{ width: 350 }}
+                        onClick={startPersonalChat}
+                    >
+                        {(regUsers && allRegUsers) &&
+                            <Autocomplete
+                                // open={!opened ? true : false}
+                                open={'open'}
+                                id="user-select"
+                                sx={{ maxWidth: 350, marginTop: 2 }}
+                                // disableCloseOnSelect
+                                options={regUsers}
+                                freeSolo
+                                autoHighlight
+                                getOptionLabel={(regUser) => regUser}
+                                renderOption={(props, regUser) => (
+                                    <Button
 
+                                        data-user={regUser}
+                                        disabled={allRegUsers[regUser].uid === user.uid}
+                                        key={regUser}
+                                        variant="outlined"
+                                        style={{
+                                            margin: 5,
+                                            font: 'inherit',
+                                            textTransform: 'none', width: '100%', justifyContent: 'flex-start',
+                                            background: (allRegUsers[regUser].uid === user.uid || friend === allRegUsers[regUser].displayName) ? 'lightgrey' : '#e4e4e430'
+                                        }}>
+
+                                        <Avatar
+                                            onClick={(e) => e.stopPropagation()}
+                                            src={allRegUsers[regUser].photoURL} />
+
+                                        <div
+                                            //   onClick={(e) => e.stopPropagation()}
                                             data-user={regUser}
-                                            disabled={allRegUsers[regUser].uid === user.uid}
-                                            key={regUser}
-                                            variant="outlined"
                                             style={{
-                                                margin: 5,
-                                                font: 'inherit',
-                                                textTransform: 'none', width: '100%', justifyContent: 'flex-start',
-                                                background: (allRegUsers[regUser].uid === user.uid || friend === allRegUsers[regUser].displayName) ? 'lightgrey' : '#e4e4e430'
-                                            }}>
+                                                lineHeight: '35px',
+                                                marginLeft: 5,
+                                                cursor: 'pointer',
+                                                color:
+                                                    Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'online') && 'blue' ||
+                                                    Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'away') && 'pink' ||
+                                                    'grey'
+                                            }}
+                                        >
+                                            {allRegUsers[regUser].uid === user.uid
+                                                ?
+                                                < div
+                                                    // onClick={(e) => e.stopPropagation()}
+                                                    style={{ cursor: 'default', }}>
+                                                    {regUser} <span style={{ fontSize: 10, fontStyle: 'italic' }}> - you</span> </div >
+                                                :
+                                                <div style={{ display: 'flex', width: 250, justifyContent: 'space-between' }} data-user={regUser} data-target="button">
+                                                    <span data-user={regUser}
+                                                    >{regUser}</span>
+                                                    <span
+                                                        // onClick={(e) => e.stopPropagation()}
+                                                        data-user={regUser}
+                                                        style={{ fontSize: 10, fontStyle: 'italic', cursor: 'default' }}>
 
-                                            <Avatar
-                                                onClick={(e) => e.stopPropagation()}
-                                                src={allRegUsers[regUser].photoURL} />
-
+                                                        {
+                                                            ((new Date().getHours() - (new Date(allRegUsers[regUser].seen).getHours())) == 0)
+                                                                ?
+                                                                `seen ${(new Date().getMinutes()) - (new Date(allRegUsers[regUser].seen).getMinutes()) < 5 ? 'just now' : 'min ago'} `
+                                                                ||
+                                                                `seen ${1440 > (new Date().getMinutes()) - (new Date(allRegUsers[regUser].seen).getMinutes()) < 2880 ? 'yesterday' : '2 days ago'} `
+                                                                :
+                                                                `seen at: ${new Date(allRegUsers[regUser].seen).getHours()} : ${new Date(allRegUsers[regUser].seen).getMinutes()}`
+                                                        }
+                                                    </span>
+                                                </div>}
                                             <div
-                                                //   onClick={(e) => e.stopPropagation()}
+                                                //  onClick={(e) => e.stopPropagation()}
                                                 data-user={regUser}
+                                            >
+                                                {messages && (t = (messages.sort((a, b) => (a.createdAt > b.createdAt) ? 1 : ((b.createdAt > a.createdAt) ? -1 : 0))
+                                                    .filter(message => (message.displayName === regUser))).pop()) && t.text}
+                                            </div>
+                                        </div>
+
+                                    </Button>
+                                )}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        label={<PersonSearchIcon />}
+                                        inputProps={{
+                                            ...params.inputProps,
+                                            autoComplete: 'new-password', // disable autocomplete and autofill
+                                        }}
+                                    />
+                                )}
+                            />}
+                    </div>
+
+
+                </Grid>
+
+                <Grid container item xs={12} lg={9}
+
+                    // sx={{ display: {xs: !opened?'flex':'none', lg:'flex'},
+                    //  position:'relative',
+                    //  top:500,
+                    //  height: window.innerHeight - 300
+                    //  }}
+                    alignContent={'flex-start'}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                >
+
+                    <div style={{ width: '100%', height: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Button
+                            size="small"
+                            // variant='outlined'
+                            style={{ visibility: 'hidden', marginRight: 'auto', textTransform: 'capitalize' }}
+                            ref={backRef}
+                            onClick={stopPersonalChat}><KeyboardBackspaceIcon />&nbsp;&nbsp;to Group {props.page} chat
+                        </Button>
+                        {friend && allRegUsers && <><span style={{ fontStyle: 'italic', fontSize: 12, color: 'blue' }}>Chat with:&nbsp;&nbsp; </span>
+                            <Avatar src={allRegUsers[friend].photoURL} />&nbsp;{friend}</>}
+
+                        <Stack direction="row" spacing={2} style={{ color: 'grey', marginLeft: '20vh', marginRight: 20 }}>
+                            <div style={{ color: 'gray', fontStyle: 'italic' }}>Users in chat: </div>
+                            <div style={{ color: 'blue' }}>online: {(Object.values(statusAllUsers).filter(value => value === 'online')).length}</div>
+                            <div style={{ color: 'pink' }}>away: {(Object.values(statusAllUsers).filter(value => value === 'away')).length}</div>
+                            <div style={{ color: 'grey', }}>
+                                offline:&nbsp;
+                                {regUsers.length - (Object.values(statusAllUsers).filter(value => value === 'online')).length -
+                                    (Object.values(statusAllUsers).filter(value => value === 'away')).length}
+                            </div>
+                        </Stack>
+
+                    </div>
+                    <div style={{ width: '100%', height: '70vh', border: '1px solid lightgrey', overflowY: 'auto', background: '#6ef9b236' }}>
+
+
+                        {messages && messages.length > 0 && messages
+                            .sort((a, b) => (a.createdAt > b.createdAt) ? 1 : ((b.createdAt > a.createdAt) ? -1 : 0))
+                            .map((message, i) =>
+                                <div
+                                    ref={messagesEndRef}
+                                    key={i}
+                                    style={{
+                                        width: 'fit-content',
+                                        marginLeft: user.uid === message.uid ? 'auto' : '10px',
+                                    }}
+                                >
+                                    <div style={{ display: 'none' }}>{i >= 1 ? j = i - 1 : j = 0}</div>
+
+                                    {!friend && ((props.page === 'group') || (props.page === 'registered') || (props.page === 'incognito'))
+                                        &&
+                                        ((messages[0].createdAt === messages[i].createdAt)
+                                            ||
+                                            (message.photoURL !== ((messages[j]).photoURL)))
+                                        &&
+                                        <Grid container
+                                            style={{
+                                                marginTop: 50,
+                                                //  color: (online.includes(message.displayName)) ? 'blue' : 'grey', 
+                                                color:
+                                                    Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'online') && 'blue' ||
+                                                    Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'away') && 'pink' ||
+                                                    'grey'
+                                            }}
+                                        >
+                                            <Avatar src={message.photoURL} />
+                                            <div
                                                 style={{
                                                     lineHeight: '35px',
                                                     marginLeft: 5,
-                                                    cursor: 'pointer',
-                                                    color:
-                                                        Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'online') && 'blue' ||
-                                                        Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'away') && 'pink' ||
-                                                        'grey'
                                                 }}
-                                            >
-                                                {allRegUsers[regUser].uid === user.uid
-                                                    ?
-                                                    < div
-                                                        // onClick={(e) => e.stopPropagation()}
-                                                        style={{ cursor: 'default', }}>
-                                                        {regUser} <span style={{ fontSize: 10, fontStyle: 'italic' }}> - you</span> </div >
-                                                    :
-                                                    <div style={{ display: 'flex', width: 250, justifyContent: 'space-between' }} data-user={regUser} data-target="button">
-                                                        <span data-user={regUser}
-                                                        >{regUser}</span>
-                                                        <span
-                                                            // onClick={(e) => e.stopPropagation()}
-                                                            data-user={regUser}
-                                                            style={{ fontSize: 10, fontStyle: 'italic', cursor: 'default' }}>
-
-                                                            {
-                                                                ((new Date().getHours() - (new Date(allRegUsers[regUser].seen).getHours())) == 0)
-                                                                    ?
-                                                                    `seen ${(new Date().getMinutes()) - (new Date(allRegUsers[regUser].seen).getMinutes()) < 5 ? 'just now' : 'min ago'} `
-                                                                    :
-                                                                    `seen at: ${new Date(allRegUsers[regUser].seen).getHours()} : ${new Date(allRegUsers[regUser].seen).getMinutes()}`
-                                                            }
-                                                        </span>
-                                                    </div>}
-                                                <div
-                                                    //  onClick={(e) => e.stopPropagation()}
-                                                    data-user={regUser}
-                                                >
-                                                    {messages && (t = (messages.sort((a, b) => (a.createdAt > b.createdAt) ? 1 : ((b.createdAt > a.createdAt) ? -1 : 0))
-                                                        .filter(message => (message.displayName === regUser))).pop()) && t.text}
-                                                </div>
+                                            >{message.displayName ? message.displayName : 'Incognito'}
+                                            </div>
+                                            <div style={{ fontSize: 10, fontStyle: 'italic' }}>
+                                                {Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'online') && 'online' ||
+                                                    Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'away') && 'away' ||
+                                                    'offline'}
                                             </div>
 
-                                        </Button>
-                                    )}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            label={<PersonSearchIcon />}
-                                            inputProps={{
-                                                ...params.inputProps,
-                                                autoComplete: 'new-password', // disable autocomplete and autofill
-                                            }}
-                                        />
-                                    )}
-                                />}
-                        </div>
+                                        </Grid>
+                                    }
 
-
-                    </Grid>
-
-                    <Grid container item xs={9}
-                        // style={{ height: window.innerHeight - 300 }}
-                        alignItems={'center'}
-                        justifyContent={'center'}
-                    >
-
-                        <div style={{ width: '100%', height: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Button
-                                size="small"
-                                variant='outlined'
-                                style={{ visibility: 'hidden', marginRight: 'auto' }}
-                                ref={backRef}
-                                onClick={stopPersonalChat}><KeyboardBackspaceIcon /> back to {props.page} chat
-                            </Button>
-                            {friend && allRegUsers && <><span style={{ fontStyle: 'italic', fontSize: 12, color: 'blue' }}>chatting with:&nbsp;&nbsp; </span>
-                                <Avatar src={allRegUsers[friend].photoURL} />&nbsp;{friend}</>}
-
-                            <Stack direction="row" spacing={2} style={{ color: 'grey', marginLeft: '20vh', marginRight: 20 }}>
-                                <div style={{ color: 'gray', fontStyle: 'italic' }}>Users in chat: </div>
-                                <div style={{ color: 'blue' }}>online: {(Object.values(statusAllUsers).filter(value => value === 'online')).length}</div>
-                                <div style={{ color: 'pink' }}>away: {(Object.values(statusAllUsers).filter(value => value === 'away')).length}</div>
-                                <div style={{ color: 'grey', }}>
-                                    offline:&nbsp;
-                                    {regUsers.length - (Object.values(statusAllUsers).filter(value => value === 'online')).length -
-                                        (Object.values(statusAllUsers).filter(value => value === 'away')).length}
-                                </div>
-                            </Stack>
-
-                        </div>
-                        <div style={{ width: '100%', height: '70vh', border: '1px solid lightgrey', overflowY: 'auto', background: '#6ef9b236' }}>
-
-
-                            {messages && messages.length > 0 && messages
-                                .sort((a, b) => (a.createdAt > b.createdAt) ? 1 : ((b.createdAt > a.createdAt) ? -1 : 0))
-                                .map((message, i) =>
+                                    {(messages[i].createdAt !== null) && (messages[j].createdAt !== null) &&
+                                        ((messages[0].createdAt === messages[i].createdAt) ||
+                                            ((message.createdAt).toDate().getDay()) !== ((messages[j].createdAt).toDate().getDay())) &&
+                                        <div style={{
+                                            color: 'grey', fontStyle: 'italic', marginTop: 50, position: 'relative', left: user.uid !== message.uid
+                                                ? '75vh' : null, right: user.uid === message.uid ? '75vh' : null
+                                        }}>
+                                            {((message.createdAt).toDate().toJSON().slice(0, 10).split('-').reverse().join('.'))}
+                                        </div>
+                                    }
                                     <div
-                                        ref={messagesEndRef}
-                                        key={i}
                                         style={{
+                                            position: 'relative',
+                                            margin: 10,
+                                            padding: 15,
+                                            minWidth: 100,
+                                            border: '1px solid transparent',
+                                            borderRadius: 100,
+                                            backgroundColor: user.uid === message.uid ? 'lightgrey' : 'white',
                                             width: 'fit-content',
-                                            marginLeft: user.uid === message.uid ? 'auto' : '10px',
                                         }}
-                                    >
-                                        <div style={{ display: 'none' }}>{i >= 1 ? j = i - 1 : j = 0}</div>
-
-                                        {!friend && ((props.page === 'group') || (props.page === 'registered') || (props.page === 'incognito'))
-                                            &&
-                                            ((messages[0].createdAt === messages[i].createdAt)
-                                                ||
-                                                (message.photoURL !== ((messages[j]).photoURL)))
-                                            &&
-                                            <Grid container
-                                                style={{
-                                                    marginTop: 50,
-                                                    //  color: (online.includes(message.displayName)) ? 'blue' : 'grey', 
-                                                    color:
-                                                        Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'online') && 'blue' ||
-                                                        Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'away') && 'pink' ||
-                                                        'grey'
-                                                }}
-                                            >
-                                                <Avatar src={message.photoURL} />
-                                                <div
-                                                    style={{
-                                                        lineHeight: '35px',
-                                                        marginLeft: 5,
-                                                    }}
-                                                >{message.displayName ? message.displayName : 'Incognito'}
-                                                </div>
-                                                <div style={{ fontSize: 10, fontStyle: 'italic' }}>
-                                                    {Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'online') && 'online' ||
-                                                        Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'away') && 'away' ||
-                                                        'offline'}
-                                                </div>
-
-                                            </Grid>
-                                        }
-
-                                        {(messages[i].createdAt !== null) && (messages[j].createdAt !== null) &&
-                                            ((messages[0].createdAt === messages[i].createdAt) ||
-                                                ((message.createdAt).toDate().getDay()) !== ((messages[j].createdAt).toDate().getDay())) &&
-                                            <div style={{
-                                                color: 'grey', fontStyle: 'italic', marginTop: 50, position: 'relative', left: user.uid !== message.uid
-                                                    ? '75vh' : null, right: user.uid === message.uid ? '75vh' : null
-                                            }}>
-                                                {((message.createdAt).toDate().toJSON().slice(0, 10).split('-').reverse().join('.'))}
-                                            </div>
-                                        }
+                                    >{message.text}
                                         <div
                                             style={{
-                                                position: 'relative',
-                                                margin: 10,
-                                                padding: 15,
-                                                minWidth: 100,
-                                                border: '1px solid transparent',
-                                                borderRadius: 100,
-                                                backgroundColor: user.uid === message.uid ? 'lightgrey' : 'white',
-                                                width: 'fit-content',
+                                                position: 'absolute',
+                                                top: 38,
+                                                right: 16,
+                                                fontSize: 10,
+                                                fontStyle: 'italic',
+                                                color: 'darkgrey'
                                             }}
-                                        >{message.text}
-                                            <div
-                                                style={{
-                                                    position: 'absolute',
-                                                    top: 38,
-                                                    right: 16,
-                                                    fontSize: 10,
-                                                    fontStyle: 'italic',
-                                                    color: 'darkgrey'
-                                                }}
-                                            >
+                                        >
 
-                                                {(message.createdAt !== null) && ((message.createdAt).toDate().getHours())}
-                                                : {(message.createdAt !== null) && ((message.createdAt).toDate().getMinutes() > 9
-                                                    ?
-                                                    (message.createdAt).toDate().getMinutes()
-                                                    :
-                                                    '0' + (message.createdAt).toDate().getMinutes())}
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            {messages[i].url && (
-                                                (messages[i].url).includes('.jpg') ||
-                                                (messages[i].url).includes('.jpeg') ||
-                                                (messages[i].url).includes('.gif') ||
-                                                (messages[i].url).includes('.png')
-                                            )
+                                            {(message.createdAt !== null) && ((message.createdAt).toDate().getHours())}
+                                            : {(message.createdAt !== null) && ((message.createdAt).toDate().getMinutes() > 9
                                                 ?
-                                                <>
-                                                    <div
-                                                        style={{ cursor: 'pointer', }}
-                                                        onClick={() => { handleOpen(messages[i].url) }}>
-                                                        <FileOpenIcon style={{ position: 'relative', top: 1, right: 3 }} />
-                                                        <img
-                                                            style={{ width: 70, height: 70, }}
-                                                            src={messages[i].url}
-                                                        >
-                                                        </img>
-                                                    </div>
-                                                    <div style={{ fontSize: 12 }}>{message.fileName}</div>
-                                                </>
+                                                (message.createdAt).toDate().getMinutes()
                                                 :
-                                                //  null
-                                                message.url &&
-                                                <div
-                                                    style={{ fontSize: 12 }}
-                                                //   onClick={() => download(message.url)}
-                                                >
-                                                    <a href={message.url} download>
-                                                        <FileDownloadIcon style={{ position: 'relative', top: 7 }} /> {message.fileName}
-                                                    </a>
-                                                </div>
-                                            }
+                                                '0' + (message.createdAt).toDate().getMinutes())}
                                         </div>
                                     </div>
-                                )}
-                            <Modal
-                                open={open}
-                                onClose={handleClose}
-                            >
-                                <Box sx={style}><img src={imgUrl} style={{ width: '100%', height: '100%' }} /></Box>
-                            </Modal>
-                        </div>
+
+                                    <div>
+                                        {messages[i].url && (
+                                            (messages[i].url).includes('.jpg') ||
+                                            (messages[i].url).includes('.jpeg') ||
+                                            (messages[i].url).includes('.gif') ||
+                                            (messages[i].url).includes('.png')
+                                        )
+                                            ?
+                                            <>
+                                                <div
+                                                    style={{ cursor: 'pointer', }}
+                                                    onClick={() => { handleOpen(messages[i].url) }}>
+                                                    <FileOpenIcon style={{ position: 'relative', top: 1, right: 3 }} />
+                                                    <img
+                                                        style={{ width: 70, height: 70, }}
+                                                        src={messages[i].url}
+                                                    >
+                                                    </img>
+                                                </div>
+                                                <div style={{ fontSize: 12 }}>{message.fileName}</div>
+                                            </>
+                                            :
+                                            //  null
+                                            message.url &&
+                                            <div
+                                                style={{ fontSize: 12 }}
+                                            //   onClick={() => download(message.url)}
+                                            >
+                                                <a href={message.url} download>
+                                                    <FileDownloadIcon style={{ position: 'relative', top: 7 }} /> {message.fileName}
+                                                </a>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            )}
+                        <Modal
+                            open={open}
+                            onClose={handleClose}
+                        >
+                            <Box sx={style}><img src={imgUrl} style={{ width: '100%', height: '100%' }} /></Box>
+                        </Modal>
+                    </div>
+                    <Grid
+                        container
+                        direction={'row'}
+                        style={{ width: '100%', marginTop: 15 }}
+                    >
                         <Grid
                             container
+                            columnSpacing={' xs: 2, sm: 2 '}
                             direction={'row'}
-                            style={{ width: '100%', marginTop: 15 }}
+                            position={'relative'}
                         >
-                            <Grid
-                                container
-                                columnSpacing={' xs: 2, sm: 2 '}
-                                direction={'row'}
-                                position={'relative'}
-                            >
-                                <Grid item xs={12} md={9}>
-                                    {console.log("user", user)}
-                                    <TextField
-                                        fullWidth
-                                        variant={'outlined'}
-                                        required
-                                        disabled={user.displayName === null && props.page === 'registered'}
+                            <Grid item xs={12} md={9}>
+                                {console.log("user", user)}
+                                <TextField
+                                    fullWidth
+                                    variant={'outlined'}
+                                    required
+                                    disabled={user.displayName === null && props.page === 'registered'}
 
-                                        label={user.displayName === null && props.page === 'registered' ? 'Login from Google to write  in this chat' : 'input message'}
-                                        value={value}
-                                        placeholder='type message'
-                                        onChange={e => setValue(e.target.value)}
-                                        onKeyPress={(e) => {
-                                            // console.log(`Pressed keyCode ${e.key}`);
-                                            if (value.length && e.key === 'Enter') {
-                                                // Do code here
-                                                e.preventDefault();
-                                                sendMessage()
-                                            }
-                                        }}
-                                    />
-                                </Grid >
-                                <Grid container item xs={12} sm={12} md={3} position={'relative'} direction={'row'} sx={{ justifyContent: 'space-around' }}>
-                                    {showEmoji &&
-                                        <Picker
-                                            onSelect={handleEmojiSelect}
-                                            emojiSize={25}
-                                            title={'fire_chat Emoji'}
-                                            theme={'light'}
-                                            showPreview={false}
-                                            showSkinTones={false}
-                                            set={'twitter'}
-                                            style={{ position: 'absolute', bottom: '10vh', right: '0vh', }}
-                                        />}
-                                    <Button
-                                        style={{ background: `url(${smile}) no-repeat  center/50%` }}
-                                        onClick={handleEmojiShow}>
-                                    </Button>
-                                    <div><input style={{ marginTop: 15 }} type="file" onChange={onChange} className="custom-file-input"></input></div>
-                                    {console.log("uploaded", url)}
+                                    label={user.displayName === null && props.page === 'registered' ? 'Login from Google to write  in this chat' : 'input message'}
+                                    value={value}
+                                    placeholder='type message'
+                                    onChange={e => setValue(e.target.value)}
+                                    onKeyPress={(e) => {
+                                        // console.log(`Pressed keyCode ${e.key}`);
+                                        if (value.length && e.key === 'Enter') {
+                                            // Do code here
+                                            e.preventDefault();
+                                            sendMessage()
+                                        }
+                                    }}
+                                />
+                            </Grid >
+                            <Grid container item xs={12} sm={12} md={3} position={'relative'} direction={'row'} sx={{ justifyContent: 'space-around' }}>
+                                {showEmoji &&
+                                    <Picker
+                                        onSelect={handleEmojiSelect}
+                                        emojiSize={25}
+                                        title={'fire_chat Emoji'}
+                                        theme={'light'}
+                                        showPreview={false}
+                                        showSkinTones={false}
+                                        set={'twitter'}
+                                        style={{ position: 'absolute', bottom: '10vh', right: '0vh', }}
+                                    />}
+                                <Button
+                                    style={{ background: `url(${smile}) no-repeat  center/50%` }}
+                                    onClick={handleEmojiShow}>
+                                </Button>
+                                <div><input style={{ marginTop: 15 }} type="file" onChange={onChange} className="custom-file-input"></input></div>
+                                {console.log("uploaded", url)}
 
-                                    {url && url.length
-                                        ?
-                                        <div style={{ position: 'absolute', right: '23%', top: '85%' }}>
-                                            <FileUploadIcon style={{ position: 'relative', top: 6, right: 2 }} />{fileName}</div>
-                                        :
-                                        null}
-                                    <Button
-                                        variant='outlined'
-                                        disabled={value.length < 1}
-                                        onClick={sendMessage}>
-                                        Send
-                                    </Button>
-                                </Grid>
+                                {url && url.length
+                                    ?
+                                    <div style={{ position: 'absolute', right: '23%', top: '85%' }}>
+                                        <FileUploadIcon style={{ position: 'relative', top: 6, right: 2 }} />{fileName}</div>
+                                    :
+                                    null}
+
+                                <Button
+                                    variant='outlined'
+                                    disabled={value.length < 1}
+                                    onClick={sendMessage}>
+                                    <SendRoundedIcon fontSize="large" />
+                                </Button>
                             </Grid>
                         </Grid>
                     </Grid>
                 </Grid>
-            </Container>
+            </Grid>
+        </Container>
         </>
     )
 }

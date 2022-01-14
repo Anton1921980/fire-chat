@@ -2,6 +2,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -40,6 +41,10 @@ code {
   left: 0px;
   
 }
+/* button{
+  font-style: normal;
+  text-decoration: none !important;
+} */
 /* .custom-file-input:hover::before {
   border-color: black;
 } */
@@ -48,7 +53,7 @@ code {
 }
 .css-b7k0tb-MuiAutocomplete-listbox {
 
-  max-height: 57vh !important;
+  max-height: 30vh !important;
  
 }
 .css-b7k0tb-MuiAutocomplete-listbox {
