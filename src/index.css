@@ -45,7 +45,11 @@ code {
 .custom-file-input:active::before {
   background: -webkit-linear-gradient(top, #e3e3e3, #f9f9f9);
 }
+.css-b7k0tb-MuiAutocomplete-listbox {
 
+  max-height: 51vh !important;
+ 
+}
 .lds-ellipsis {
   display: inline-block;
   position: relative;

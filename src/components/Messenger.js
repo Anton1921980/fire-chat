@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Context } from '../index'
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollectionData } from "react-firebase-hooks/firestore"
-import { Avatar, Button, Container, Divider, Grid, ListItemIcon, ListItemText, MenuItem, MenuList, Modal, TextField, Typography, } from '@mui/material';
+import { Autocomplete, Avatar, Button, Container, Divider, Grid, ListItemIcon, ListItemText, MenuItem, MenuList, Modal, TextField, Typography, } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import Loader from './Loader';
 import firebase from 'firebase';
@@ -16,28 +16,21 @@ import { Box, display } from '@mui/system';
 import 'emoji-mart/css/emoji-mart.css'
 import { Picker } from 'emoji-mart'
 import smile from '../img/smile.png'
-import { Cloud, ContentCopy, ContentCut, ContentPaste } from '@mui/icons-material';
-import AccessibilityNewIcon from '@mui/icons-material/AccessibilityNew';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
+
 import FaceIcon from '@mui/icons-material/Face';
 import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
 import FaceRetouchingOffIcon from '@mui/icons-material/FaceRetouchingOff';
-import { NavLink } from 'react-router-dom/cjs/react-router-dom.min';
+import { NavLink, useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 import { CHAT_ROUTE, INCOGNITO_CHAT_ROUTE, REGISTERED_CHAT_ROUTE } from '../utils/consts';
 // import {startPersonalChat} from '../utils/functions'
 
 const Messenger = (props) => {
-
+    // const history = useHistory()
     const { auth, firestore } = useContext(Context)
     const [user] = useAuthState(auth)
 
-
     const database = firebase.database()
-
-    const userId = user.uid;
-    const userName = user.displayName
-
-    console.log("userId: ", userId);
 
     const [value, setValue] = useState('')
     const [friend, setFriend] = useState(null)
@@ -53,9 +46,9 @@ const Messenger = (props) => {
 
     const [allRegUsers, setAllRegUsers] = useState(null)
 
-
     //if group chat chatId === null added in every group message
     // if personal chat we have friend and chatId !==null
+
     const [messages, loading1] = useCollectionData(
 
         (friend && chatId) &&
@@ -87,7 +80,7 @@ const Messenger = (props) => {
 
     useEffect(() => {
 
-        const nullName = `Incognito_${user.uid.slice(0, 4)}`
+        const nullName = `Incognito_${user.uid.slice(0, 3)}`
 
         const refUsers = database.ref(user.displayName === null ? `/users/${nullName}/displayName` : `/users/${user.displayName}/displayName`);
         refUsers.set(user.displayName === null ? nullName : user.displayName)
@@ -119,18 +112,16 @@ const Messenger = (props) => {
             else {
                 refStatus.set('online');
                 refSeen.set(firebase.database.ServerValue.TIMESTAMP)
-
             }
         };
 
-        let allUsers = null
+        let allUsers = {}
 
         const refUsersAll = database.ref(`/users`);
         refUsersAll.on("value", function (snapshot) {
             allUsers = snapshot.val()
 
             console.log('allUsers', allUsers)
-
             // setAllRegUsers(allUsers)
             // setRegUsers(Object.keys(allUsers))
             return allUsers
@@ -161,10 +152,6 @@ const Messenger = (props) => {
             setRegUsers(Object.keys(allUsers))
         }
 
-
-
-
-
         const refStatusAll = database.ref(`/status`);
         refStatusAll.on("value", function (snapshot) {
             let statusUsers = snapshot.val()
@@ -173,29 +160,8 @@ const Messenger = (props) => {
 
     }, []);
 
-
-
-
-    // useEffect(() => {
-    //     if (allRegUsers && (props.page === 'registered')) {
-    //         const asArray = Object.entries(allRegUsers);
-
-    //         const filtered = asArray.filter(key => key[1].photoURL);
-
-    //         const registeredAllUsers = Object.fromEntries(filtered);
-
-    //         setAllRegUsers(registeredAllUsers)
-    //         setRegUsers(Object.keys(registeredAllUsers))
-    //     }
-    //     else if (allRegUsers && (props.page === 'group')) {
-    //         setAllRegUsers(allRegUsers)
-    //         setRegUsers(Object.keys(allRegUsers))
-    //     }
-    // }, [props]);
-
-
-
     const messagesEndRef = useRef(null)
+
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
     }
@@ -223,17 +189,25 @@ const Messenger = (props) => {
             })
     }
 
+    const backRef = useRef(null)
+
     function startPersonalChat(e) {
         e.preventDefault();
         console.log("e: ", e);
 
         setFriend(e.target.innerText)
+        // history.push(`/chat/${props.page}/${friend}`)
+        // history.push(`/chat/${props.page}/${friend}`)
 
         setChatId([user.displayName, e.target.innerText].sort().join(''))
+        backRef.current.style.visibility = 'visible'
     }
 
-
-    //перерендерится вся страница  useCollectionData ИЗЗА ЛОАДЕРА !!!
+    function stopPersonalChat() {
+        setFriend(null)
+        setChatId(null)
+        backRef.current.style.visibility = 'hidden'
+    }
 
     const sendMessage = async () => {
 
@@ -333,13 +307,8 @@ const Messenger = (props) => {
                                 </Typography> */}
                             </MenuItem>
                             <Divider />
-                            {/* <MenuItem>
-                                <ListItemIcon>
-                                    <Cloud fontSize="small" />
-                                </ListItemIcon>
-                                <ListItemText>Web Clipboard</ListItemText>
-                            </MenuItem> */}
                         </MenuList>
+
                         <Stack direction="row" spacing={2}>
                             <div style={{ color: 'grey' }}>
                                 offline:
@@ -351,66 +320,89 @@ const Messenger = (props) => {
                             <div style={{ color: 'pink' }}>away: {(Object.values(statusAllUsers).filter(value => value === 'away')).length}</div>
 
                         </Stack>
+                    <div
+                    style = {{width:350}}                    
+                     onClick={startPersonalChat}
+                    >
+                        <Autocomplete
+                         open={true}
+                        
+                            id="user-select"
+                            sx={{ maxWidth: 350, marginTop:2 }}
+                            disableCloseOnSelect
+                            options={regUsers}
+                            autoHighlight
+                            getOptionLabel={(regUser) => regUser}
+                            renderOption={(props, regUser) => (
+                                <Button key={regUser} variant="outlined" style={{ textTransform: 'none', width: '100%', justifyContent: 'flex-start', }}>
+
+                                {regUsers && allRegUsers && <Avatar src={allRegUsers[regUser].photoURL} />}
+
+                                <div style={{
+                                    lineHeight: '35px',
+                                    marginLeft: 5,
+                                    cursor: 'pointer',
+                                    color:
+                                        Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'online') && 'blue' ||
+                                        Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'away') && 'pink' ||
+                                        'grey'
+                                }}
+                                >
+                                    {allRegUsers && allRegUsers[regUser].uid === user.uid
+                                        ?
+                                        < div onClick={(e) => e.stopPropagation()} style={{ cursor: 'default' }}>
+                                            {regUser} <span style={{ fontSize: 10, fontStyle: 'italic' }}> - you</span> </div >
+                                        :
+                                        <div style={{ display: 'flex', width: 250, justifyContent: 'space-between' }}><span>{regUser}</span><span onClick={(e) => e.stopPropagation()} style={{ fontSize: 10, fontStyle: 'italic', cursor: 'default' }}>                                           
+
+                                            {
+                                                ((new Date().getHours() - (new Date(allRegUsers[regUser].seen).getHours())) == 0)
+                                                    ?
+                                                    `seen ${(new Date().getMinutes()) - (new Date(allRegUsers[regUser].seen).getMinutes()) < 5 ? 'just now' : 'min ago'} `
+                                                    :
+                                                    `seen at: ${new Date(allRegUsers[regUser].seen).getHours()} : ${new Date(allRegUsers[regUser].seen).getMinutes()}`
+                                            }
+                                        </span>
+                                        </div>}
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                        {messages && (t = (messages.sort((a, b) => (a.createdAt > b.createdAt) ? 1 : ((b.createdAt > a.createdAt) ? -1 : 0)).filter(message => (message.displayName === regUser))).pop()) && t.text}                        
+                                    </div>
+                                </div>
+
+                            </Button>
+                            )}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Choose User"
+                                    inputProps={{
+                                        ...params.inputProps,
+                                        autoComplete: 'new-password', // disable autocomplete and autofill
+                                    }}
+                                />
+                            )}
+                        />
+</div>
+
+
+{/*                         
                         <Stack
                             mt={2}
                             style={{ width: '100%' }}
 
                             onClick={startPersonalChat}
-                        >
-                            {regUsers && regUsers.map(regUser =>
+                        > */}
+                            {/* {regUsers && regUsers.map(regUser =>
                                 <div
                                     key={regUser}
                                     style={{
                                         width: '100%',
                                     }}
-                                >
-                                    <Button variant="outlined" style={{ textTransform: 'none', width: '100%', justifyContent: 'flex-start', }}>
-
-                                        {regUsers && allRegUsers && <Avatar src={allRegUsers[regUser].photoURL} />}
-
-                                        <div style={{
-                                            lineHeight: '35px',
-                                            marginLeft: 5,
-                                            cursor: 'pointer',
-                                            color:
-                                                Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'online') && 'blue' ||
-                                                Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'away') && 'pink' ||
-                                                'grey'
-                                        }}
-                                        >
-                                            {allRegUsers && allRegUsers[regUser].uid === userId
-                                                ?
-                                                < div onClick={(e) => e.stopPropagation()} style={{ cursor: 'default' }}>
-                                                    {regUser} <span style={{ fontSize: 10, fontStyle: 'italic' }}> - you</span> </div >
-                                                :
-                                                <div style={{ display: 'flex', width: 250, justifyContent: 'space-between' }}><span>{regUser}</span><span onClick={(e) => e.stopPropagation()} style={{ fontSize: 10, fontStyle: 'italic', cursor: 'default' }}>
-
-                                                    {/* {new Date(allRegUsers[regUser].seen).getHours()}:{new Date(allRegUsers[regUser].seen).getMinutes()} */}
-
-                                                    {
-                                                        ((new Date().getHours() - (new Date(allRegUsers[regUser].seen).getHours())) == 0)
-                                                            ?
-
-                                                            `seen ${(new Date().getMinutes()) - (new Date(allRegUsers[regUser].seen).getMinutes()) < 5 ? 'just now' : 'min ago'} `
-
-                                                            :
-                                                            `seen at: ${new Date(allRegUsers[regUser].seen).getHours()} : ${new Date(allRegUsers[regUser].seen).getMinutes()}`
-
-
-                                                    }
-                                                </span>
-                                                </div>}
-                                            <div onClick={(e) => e.stopPropagation()}>
-
-                                                {messages && (t = (messages.filter(message => (message.displayName === regUser))).pop()) && t.text}
-                                                {/* { console.log("messages && messages.find(message =>(message.displayName === regUser).text): ", messages && (t=(messages.filter(message =>(message.displayName === regUser))).pop())&&t.text)} */}
-                                            </div>
-                                        </div>
-
-                                    </Button>
-                                </div>
-                            )}
-                        </Stack>
+                                > */}
+                                   
+                                {/* </div> */}
+                            {/* )} */}
+                        {/* </Stack> */}
                     </Grid>
 
                     <Grid container item xs={9}
@@ -420,7 +412,13 @@ const Messenger = (props) => {
                     >
 
                         <div style={{ width: '100%', height: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-
+                            <Button
+                                size="small"
+                                variant='outlined'
+                                style={{ visibility: 'hidden', marginRight: 'auto' }}
+                                ref={backRef}
+                                onClick={stopPersonalChat}><KeyboardBackspaceIcon /> back to {props.page} chat
+                            </Button>
                             {friend && allRegUsers && <><span style={{ fontStyle: 'italic', fontSize: 12, color: 'blue' }}>chatting with:&nbsp;&nbsp; </span>
                                 <Avatar src={allRegUsers[friend].photoURL} />&nbsp;{friend}</>}
                         </div>
