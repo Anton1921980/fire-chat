@@ -241,8 +241,10 @@ const Messenger = (props) => {
 
     const handleEmojiShow = () => {
         setShowEmoji((v) => !v)
+    
     }
-
+    console.log("setShowEmoji: ", showEmoji);
+    
     const handleEmojiSelect = (e) => {
         setValue((text) => (text += e.native))
     }
@@ -415,7 +417,7 @@ const Messenger = (props) => {
                                         label={<PersonSearchIcon />}
                                         inputProps={{
                                             ...params.inputProps,
-                                            autoComplete: 'new-password', // disable autocomplete and autofill
+                                           
                                         }}
                                     />
                                 )}
