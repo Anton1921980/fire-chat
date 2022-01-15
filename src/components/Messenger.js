@@ -49,7 +49,6 @@ const Messenger = (props) => {
     const [open, setOpen] = useState(false);
 
 
-
     const [allRegUsers, setAllRegUsers] = useState(null)
 
     //if group chat chatId === null added in every group message
@@ -267,21 +266,7 @@ const Messenger = (props) => {
     console.log("opened: ", opened);
 
     let userIndex
-    //  userIndex = regUsers && regUsers.findIndex(item => item === user.displayName)
-    // regUsers && regUsers.splice(userIndex, 1)
-    // regUsers && regUsers.splice(0, 0, user.displayName)
 
-    // useEffect(() => {
-    //     const userIndex = regUsers.findIndex(item => item === user.displayName)
-    //     props.page !== 'incognito' && regUsers.splice(userIndex, 1)
-    //     props.page !== 'incognito' && regUsers.splice(0, 0, user.displayName)
-    // }, [regUsers.length]);
-
-    //     useEffect(() => {
-    //     const userIndex = regUsers &&regUsers.length&& (props.page !== 'incognito') && regUsers.findIndex(item => item === user.displayName)
-    //      (props.page !== 'incognito')&& regUsers.splice(userIndex, 1)
-    //      (props.page !== 'incognito') && regUsers.splice(0, 0, user.displayName) 
-    // }, [regUsers]);
     return (
         <>
             <Container
@@ -369,15 +354,16 @@ const Messenger = (props) => {
                         >
                             {regUsers && regUsers.length &&
                                 <Autocomplete
-                                    // open={!opened ? true : false}
+                                    // open={!opened ? true : false}  
+
                                     open={true}
                                     id="user-select"
                                     sx={{ maxWidth: 350, marginTop: 1, }}
-                                    // disableCloseOnSelect
+                                    disableCloseOnSelect
                                     options={regUsers}
-
+                                    freeSolo
                                     autoHighlight
-                                    getOptionLabel={(regUser) => regUser}
+                                    getOptionLabel={(regUser) => regUser || ""}
                                     renderOption={(props, regUser) => (
 
                                         <Button
@@ -388,7 +374,10 @@ const Messenger = (props) => {
                                                 margin: 1,
                                                 font: 'inherit',
                                                 textTransform: 'none', width: '100%', justifyContent: 'flex-start',
-                                                background: (regUser === user.displayName || friend === regUser) ? '#e0feef' : '#ebf2f2'
+                                                background: (regUser === user.displayName || friend === regUser) ? '#e0feef' : (
+                                                    Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'online') && '#1693ebb5' ||
+                                                    Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'away') && '#ff6589a6' ||
+                                                    '#7fa8c57a')
                                             }}>
 
                                             <Avatar
@@ -403,8 +392,8 @@ const Messenger = (props) => {
                                                     marginLeft: 5,
                                                     cursor: 'pointer',
                                                     color:
-                                                        Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'online') && 'blue' ||
-                                                        Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'away') && 'pink' ||
+                                                        // Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'online') && 'blue' ||
+                                                        // Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'away') && 'pink' ||
                                                         'grey'
                                                 }}
                                             >
@@ -475,7 +464,7 @@ const Messenger = (props) => {
                     >
 
 
-                        <Grid item sx={{ lg: { height: '40vh' }, lg: { height: '80vh' }, width: '100%', border: '1px solid lightgrey', overflowY: 'auto', background: '#6ef9b236', height: '80vh' }}>
+                        <Grid item sx={{ height: { xs: '50vh', md: '80vh' }, width: '100%', border: '1px solid lightgrey', overflowY: 'auto', background: '#6ef9b236', }}>
 
 
                             {messages && messages.length > 0 && messages
