@@ -53,7 +53,7 @@ code {
 }
 .css-b7k0tb-MuiAutocomplete-listbox {
 
-  max-height: 30vh !important;
+  max-height: 58.9vh !important;
  
 }
 .css-b7k0tb-MuiAutocomplete-listbox {
@@ -62,6 +62,12 @@ code {
 }
 .css-1rwt2y5-MuiButtonBase-root-MuiButton-root{
   border: 1px solid transparent !important;
+}
+.MuiAutocomplete-listbox .css-b7k0tb-MuiAutocomplete-listbox {
+  background-color:'#5890901f !important';
+}
+user-select-listbox{
+
 }
 .lds-ellipsis {
   display: inline-block;
