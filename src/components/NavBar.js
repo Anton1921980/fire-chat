@@ -15,29 +15,21 @@ import MenuIcon from '@mui/icons-material/Menu';
 
 function NavBar() {
 
-
     const { opened, setOpened } = useContext(Context2);
     const { auth } = useContext(Context)
 
-
     const [user] = useAuthState(auth)
-    // console.log("user: ", user);
-    // const user = true
     const database = firebase.database()
+
     const statusOffline = () => {
         const refStatus = database.ref(`/status/${user.displayName}`);
         refStatus.set('offline');
     }
     const [disabled, setDisabled] = useState(false)
 
-    useEffect(() => {
-
-
-    }, [])
-
 
     return (
-        <AppBar position="static" color="" sx={{background:'#5890901f'}}>
+        <AppBar position="static" color="" sx={{ background: '#5890901f' }}>
             <Toolbar variant="dense">
 
                 <Grid container justifyContent={"space-around"}>
@@ -53,21 +45,21 @@ function NavBar() {
                     </IconButton>
 
                     <NavLink to={HOME_ROUTE}>
-                        <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'flex', lineHeight: 1.3, color: '#3300ff', position: 'relative', top: { xs: 18, lg: 5 }, left:{lg:'97vh'} }}
+                        <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'flex', lineHeight: 1.3, color: '#3300ff', position: 'relative', top: { xs: 18, lg: 5 }, left: { lg: '97vh' } }}
                         // style={{ display: 'flex', lineHeight: 1.3, color: '#3300ff' }}
                         >
                             <LocalFireDepartmentIcon /> Fire_Chat
                         </Typography>
                     </NavLink>
-                    <div style={{marginLeft:'auto'}}>
-                    {!user ?
-                        <NavLink to={LOGIN_ROUTE}>
-                            <Button onClick={() => setDisabled(true)} disabled={disabled}><LoginIcon /></Button>
-                        </NavLink>
-                        :
-                        <Button onClick={() => { statusOffline(); auth.signOut() }}><LogoutIcon /></Button>
-                    }
-                    </div>
+                    <Grid item sx={{ position: 'relative', top: { xs: 12, md: 0 }, left: { xs: 40, md: 0 }, marginLeft: { md: 'auto' }, }}>
+                        {!user ?
+                            <NavLink to={LOGIN_ROUTE}>
+                                <Button onClick={() => setDisabled(true)} disabled={disabled}><LoginIcon /></Button>
+                            </NavLink>
+                            :
+                            <Button onClick={() => { statusOffline(); auth.signOut() }}><LogoutIcon /></Button>
+                        }
+                    </Grid>
 
                 </Grid>
             </Toolbar>
