@@ -120,7 +120,7 @@ const Messenger = (props) => {
             }
         };
 
-        let allUsers = {}
+        let allUsers = null
         const refUsersAll = database.ref(`/users`);
         refUsersAll.on("value", function (snapshot) {
             allUsers = snapshot.val()
@@ -147,7 +147,7 @@ const Messenger = (props) => {
             setAllRegUsers(registeredAllUsers)
             setRegUsers(Object.keys(registeredAllUsers))
         }
-        else if (allUsers && (props.page === 'group')) {
+        else if (allUsers) {
             setAllRegUsers(allUsers)
             setRegUsers(Object.keys(allUsers))
         }
@@ -155,7 +155,7 @@ const Messenger = (props) => {
         const refStatusAll = database.ref(`/status`);
         refStatusAll.on("value", function (snapshot) {
             let statusUsers = snapshot.val()
-            setStatusAllUsers(statusUsers)            
+            setStatusAllUsers(statusUsers)
         });
 
     }, []);
@@ -266,7 +266,8 @@ const Messenger = (props) => {
     const { opened, setOpened } = useContext(Context2);
     console.log("opened: ", opened);
 
-    // const userIndex = regUsers && regUsers.findIndex(item => item === user.displayName)
+    let userIndex
+    //  userIndex = regUsers && regUsers.findIndex(item => item === user.displayName)
     // regUsers && regUsers.splice(userIndex, 1)
     // regUsers && regUsers.splice(0, 0, user.displayName)
 
@@ -276,29 +277,25 @@ const Messenger = (props) => {
     //     props.page !== 'incognito' && regUsers.splice(0, 0, user.displayName)
     // }, [regUsers.length]);
 
-//     useEffect(() => {
-//     const userIndex = regUsers &&regUsers.length&& (props.page !== 'incognito') && regUsers.findIndex(item => item === user.displayName)
-//      (props.page !== 'incognito')&& regUsers.splice(userIndex, 1)
-//      (props.page !== 'incognito') && regUsers.splice(0, 0, user.displayName) 
-// }, [regUsers]);
+    //     useEffect(() => {
+    //     const userIndex = regUsers &&regUsers.length&& (props.page !== 'incognito') && regUsers.findIndex(item => item === user.displayName)
+    //      (props.page !== 'incognito')&& regUsers.splice(userIndex, 1)
+    //      (props.page !== 'incognito') && regUsers.splice(0, 0, user.displayName) 
+    // }, [regUsers]);
     return (
         <>
             <Container
                 maxWidth="xl"
-                // sx={{}}
                 sx={{
                     background: '#5890901f',
                     height: '93vh'
                 }}
             >
-
                 <Grid container
                     // columnSpacing={' xs: 2, sm: 2 '}
                     style={{ height: window.innerHeight - 70, }}
                 >
                     <Grid container item xs={12} lg={3}
-
-
                         style={{
 
                             // display: { xs: !opened ? 'none' : 'flex', lg: 'flex' },
@@ -313,21 +310,23 @@ const Messenger = (props) => {
                         // alignItems={'center'}
                         justifyContent={'center'}
                     >
-
-                        <Stack direction="row" spacing={1} style={{ color: 'grey', marginLeft: '70px', marginRight: '20vh', position: 'relative', bottom: 20 }}>
-                            {/* <div style={{ color: 'gray', fontStyle: 'italic' }}>Users in chat: </div> */}
-                            <Chip label={`online`} avatar={<Avatar sx={{ background: '#1693eb' }}>{(Object.values(statusAllUsers).filter(value => value === 'online')).length}</Avatar>} />
-
-                            <Chip label={`away`} avatar={<Avatar sx={{ background: '#ff6589' }}>{(Object.values(statusAllUsers).filter(value => value === 'away')).length}</Avatar>} />
-
-                            <Chip label={`offline `} avatar={<Avatar sx={{ background: '#7fa8c5' }}>{regUsers.length - (Object.values(statusAllUsers).filter(value => value === 'online')).length -
+                        <div style={{ display: 'none' }}>   {userIndex = regUsers && regUsers.findIndex(item => item === user.displayName)}
+                            {regUsers && regUsers.splice(userIndex, 1)}
+                            {regUsers && regUsers.splice(0, 0, user.displayName)}
+                        </div>
+                        <Stack direction="row" spacing={1} sx={{
+                            top: { xs: 229, md: -15 }, left: { xs: 2 },
+                            display: 'flex', zIndex: 1, alignContent: 'flex-start', alignItems: 'flex-start', color: 'grey', position: 'relative',
+                        }}>
+                            <Chip size='small' label={`online`} avatar={<Avatar sx={{ background: '#1693eb' }}>{(Object.values(statusAllUsers).filter(value => value === 'online')).length}</Avatar>} />
+                            <Chip size='small' label={`away`} avatar={<Avatar sx={{ background: '#ff6589' }}>{(Object.values(statusAllUsers).filter(value => value === 'away')).length}</Avatar>} />
+                            <Chip size='small' label={`offline `} avatar={<Avatar sx={{ background: '#7fa8c5' }}>{regUsers.length - (Object.values(statusAllUsers).filter(value => value === 'online')).length -
                                 (Object.values(statusAllUsers).filter(value => value === 'away')).length}</Avatar>} />
-
                         </Stack>
 
                         <MenuList style={{ width: '95%' }}>
                             <NavLink to={CHAT_ROUTE}>
-                                <MenuItem style={{ background: props.page === 'group' ? 'l#f8fdf9' : 'none' }}>
+                                <MenuItem style={{ background: props.page === 'group' ? '#f8fdf9' : 'none' }}>
                                     <ListItemIcon>
                                         <FaceIcon fontSize="small" />
                                     </ListItemIcon>
@@ -343,7 +342,7 @@ const Messenger = (props) => {
                                 </MenuItem>
                             </NavLink>
                             <NavLink to={INCOGNITO_CHAT_ROUTE}>
-                                <MenuItem style={{ background: props.page === 'incognito' ? 'l#f8fdf9' : 'none' }}>
+                                <MenuItem style={{ background: props.page === 'incognito' ? '#f8fdf9' : 'none' }}>
                                     <ListItemIcon>
                                         <FaceRetouchingOffIcon fontSize="small" />
                                     </ListItemIcon>
@@ -376,16 +375,15 @@ const Messenger = (props) => {
                                     sx={{ maxWidth: 350, marginTop: 1, }}
                                     // disableCloseOnSelect
                                     options={regUsers}
-                                    
+
                                     autoHighlight
                                     getOptionLabel={(regUser) => regUser}
                                     renderOption={(props, regUser) => (
-                                       
+
                                         <Button
                                             data-user={regUser}
                                             disabled={regUser === user.displayName}
                                             key={regUser}
-                                            variant="outlined"
                                             style={{
                                                 margin: 1,
                                                 font: 'inherit',
@@ -395,8 +393,8 @@ const Messenger = (props) => {
 
                                             <Avatar
                                                 onClick={(e) => e.stopPropagation()}
-                                                src={ allRegUsers[regUser].photoURL}
-                                                 />
+                                            // src={!allRegUsers[regUser].includes('Inc')&&allRegUsers[regUser].photoUrl}
+                                            />
                                             <div
                                                 //   onClick={(e) => e.stopPropagation()}
                                                 data-user={regUser}
@@ -410,8 +408,9 @@ const Messenger = (props) => {
                                                         'grey'
                                                 }}
                                             >
-                                                {allRegUsers[regUser].uid === user.uid
+                                                {regUser === user.displayName
                                                     ?
+
                                                     < div
                                                         // onClick={(e) => e.stopPropagation()}
                                                         style={{ cursor: 'default', }}>
@@ -476,7 +475,7 @@ const Messenger = (props) => {
                     >
 
 
-                        <div style={{ width: '100%', height: '80vh', border: '1px solid lightgrey', overflowY: 'auto', background: '#6ef9b236' }}>
+                        <Grid item sx={{ lg: { height: '40vh' }, lg: { height: '80vh' }, width: '100%', border: '1px solid lightgrey', overflowY: 'auto', background: '#6ef9b236', height: '80vh' }}>
 
 
                             {messages && messages.length > 0 && messages
@@ -609,7 +608,7 @@ const Messenger = (props) => {
                             >
                                 <Box sx={style}><img src={imgUrl} style={{ width: '100%', height: '100%' }} /></Box>
                             </Modal>
-                        </div>
+                        </Grid>
                         <Grid
                             container
                             direction={'row'}
