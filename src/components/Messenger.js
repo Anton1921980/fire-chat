@@ -155,7 +155,7 @@ const Messenger = (props) => {
         const refStatusAll = database.ref(`/status`);
         refStatusAll.on("value", function (snapshot) {
             let statusUsers = snapshot.val()
-            setStatusAllUsers(statusUsers)
+            setStatusAllUsers(statusUsers)            
         });
 
     }, []);
@@ -270,13 +270,17 @@ const Messenger = (props) => {
     // regUsers && regUsers.splice(userIndex, 1)
     // regUsers && regUsers.splice(0, 0, user.displayName)
 
-    useEffect(() => {
-        const userIndex = regUsers.findIndex(item => item === user.displayName)
-        props.page !== 'incognito' && regUsers.splice(userIndex, 1)
-        props.page !== 'incognito' && regUsers.splice(0, 0, user.displayName)
-    }, [regUsers, props.page]);
+    // useEffect(() => {
+    //     const userIndex = regUsers.findIndex(item => item === user.displayName)
+    //     props.page !== 'incognito' && regUsers.splice(userIndex, 1)
+    //     props.page !== 'incognito' && regUsers.splice(0, 0, user.displayName)
+    // }, [regUsers.length]);
 
-
+//     useEffect(() => {
+//     const userIndex = regUsers &&regUsers.length&& (props.page !== 'incognito') && regUsers.findIndex(item => item === user.displayName)
+//      (props.page !== 'incognito')&& regUsers.splice(userIndex, 1)
+//      (props.page !== 'incognito') && regUsers.splice(0, 0, user.displayName) 
+// }, [regUsers]);
     return (
         <>
             <Container
@@ -364,7 +368,7 @@ const Messenger = (props) => {
                             style={{ width: 350 }}
                             onClick={startPersonalChat}
                         >
-                            {regUsers && allRegUsers && user.uid &&
+                            {regUsers && regUsers.length &&
                                 <Autocomplete
                                     // open={!opened ? true : false}
                                     open={true}
@@ -372,26 +376,27 @@ const Messenger = (props) => {
                                     sx={{ maxWidth: 350, marginTop: 1, }}
                                     // disableCloseOnSelect
                                     options={regUsers}
-                                    freeSolo
+                                    
                                     autoHighlight
                                     getOptionLabel={(regUser) => regUser}
                                     renderOption={(props, regUser) => (
-                                        allRegUsers[regUser].uid && <Button
+                                       
+                                        <Button
                                             data-user={regUser}
-                                            disabled={allRegUsers[regUser].uid === user.uid}
+                                            disabled={regUser === user.displayName}
                                             key={regUser}
                                             variant="outlined"
                                             style={{
                                                 margin: 1,
                                                 font: 'inherit',
                                                 textTransform: 'none', width: '100%', justifyContent: 'flex-start',
-                                                background: (allRegUsers[regUser].uid === user.uid || friend === allRegUsers[regUser].displayName) ? '#e0feef' : '#ebf2f2'
+                                                background: (regUser === user.displayName || friend === regUser) ? '#e0feef' : '#ebf2f2'
                                             }}>
 
                                             <Avatar
                                                 onClick={(e) => e.stopPropagation()}
-                                                src={allRegUsers[regUser].photoURL} />
-
+                                                src={ allRegUsers[regUser].photoURL}
+                                                 />
                                             <div
                                                 //   onClick={(e) => e.stopPropagation()}
                                                 data-user={regUser}
