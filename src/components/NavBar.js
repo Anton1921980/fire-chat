@@ -37,7 +37,7 @@ function NavBar() {
 
 
     return (
-        <AppBar position="static" color="">
+        <AppBar position="static" color="" sx={{background:'#5890901f'}}>
             <Toolbar variant="dense">
 
                 <Grid container justifyContent={"space-around"}>
@@ -53,13 +53,13 @@ function NavBar() {
                     </IconButton>
 
                     <NavLink to={HOME_ROUTE}>
-                        <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'flex', lineHeight: 1.3, color: '#3300ff', position: 'relative', top: { xs: 18, lg: 0 } }}
+                        <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'flex', lineHeight: 1.3, color: '#3300ff', position: 'relative', top: { xs: 18, lg: 5 }, left:{lg:'97vh'} }}
                         // style={{ display: 'flex', lineHeight: 1.3, color: '#3300ff' }}
                         >
                             <LocalFireDepartmentIcon /> Fire_Chat
                         </Typography>
                     </NavLink>
-
+                    <div style={{marginLeft:'auto'}}>
                     {!user ?
                         <NavLink to={LOGIN_ROUTE}>
                             <Button onClick={() => setDisabled(true)} disabled={disabled}><LoginIcon /></Button>
@@ -67,6 +67,7 @@ function NavBar() {
                         :
                         <Button onClick={() => { statusOffline(); auth.signOut() }}><LogoutIcon /></Button>
                     }
+                    </div>
 
                 </Grid>
             </Toolbar>
