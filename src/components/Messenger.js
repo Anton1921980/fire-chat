@@ -38,6 +38,8 @@ const Messenger = (props) => {
     const database = firebase.database()
 
     const [value, setValue] = useState('')
+    const [isMobile, setIsMobile] = useState(false)
+    const [isUserListOpen, setIsUserListOpen] = useState(true)
     const [friend, setFriend] = useState(null)
     const [regUsers, setRegUsers] = useState([])
     const [statusAllUsers, setStatusAllUsers] = useState([])
@@ -50,7 +52,7 @@ const Messenger = (props) => {
 
 
     const [allRegUsers, setAllRegUsers] = useState(null)
-
+    
     //if group chat chatId === null added in every group message
     // if personal chat we have friend and chatId !==null
 
@@ -83,7 +85,7 @@ const Messenger = (props) => {
     )
 
     useEffect(() => {
-
+        window.innerWidth < 500 ? setIsMobile(true) : setIsMobile(false)
         const nullName = `Incognito_${user.uid.slice(0, 3)}`
 
         const refUsers = database.ref(user.displayName === null ? `/users/${nullName}/displayName` : `/users/${user.displayName}/displayName`);
@@ -242,7 +244,7 @@ const Messenger = (props) => {
         setShowEmoji((v) => !v)
 
     }
-    console.log("setShowEmoji: ", showEmoji);
+
 
     const handleEmojiSelect = (e) => {
         setValue((text) => (text += e.native))
@@ -263,7 +265,11 @@ const Messenger = (props) => {
     let t
     console.log("chatId: ", chatId);
     const { opened, setOpened } = useContext(Context2);
-    console.log("opened: ", opened);
+
+    useEffect(() => {
+        opened && isMobile && setIsUserListOpen(true)
+        !opened && isMobile && setIsUserListOpen(false)
+    }, [opened])
 
     let userIndex
 
@@ -281,10 +287,9 @@ const Messenger = (props) => {
                     style={{ height: window.innerHeight - 70, }}
                 >
                     <Grid container item xs={12} lg={3}
-                        style={{
+                        sx={{
 
-                            // display: { xs: !opened ? 'none' : 'flex', lg: 'flex' },
-
+                            display: { xs: opened ? 'flex' : 'none', md: 'flex' },
                             height: window.innerHeight - 100,
                             // marginTop: 20,
                             position: 'relative',
@@ -354,9 +359,8 @@ const Messenger = (props) => {
                         >
                             {regUsers && regUsers.length &&
                                 <Autocomplete
-                                    // open={!opened ? true : false}  
+                                    open={isUserListOpen}
 
-                                    open={true}
                                     id="user-select"
                                     sx={{ maxWidth: 350, marginTop: 1, }}
                                     disableCloseOnSelect
@@ -382,8 +386,10 @@ const Messenger = (props) => {
 
                                             <Avatar
                                                 onClick={(e) => e.stopPropagation()}
-                                            // src={!allRegUsers[regUser].includes('Inc')&&allRegUsers[regUser].photoUrl}
+                                            // src={!((allRegUsers[regUser]).displayName.includes('Inc')) && allRegUsers[regUser].photoUrl}
+
                                             />
+                                            {/* {console.log("allRegUsers[regUser]: ", allRegUsers[regUser])} */}
                                             <div
                                                 //   onClick={(e) => e.stopPropagation()}
                                                 data-user={regUser}
@@ -437,6 +443,7 @@ const Messenger = (props) => {
                                     )}
                                     renderInput={(params) => (
                                         <TextField
+                                            // onClick={} 
                                             {...params}
                                             label={<PersonSearchIcon />}
                                             inputProps={{
@@ -453,18 +460,19 @@ const Messenger = (props) => {
 
                     <Grid container item xs={12} lg={9}
 
-                        // sx={{ display: {xs: !opened?'flex':'none', lg:'flex'},
-                        //  position:'relative',
-                        //  top:500,
-                        //  height: window.innerHeight - 300
-                        //  }}
+                        sx={{
+                            display: { xs: opened ? 'none' : 'flex', md: 'flex' },
+                            //  position:'relative',
+                            //  top:500,
+                            //  height: window.innerHeight - 300
+                        }}
                         alignContent={'flex-start'}
                         alignItems={'center'}
                         justifyContent={'center'}
                     >
 
 
-                        <Grid item sx={{ height: { xs: '50vh', md: '80vh' }, width: '100%', border: '1px solid lightgrey', overflowY: 'auto', background: '#6ef9b236', }}>
+                        <Grid item sx={{ height: { xs: '75vh', md: '80vh' }, width: '100%', border: '1px solid lightgrey', overflowY: 'auto', background: '#6ef9b236', }}>
 
 
                             {messages && messages.length > 0 && messages

@@ -11,7 +11,7 @@ import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import LogoutIcon from '@mui/icons-material/Logout';
 import LoginIcon from '@mui/icons-material/Login';
 import MenuIcon from '@mui/icons-material/Menu';
-
+import CloseIcon from '@mui/icons-material/Close';
 
 function NavBar() {
 
@@ -41,7 +41,7 @@ function NavBar() {
                         aria-label="menu"
                         sx={{ display: { xs: 'block', lg: 'none', }, mr: 2 }}
                     >
-                        <MenuIcon />
+                        {!opened ? <MenuIcon /> : <CloseIcon sx={{color:'#1976d2'}} />}
                     </IconButton>
 
                     <NavLink to={HOME_ROUTE}>
