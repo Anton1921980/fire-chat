@@ -31,6 +31,7 @@ const Messenger = (props) => {
     // const history = useHistory()
     const { auth, firestore } = useContext(Context)
     const [user] = useAuthState(auth)
+    console.log("user: ", user);
 
     // const value = useContext(Context2);
     // console.log("value: ", value);
@@ -52,7 +53,7 @@ const Messenger = (props) => {
 
 
     const [allRegUsers, setAllRegUsers] = useState(null)
-    
+
     //if group chat chatId === null added in every group message
     // if personal chat we have friend and chatId !==null
 
@@ -65,16 +66,16 @@ const Messenger = (props) => {
         )
         ||
 
-        (props.page === 'registered') &&
+        (props.page === 'registered') && 
         (
             firestore.collection("messages")
-                .where("displayName", "!=", null)
+            .where("chatId", "==", null)
         )
         ||
-        (props.page === 'incognito') &&
+        (props.page === 'incognito') && 
         (
             firestore.collection("messages")
-                .where("displayName", "==", null)
+            .where("chatId", "==", null)           
         )
         ||
         ((props.page === 'group')) &&
@@ -86,21 +87,22 @@ const Messenger = (props) => {
 
     useEffect(() => {
         window.innerWidth < 500 ? setIsMobile(true) : setIsMobile(false)
+
         const nullName = `Incognito_${user.uid.slice(0, 3)}`
 
-        const refUsers = database.ref(user.displayName === null ? `/users/${nullName}/displayName` : `/users/${user.displayName}/displayName`);
-        refUsers.set(user.displayName === null ? nullName : user.displayName)
+        const refUsers = database.ref(user.displayName == null ? `/users/${nullName}/displayName` : `/users/${user.displayName}/displayName`);
+        refUsers.set(user.displayName == null ? nullName : user.displayName)
 
-        const refUid = database.ref(user.displayName === null ? `/users/${nullName}/uid` : `/users/${user.displayName}/uid`);
+        const refUid = database.ref(user.displayName == null ? `/users/${nullName}/uid` : `/users/${user.displayName}/uid`);
         refUid.set(user.uid)
 
-        const refPhoto = database.ref(user.displayName === null ? `/users/${nullName}/photoUrl` : `/users/${user.displayName}/photoUrl`);
-        refPhoto.set(user.photoURL)
+        const refPhoto = database.ref(user.displayName == null ? `/users/${nullName}/photoURL` : `/users/${user.displayName}/photoURL`);
+        refPhoto.set(user.photoURL != null ? user.photoURL : 'https://banner2.cleanpng.com/20180505/rse/kisspng-emoji-domain-emojipedia-dark-skin-detective-5aed9ba2ed0164.8229006115255213149708.jpg')
 
-        const refSeen = database.ref(user.displayName === null ? `/users/${nullName}/seen` : `/users/${user.displayName}/seen`);
+        const refSeen = database.ref(user.displayName == null ? `/users/${nullName}/seen` : `/users/${user.displayName}/seen`);
         refSeen.set(firebase.database.ServerValue.TIMESTAMP)
 
-        const refStatus = database.ref(user.displayName === null ? `/status/${nullName}` : `/status/${user.displayName}`);
+        const refStatus = database.ref(user.displayName == null ? `/status/${nullName}` : `/status/${user.displayName}`);
         refStatus.set('online')
         refStatus
             .onDisconnect()
@@ -131,7 +133,7 @@ const Messenger = (props) => {
         if (allUsers && (props.page === 'registered')) {
             const asArray = Object.entries(allUsers);
 
-            const filtered = asArray.filter(key => key[1].photoURL);
+            const filtered = asArray.filter(key => (!(key[1].displayName).includes('Inc')));
 
             const registeredAllUsers = Object.fromEntries(filtered);
 
@@ -141,9 +143,23 @@ const Messenger = (props) => {
         else if (allUsers && (props.page === 'incognito')) {
             const asArray = Object.entries(allUsers);
 
-            const filtered = asArray.filter(key => !(key[1].photoURL));
+
+
+            const filtered = asArray.filter(key => ((key[1].displayName).includes('Inc')));
 
             const registeredAllUsers = Object.fromEntries(filtered);
+
+
+            // let aaa = Object.keys(registeredAllUsers)
+            // console.log("aaa: ", aaa);
+
+            // userIndex = aaa.findIndex(item => item === user.displayName)
+            // aaa.splice(userIndex, 1)
+            // aaa.splice(0, 0, user.displayName)
+
+            // // const filtered2 = aaa.filter(key => ((key[1].displayName).includes('Inc')));
+
+            // const registeredAllUsers2 = Object.fromEntries(aaa);
 
             setAllRegUsers(registeredAllUsers)
             setRegUsers(Object.keys(registeredAllUsers))
@@ -212,8 +228,8 @@ const Messenger = (props) => {
 
         await firestore.collection('messages').add({
             uid: user.uid,
-            displayName: props.page === 'incognito' ? null : user.displayName,
-            photoURL: user.photoURL,
+            displayName: user.displayName ? user.displayName : `Incognito_${user.uid.slice(0, 3)}`,
+            photoURL: user.displayName ? user.photoURL : 'https://banner2.cleanpng.com/20180505/rse/kisspng-emoji-domain-emojipedia-dark-skin-detective-5aed9ba2ed0164.8229006115255213149708.jpg',
             text: value,
             url: url,
             fileName: fileName,
@@ -263,7 +279,7 @@ const Messenger = (props) => {
 
     let j
     let t
-    console.log("chatId: ", chatId);
+   
     const { opened, setOpened } = useContext(Context2);
 
     useEffect(() => {
@@ -272,7 +288,7 @@ const Messenger = (props) => {
     }, [opened])
 
     let userIndex
-
+console.log('allRegUsers',allRegUsers);
     return (
         <>
             <Container
@@ -300,17 +316,14 @@ const Messenger = (props) => {
                         // alignItems={'center'}
                         justifyContent={'center'}
                     >
-                        <div style={{ display: 'none' }}>   {userIndex = regUsers && regUsers.findIndex(item => item === user.displayName)}
-                            {regUsers && regUsers.splice(userIndex, 1)}
-                            {regUsers && regUsers.splice(0, 0, user.displayName)}
-                        </div>
+
                         <Stack direction="row" spacing={1} sx={{
                             top: { xs: 229, md: -15 }, left: { xs: 2 },
                             display: 'flex', zIndex: 1, alignContent: 'flex-start', alignItems: 'flex-start', color: 'grey', position: 'relative',
                         }}>
-                            <Chip size='small' label={`online`} avatar={<Avatar sx={{ background: '#1693eb' }}>{(Object.values(statusAllUsers).filter(value => value === 'online')).length}</Avatar>} />
-                            <Chip size='small' label={`away`} avatar={<Avatar sx={{ background: '#ff6589' }}>{(Object.values(statusAllUsers).filter(value => value === 'away')).length}</Avatar>} />
-                            <Chip size='small' label={`offline `} avatar={<Avatar sx={{ background: '#7fa8c5' }}>{regUsers.length - (Object.values(statusAllUsers).filter(value => value === 'online')).length -
+                            <Chip size='small' sx={{ background: 'transparent' }} label={`online`} avatar={<Avatar sx={{ background: '#1693eb' }}>{(Object.values(statusAllUsers).filter(value => value === 'online')).length}</Avatar>} />
+                            <Chip size='small' sx={{ background: 'transparent' }} label={`away`} avatar={<Avatar sx={{ background: '#ff6589' }}>{(Object.values(statusAllUsers).filter(value => value === 'away')).length}</Avatar>} />
+                            <Chip size='small' sx={{ background: 'transparent' }} label={`offline `} avatar={<Avatar sx={{ background: '#7fa8c5' }}>{regUsers.length - (Object.values(statusAllUsers).filter(value => value === 'online')).length -
                                 (Object.values(statusAllUsers).filter(value => value === 'away')).length}</Avatar>} />
                         </Stack>
 
@@ -352,19 +365,23 @@ const Messenger = (props) => {
                             {friend && allRegUsers && <div style={{ display: 'flex', marginRight: 15, alignItems: 'center', height: 30 }}><span style={{ fontStyle: 'italic', fontSize: 12, color: 'blue', }}>Chat with:&nbsp;&nbsp; </span>
                                 <Avatar sx={{ width: 24, height: 24 }} src={allRegUsers[friend].photoURL} />&nbsp;{friend}</div>}
                         </div>
-
+                        {/* <div style={{ display: 'none' }}>
+                            {userIndex = regUsers && regUsers.findIndex(item => item === user.displayName)}
+                            {regUsers && regUsers.splice(userIndex, 1)}
+                            {regUsers && regUsers.splice(0, 0, user.displayName)}
+                        </div> */}
                         <div
                             style={{ width: 350 }}
                             onClick={startPersonalChat}
                         >
-                            {regUsers && regUsers.length &&
+                            {allRegUsers && regUsers.length &&
                                 <Autocomplete
                                     open={isUserListOpen}
 
                                     id="user-select"
                                     sx={{ maxWidth: 350, marginTop: 1, }}
                                     disableCloseOnSelect
-                                    options={regUsers}
+                                    options={Object.keys(allRegUsers)}
                                     freeSolo
                                     autoHighlight
                                     getOptionLabel={(regUser) => regUser || ""}
@@ -372,24 +389,25 @@ const Messenger = (props) => {
 
                                         <Button
                                             data-user={regUser}
-                                            disabled={regUser === user.displayName}
+                                            disabled={allRegUsers[regUser].uid === user.uid}
                                             key={regUser}
                                             style={{
                                                 margin: 1,
                                                 font: 'inherit',
                                                 textTransform: 'none', width: '100%', justifyContent: 'flex-start',
-                                                background: (regUser === user.displayName || friend === regUser) ? '#e0feef' : (
+                                                background: (allRegUsers[regUser].uid  === user.uid || friend === regUser) ? '#30c9d036' : (
                                                     Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'online') && '#1693ebb5' ||
                                                     Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'away') && '#ff6589a6' ||
                                                     '#7fa8c57a')
                                             }}>
 
-                                            <Avatar
+                                            {allRegUsers[regUser].photoURL && <Avatar
                                                 onClick={(e) => e.stopPropagation()}
-                                            // src={!((allRegUsers[regUser]).displayName.includes('Inc')) && allRegUsers[regUser].photoUrl}
+                                                src={(allRegUsers[regUser]).photoURL}
 
-                                            />
-                                            {/* {console.log("allRegUsers[regUser]: ", allRegUsers[regUser])} */}
+                                            />}
+                                            {/* {console.log("[regUser]: ", allRegUsers[regUser])}
+                                     {console.log("allRegUsers[regUser]: ", allRegUsers)} */}
                                             <div
                                                 //   onClick={(e) => e.stopPropagation()}
                                                 data-user={regUser}
@@ -403,7 +421,7 @@ const Messenger = (props) => {
                                                         'grey'
                                                 }}
                                             >
-                                                {regUser === user.displayName
+                                                {allRegUsers[regUser].uid === user.uid
                                                     ?
 
                                                     < div
@@ -472,7 +490,7 @@ const Messenger = (props) => {
                     >
 
 
-                        <Grid item sx={{ height: { xs: '75vh', md: '80vh' }, width: '100%', border: '1px solid lightgrey', overflowY: 'auto', background: '#6ef9b236', }}>
+                        <Grid item sx={{ height: { xs: '75vh', md: '80vh' }, width: '100%', border: '1px solid lightgrey', overflowY: 'auto', background: '#30c9d036', }}>
 
 
                             {messages && messages.length > 0 && messages
@@ -510,7 +528,7 @@ const Messenger = (props) => {
                                                         lineHeight: '35px',
                                                         marginLeft: 5,
                                                     }}
-                                                >{message.displayName ? message.displayName : 'Incognito'}
+                                                >{message.displayName != null ? message.displayName : `Incognito_${user.uid.slice(0, 3)}`}
                                                 </div>
                                                 <div style={{ fontSize: 10, fontStyle: 'italic' }}>
                                                     {Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'online') && 'online' ||
@@ -617,8 +635,7 @@ const Messenger = (props) => {
                                 direction={'row'}
                                 position={'relative'}
                             >
-                                <Grid item xs={12} md={9}>
-                                    {console.log("user", user)}
+                                <Grid item xs={12} md={9}>                                
                                     <TextField
                                         fullWidth
                                         variant={'outlined'}
@@ -655,8 +672,8 @@ const Messenger = (props) => {
                                         style={{ background: `url(${smile}) no-repeat  center/50%` }}
                                         onClick={handleEmojiShow}>
                                     </Button>
+
                                     <div><input style={{ marginTop: 15 }} type="file" onChange={onChange} className="custom-file-input"></input></div>
-                                    {console.log("uploaded", url)}
 
                                     {url && url.length
                                         ?
