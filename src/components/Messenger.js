@@ -7,7 +7,7 @@ import { Autocomplete, Avatar, Button, Chip, Container, Divider, Grid, ListItemI
 import Stack from '@mui/material/Stack';
 import Loader from './Loader';
 import firebase from 'firebase';
-import 'firebase/auth';
+import 'firebase/auth'
 import 'firebase/database';
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
@@ -296,20 +296,7 @@ const Messenger = (props) => {
     }, [regUsers])
 
 
-    // console.log("allRegUsers: ", allRegUsers);
 
-    const useStyles = makeStyles({
-        paper: {      
-            zIndex:1,   
-          overflowX: "hidden",
-          maxHeight: "62vh",
-          position:"relative",
-          top:10,
-          boxSizing: "border-box"
-        }
-      });
-
-      const classes = useStyles();
 
     return (
         <>
@@ -399,7 +386,7 @@ const Messenger = (props) => {
                                     id="user-select"
                                     sx={{ maxWidth: 350, marginTop: 1, overflowX:'hidden'}}
 
-                                    classes={{ paper: classes.paper }}
+                                    // classes={{ paper: classes.paper }}
                                     disableCloseOnSelect
                                     options={Object.keys(allRegUsers)}
                                     freeSolo
