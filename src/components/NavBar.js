@@ -29,7 +29,7 @@ function NavBar() {
 
 
     return (
-        <AppBar position="static" color="" sx={{ background: '#5890901f' }}>
+        <AppBar position="static" color="" sx={{ background: '#5890901f',overflow:'hidden' }}>
             <Toolbar variant="dense">
 
                 <Grid container justifyContent={"space-around"}>
@@ -45,7 +45,7 @@ function NavBar() {
                     </IconButton>
 
                     <NavLink to={HOME_ROUTE}>
-                        <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'flex', lineHeight: 1.3, color: '#3300ff', position: 'relative', top: { xs: 18, lg: 5 }, left: { lg: '97vh' } }}
+                        <Typography variant="h6" component="div" sx={{ flexGrow: 1, display: 'flex', lineHeight: 1.3, color: '#3300ff', position: 'relative', top: { xs: 18, lg: 5 }, left: { lg: '93vh' } }}
                         // style={{ display: 'flex', lineHeight: 1.3, color: '#3300ff' }}
                         >
                             <LocalFireDepartmentIcon /> Fire_Chat

@@ -284,7 +284,8 @@ const Messenger = (props) => {
                 maxWidth="xl"
                 sx={{
                     background: '#5890901f',
-                    height: '93vh'
+                    height: '93vh',
+                    overflow:'hidden'
                 }}
             >
                 <Grid container

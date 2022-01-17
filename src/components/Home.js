@@ -1,10 +1,14 @@
+import { Grid } from '@mui/material'
 import React from 'react'
+import CarouselEx from './Carousel'
 
 function Home() {
     return (
-        <div>
-            Home
-        </div>
+        // <Grid container  sx={{height:'80vh', justifyContent:'center',alignItems:'center',overflow:'hidden'}}>
+        //     <Grid item><h1>Home</h1></Grid>
+
+            <CarouselEx/>
+    
     )
 }
 
