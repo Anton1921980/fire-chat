@@ -66,7 +66,7 @@ const Messenger = (props) => {
     let j
     let t
 
-    const [messages, loading1] = useCollectionData(
+    const [messagesAll, loading] = useCollectionData(
 
         (friend && chatId) &&
         (
@@ -93,6 +93,13 @@ const Messenger = (props) => {
                 .where("page", "==", "group")
         )
     )
+    let  messages
+    (messagesAll && messagesAll.length > 0 && !friend )?  messages = messagesAll.filter(message => message.chatId == null) : messages = messagesAll
+    
+    console.log("messagesAll: ", messagesAll);
+    console.log("messages: ", messages);
+
+
 
     useEffect(() => {
         opened && isMobile && setIsUserListOpen(true)
