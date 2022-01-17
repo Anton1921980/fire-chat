@@ -1,70 +1,44 @@
-# Getting Started with Create React App
+# CHAT using React and Firebase
+   
+ЗАВДАННЯ: Реал тайм чат
+пидримка кімнат зайти в кимнати на вибір
+реестрація чрез фаербез
+повидомлення завантажити файл
+- файер без сторедж файли записуввати!
+- файер без хостинг фронтэнд
+- фронт  реакт та материал юа
+- линк на сайт та репозиторий 
+три тижни або ранише 17 сычня
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Work done
 
-## Available Scripts
+ЗРОБЛЕНО:
++ group chat/ registered / incognito СHATS + personal CHAT when choosing other user 
++ Firebase auth для реєстрації,
++ Firestore - для повідомлень,
++ REALTIME DATABASE - список юзерів та статус 
++ Storage - для файлів
++ Hosting - deploy
++ юзер онлайн
++ юзери в разних кімнатах разні, при выборі комнаты їх показувати
++ фото повідомленні в поп ап вікні
++ last seen юзера
++ send file 
++ отправка по энтеру
++ и пусте повідомлення не відправляти
++ users online offline away: сірий блакитний рожевий кружки кількість
++ якщо той самий юзер пише кілько повідомлень поспіль, його ім'я тільки перший раз
++ в загальних чатах не писати им'я як в Телеграммі
++ час повыдомлення 
++ останнє повідомлення юзера в чаті під його ім'ям як в Телеграммі
++ как в телеге моб версія як в Телеграммі ховаємо ліву частину меню
++ при перемиканні чатів тільки ті юзери що там вже писали колись
++ при виборі юзера на персоналне спілкування виділяти тим же кольором що себе та відображати зверху з ким чат
++ реєстрація через гугл аккаунт чи анонімно
++ підписати себе та зробити не клікабельним
++ персональні повідомлення не попадають в загальні чати
++ відображаємо online - в цьому вікні, offline-закрив вікно чи разлогінився, та away-коли в иншому вікні браузера кольорами
++ відділяємо повідомлення по днях
++ показуємо коли юзери були в останнє онлайн
 
-In the project directory, you can run:
 
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)

@@ -53,12 +53,18 @@ code {
 }
 .css-b7k0tb-MuiAutocomplete-listbox {
 
-  max-height: 58.9vh !important;
- 
+  max-height: 59vh !important;
+  overflow-x: hidden !important;  
 }
 .css-b7k0tb-MuiAutocomplete-listbox {
  
+  overflow-x: hidden !important;   
+  max-height: 59vh !important;
+}
+.css-1xs8iq0{
+  overflow-y: auto !important;
   overflow-x: hidden !important;
+  max-height: 59vh !important;
 }
 .css-1rwt2y5-MuiButtonBase-root-MuiButton-root{
   border: 1px solid transparent !important;
@@ -66,9 +72,7 @@ code {
 .MuiAutocomplete-listbox .css-b7k0tb-MuiAutocomplete-listbox {
   background-color:'#5890901f !important';
 }
-user-select-listbox{
 
-}
 .lds-ellipsis {
   display: inline-block;
   position: relative;
