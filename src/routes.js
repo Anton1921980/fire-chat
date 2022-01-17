@@ -2,7 +2,6 @@ import Chat from "./components/Chat";
 import Login from "./components/Login";
 import Home from "./components/Home";
 import Messenger from "./components/Messenger";
-import All from "./components/All"
 import { CHAT_ROUTE, LOGIN_ROUTE, HOME_ROUTE, MESSENGER_ROUTE, REGISTERED_CHAT_ROUTE, INCOGNITO_CHAT_ROUTE } from "./utils/consts";
 import ContainerMain from "./components/ContainerMain";
 import PersonalChat from "./pages/PersonalChat";

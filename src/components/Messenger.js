@@ -298,18 +298,18 @@ const Messenger = (props) => {
 
     // console.log("allRegUsers: ", allRegUsers);
 
-    const useStyles = makeStyles({
-        paper: {      
-            zIndex:1,   
-          overflowX: "hidden",
-          maxHeight: "62vh",
-          position:"relative",
-          top:10,
-          boxSizing: "border-box"
-        }
-      });
+    // const useStyles = makeStyles({
+    //     paper: {      
+    //         zIndex:1,   
+    //       overflowX: "hidden",
+    //       maxHeight: "62vh",
+    //       position:"relative",
+    //       top:10,
+    //       boxSizing: "border-box"
+    //     }
+    //   });
 
-      const classes = useStyles();
+    //   const classes = useStyles();
 
     return (
         <>
@@ -399,7 +399,7 @@ const Messenger = (props) => {
                                     id="user-select"
                                     sx={{ maxWidth: 350, marginTop: 1, overflowX:'hidden'}}
 
-                                    classes={{ paper: classes.paper }}
+                                    // classes={{ paper: classes.paper }}
                                     disableCloseOnSelect
                                     options={Object.keys(allRegUsers)}
                                     freeSolo
