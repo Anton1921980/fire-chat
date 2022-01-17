@@ -3,8 +3,7 @@ import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import React from 'react'
 
 function Users({isUserListOpen, allRegUsers, user, friend, statusAllUsers,regUsers, messages,t, ...props}) {
-    console.log("props: ", props);
-    // const {isUserListOpen, allRegUsers, user, friend, statusAllUsers,regUsers, messages,t} = props
+  
     return (
         <>
             {allRegUsers && regUsers.length &&
