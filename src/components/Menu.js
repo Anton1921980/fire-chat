@@ -13,7 +13,8 @@ function Menulist(props) {
 
     return (
         <>
-            <MenuList style={{ width: '95%' }}>
+            <MenuList style={{ width: '95%', marginTop:'25px' }}>
+            <Divider/>
                 <NavLink to={CHAT_ROUTE}>
                     <MenuItem style={{ background: propsPage === 'group' ? '#f8fdf9' : 'none' }}>
                         <ListItemIcon>
