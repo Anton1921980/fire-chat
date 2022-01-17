@@ -8,11 +8,14 @@ import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural
 import FaceRetouchingOffIcon from '@mui/icons-material/FaceRetouchingOff';
 
 function Menulist(props) {
+  const  propsPage=props.props.page
+    console.log("propsPage: ", propsPage);
+
     return (
         <>
             <MenuList style={{ width: '95%' }}>
                 <NavLink to={CHAT_ROUTE}>
-                    <MenuItem style={{ background: props.page === 'group' ? '#f8fdf9' : 'none' }}>
+                    <MenuItem style={{ background: propsPage === 'group' ? '#f8fdf9' : 'none' }}>
                         <ListItemIcon>
                             <FaceIcon fontSize="small" />
                         </ListItemIcon>
@@ -20,7 +23,7 @@ function Menulist(props) {
                     </MenuItem>
                 </NavLink>
                 <NavLink to={REGISTERED_CHAT_ROUTE}>
-                    <MenuItem style={{ background: props.page === 'registered' ? '#f8fdf9' : 'none' }}>
+                    <MenuItem style={{ background: propsPage === 'registered' ? '#f8fdf9' : 'none' }}>
                         <ListItemIcon>
                             <FaceRetouchingNaturalIcon fontSize="small" />
                         </ListItemIcon>
@@ -28,7 +31,7 @@ function Menulist(props) {
                     </MenuItem>
                 </NavLink>
                 <NavLink to={INCOGNITO_CHAT_ROUTE}>
-                    <MenuItem style={{ background: props.page === 'incognito' ? '#f8fdf9' : 'none' }}>
+                    <MenuItem style={{ background: propsPage === 'incognito' ? '#f8fdf9' : 'none' }}>
                         <ListItemIcon>
                             <FaceRetouchingOffIcon fontSize="small" />
                         </ListItemIcon>

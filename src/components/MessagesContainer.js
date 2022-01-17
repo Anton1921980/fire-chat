@@ -5,10 +5,10 @@ import FileUploadIcon from '@mui/icons-material/FileUpload';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 
 
-function MessagesContainer({ messages, messagesEndRef, friend, props, statusAllUsers, user, imgUrl,j,handleOpen,handleClose,open }) {
+function MessagesContainer({ messages, messagesEndRef, friend, props, statusAllUsers, user, imgUrl, j, handleOpen, handleClose, open }) {
+    console.log("props: ", props.page);
 
-
-
+    console.log("messages: ", messages);
     const style = {
         position: 'absolute',
         top: '50%',
@@ -22,11 +22,10 @@ function MessagesContainer({ messages, messagesEndRef, friend, props, statusAllU
         boxShadow: 24,
     };
     return (
-        
 
-            <Grid item sx={{ height: { xs: '75vh', md: '80vh' }, width: '100%', border: '1px solid lightgrey', background: '#30c9d036', }}>
-
-                {messages && messages.length > 0 && messages
+        <Grid item sx={{ height: { xs: '75vh', md: '80vh' }, width: '100%', border: '1px solid lightgrey', background: '#25c4cc36', }}>
+            {((messages && messages.length > 0 && !friend )? messages.filter(message => message.chatId == null) : messages) &&
+                messages && messages.length > 0 && messages
                     .sort((a, b) => (a.createdAt > b.createdAt) ? 1 : ((b.createdAt > a.createdAt) ? -1 : 0))
                     .map((message, i) =>
                         <div
@@ -39,7 +38,7 @@ function MessagesContainer({ messages, messagesEndRef, friend, props, statusAllU
                         >
                             <div style={{ display: 'none' }}>{i >= 1 ? j = i - 1 : j = 0}</div>
 
-                            {!friend && ((props.page === 'group') || (props.page === 'registered') || (props.page === 'incognito'))
+                            {!friend && ((props.page == 'group') || (props.page == 'registered') || (props.page == 'incognito'))
                                 &&
                                 ((messages[0].createdAt === messages[i].createdAt)
                                     ||
@@ -148,14 +147,14 @@ function MessagesContainer({ messages, messagesEndRef, friend, props, statusAllU
                             </div>
                         </div>
                     )}
-                <Modal
-                    open={open}
-                    onClose={handleClose}
-                >
-                    <Box sx={style}><img src={imgUrl} style={{ width: '100%', height: '100%' }} /></Box>
-                </Modal>
-            </Grid>
-    
+            <Modal
+                open={open}
+                onClose={handleClose}
+            >
+                <Box sx={style}><img src={imgUrl} style={{ width: '100%', height: '100%' }} /></Box>
+            </Modal>
+        </Grid>
+
     )
 }
 

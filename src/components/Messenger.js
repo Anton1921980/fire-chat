@@ -31,16 +31,19 @@ import Chips from './Chips';
 import Users from './Users';
 import messagesContainer from './MessagesContainer';
 import MessagesContainer from './MessagesContainer';
+import MessagesSender from './MessagesSender';
 
 
 
 
 const Messenger = (props) => {
 
+
     const { auth, firestore } = useContext(Context)
     const [user] = useAuthState(auth)
-
     const database = firebase.database()
+
+    const { opened, setOpened } = useContext(Context2);
 
     const [value, setValue] = useState('')
     const [isMobile, setIsMobile] = useState(false)
@@ -56,6 +59,13 @@ const Messenger = (props) => {
     const [open, setOpen] = useState(false);
     const [allRegUsers, setAllRegUsers] = useState({})
 
+    const backRef = useRef(null)
+    const messagesEndRef = useRef(null)
+
+    let file
+    let j
+    let t
+
     const [messages, loading1] = useCollectionData(
 
         (friend && chatId) &&
@@ -65,24 +75,29 @@ const Messenger = (props) => {
         )
         ||
 
-        (props.page === 'registered') &&
+        (props.page === 'registered') && (!friend) &&
         (
             firestore.collection("messages")
-                .where("chatId", "==", null)
+                .where("page", "==", "registered")
         )
         ||
-        (props.page === 'incognito') &&
+        (props.page === 'incognito') && (!friend) &&
         (
             firestore.collection("messages")
-                .where("chatId", "==", null)
+                .where("page", "==", 'incognito')
         )
         ||
-        ((props.page === 'group')) &&
+        ((props.page === 'group')) && (!friend) &&
         (
             firestore.collection("messages")
-                .where("chatId", "==", null)
+                .where("page", "==", "group")
         )
     )
+
+    useEffect(() => {
+        opened && isMobile && setIsUserListOpen(true)
+        !opened && isMobile && setIsUserListOpen(false)
+    }, [opened])
 
     useEffect(() => {
         window.innerWidth < 500 ? setIsMobile(true) : setIsMobile(false)
@@ -164,52 +179,25 @@ const Messenger = (props) => {
 
     }, []);
 
-    const messagesEndRef = useRef(null)
-
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-    }
-
-    const handleClose = () => setOpen(false);
-
-    const handleOpen = (messUrl) => { setImgUrl(messUrl); setOpen(true); }
-
-    let file
-    const onChange = (e) => {
-        file = e.target.files[0];
-        setFileName(file.name)
-        firebase
-            .storage()
-            .ref('images/' + file.name)
-            .put(file)
-            .then(() => {
-                firebase
-                    .storage().ref('images/' + file.name)
-                    .getDownloadURL()
-                    .then(imgUrl => {
-                        setUrl(imgUrl)
-                        console.log("imgUrl: ", imgUrl);
-                    })
-            })
-    }
-
-    const backRef = useRef(null)
 
 
-    function startPersonalChat(e) {
-        e.preventDefault(e);
-        console.log("e: ", e.target.dataset.user)
+    useEffect(() => {
+        let users = Object.entries(allRegUsers)
+        let userIndex = users && users.findIndex(item => (item[1]).uid == user.uid)
 
-        setFriend(e.target.dataset.user)
-        setChatId([user.displayName, e.target.dataset.user].sort().join(''))
-        backRef.current.style.visibility = 'visible'
-    }
+        let currentUser = users && (userIndex >= 0) && (Object.entries(allRegUsers))[userIndex]
 
-    function stopPersonalChat() {
-        setFriend(null)
-        setChatId(null)
-        backRef.current.style.visibility = 'hidden'
-    }
+        users && (userIndex >= 0) && users.splice(userIndex, 1)
+
+        users && (userIndex >= 0) && users.splice(0, 0, currentUser)
+
+        users && (userIndex >= 0) && (setAllRegUsers(Object.fromEntries(users)))
+    }, [regUsers])
+
+    useEffect(() => {
+        scrollToBottom()
+    }, [messages]);
+
 
     const sendMessage = async () => {
 
@@ -233,49 +221,54 @@ const Messenger = (props) => {
 
     const handleEmojiShow = () => {
         setShowEmoji((v) => !v)
-
     }
-
 
     const handleEmojiSelect = (e) => {
         setValue((text) => (text += e.native))
     }
 
 
-    useEffect(() => {
-        scrollToBottom()
-    }, [messages]);
+
+    function startPersonalChat(e) {
+        e.preventDefault(e);
+        console.log("e: ", e.target.dataset.user)
+
+        setFriend(e.target.dataset.user)
+        setChatId([user.displayName, e.target.dataset.user].sort().join(''))
+        backRef.current.style.visibility = 'visible'
+    }
+
+    function stopPersonalChat() {
+        setFriend(null)
+        setChatId(null)
+        backRef.current.style.visibility = 'hidden'
+    }
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
+
+    const handleClose = () => setOpen(false);
+
+    const handleOpen = (messUrl) => { setImgUrl(messUrl); setOpen(true); }
 
 
-    // //ПЕРЕРЕНДЕ ВСЕГО БЫЛ ИЗЗА ЭТОГО ЛОАДЕРА!!!
-
-
-    let j
-    let t
-
-    const { opened, setOpened } = useContext(Context2);
-
-    useEffect(() => {
-        opened && isMobile && setIsUserListOpen(true)
-        !opened && isMobile && setIsUserListOpen(false)
-    }, [opened])
-
-
-    useEffect(() => {
-
-        let users = Object.entries(allRegUsers)
-        let userIndex = users && users.findIndex(item => (item[1]).uid == user.uid)
-
-        let currentUser = users && (userIndex >= 0) && (Object.entries(allRegUsers))[userIndex]
-
-        users && (userIndex >= 0) && users.splice(userIndex, 1)
-
-        users && (userIndex >= 0) && users.splice(0, 0, currentUser)
-
-        users && (userIndex >= 0) && (setAllRegUsers(Object.fromEntries(users)))
-    }, [regUsers])
-
-
+    const onChange = (e) => {
+        file = e.target.files[0];
+        setFileName(file.name)
+        firebase
+            .storage()
+            .ref('images/' + file.name)
+            .put(file)
+            .then(() => {
+                firebase
+                    .storage().ref('images/' + file.name)
+                    .getDownloadURL()
+                    .then(imgUrl => {
+                        setUrl(imgUrl)
+                        console.log("imgUrl: ", imgUrl);
+                    })
+            })
+    }
 
 
     return (
@@ -285,7 +278,7 @@ const Messenger = (props) => {
                 sx={{
                     background: '#5890901f',
                     height: '93vh',
-                    overflow:'hidden'
+                    overflow: 'hidden'
                 }}
             >
                 <Grid container
@@ -341,74 +334,19 @@ const Messenger = (props) => {
 
                         <Grid item sx={{ height: { xs: '75vh', md: '80vh' }, width: '100%', border: '1px solid lightgrey', overflowY: 'auto', background: '#30c9d036', }}>
 
-                            <MessagesContainer messages={messages} messagesEndRef={messagesEndRef} friend={friend} props={props} statusAllUsers={statusAllUsers} user={user}  imgUrl={imgUrl} j={j} handleOpen={handleOpen} handleClose={handleClose} open={open}/>
-{/*  */}
+                            <MessagesContainer
+                                messages={messages} messagesEndRef={messagesEndRef} friend={friend} props={props} statusAllUsers={statusAllUsers}
+                                user={user} imgUrl={imgUrl} j={j} handleOpen={handleOpen} handleClose={handleClose} open={open}
+                            />
                         </Grid>
                         <Grid
                             container
                             direction={'row'}
                             style={{ width: '100%', marginTop: 15 }}
                         >
-                            <Grid
-                                container
-                                columnSpacing={' xs: 2, sm: 2 '}
-                                direction={'row'}
-                                position={'relative'}
-                            >
-                                <Grid item xs={12} md={9}>
-                                    <TextField
-                                        fullWidth
-                                        variant={'outlined'}
-                                        required
-                                        disabled={user.displayName === null && props.page === 'registered'}
-
-                                        label={user.displayName === null && props.page === 'registered' ? 'Login from Google to write  in this chat' : 'input message'}
-                                        value={value}
-                                        placeholder='type message'
-                                        onChange={e => setValue(e.target.value)}
-                                        onKeyPress={(e) => {
-                                            if (value.length && e.key === 'Enter') {
-                                                // Do code here
-                                                e.preventDefault();
-                                                sendMessage()
-                                            }
-                                        }}
-                                    />
-                                </Grid >
-                                <Grid container item xs={12} sm={12} md={3} position={'relative'} direction={'row'} sx={{ justifyContent: 'space-around' }}>
-                                    {showEmoji &&
-                                        <Picker
-                                            onSelect={handleEmojiSelect}
-                                            emojiSize={25}
-                                            title={'fire_chat Emoji'}
-                                            theme={'light'}
-                                            showPreview={false}
-                                            showSkinTones={false}
-                                            set={'twitter'}
-                                            style={{ position: 'absolute', bottom: '10vh', right: '0vh', }}
-                                        />}
-                                    <Button
-                                        style={{ background: `url(${smile}) no-repeat  center/50%` }}
-                                        onClick={handleEmojiShow}>
-                                    </Button>
-
-                                    <div><input style={{ marginTop: 15 }} type="file" onChange={onChange} className="custom-file-input"></input></div>
-
-                                    {url && url.length
-                                        ?
-                                        <div style={{ position: 'absolute', right: '23%', top: '85%' }}>
-                                            <FileUploadIcon style={{ position: 'relative', top: 6, right: 2 }} />{fileName}</div>
-                                        :
-                                        null}
-
-                                    <Button
-                                        variant='outlined'
-                                        disabled={value.length < 1}
-                                        onClick={sendMessage}>
-                                        <SendRoundedIcon fontSize="large" />
-                                    </Button>
-                                </Grid>
-                            </Grid>
+                            <MessagesSender props={props} user={user} value={value} setValue={setValue} handleEmojiSelect={handleEmojiSelect} handleEmojiShow={handleEmojiShow}
+                                onChange={onChange} sendMessage={sendMessage} showEmoji={showEmoji} smile={smile} url={url} fileName={fileName}
+                            />
                         </Grid>
                     </Grid>
                 </Grid>
