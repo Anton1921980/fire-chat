@@ -21,11 +21,13 @@ function MessagesContainer({ messages, messagesEndRef, friend, props, statusAllU
         padding: 0,
         boxShadow: 24,
     };
+    let messagesFiltered
     return (
 
         <Grid item sx={{ height: { xs: '75vh', md: '80vh' }, width: '100%', border: '1px solid lightgrey', background: '#25c4cc36', }}>
-            {((messages && messages.length > 0 && !friend )? messages.filter(message => message.chatId == null) : messages) &&
-                messages && messages.length > 0 && messages
+            
+            {((messages && messages.length > 0 && !friend )? messagesFiltered = messages.filter(message => message.chatId == null) : messagesFiltered = messages) &&
+                messagesFiltered
                     .sort((a, b) => (a.createdAt > b.createdAt) ? 1 : ((b.createdAt > a.createdAt) ? -1 : 0))
                     .map((message, i) =>
                         <div
@@ -40,9 +42,9 @@ function MessagesContainer({ messages, messagesEndRef, friend, props, statusAllU
 
                             {!friend && ((props.page == 'group') || (props.page == 'registered') || (props.page == 'incognito'))
                                 &&
-                                ((messages[0].createdAt === messages[i].createdAt)
+                                ((messagesFiltered[0].createdAt === messagesFiltered[i].createdAt)
                                     ||
-                                    (message.photoURL !== ((messages[j]).photoURL)))
+                                    (message.photoURL !== ((messagesFiltered[j]).photoURL)))
                                 &&
                                 <Grid container
                                     style={{
@@ -70,9 +72,9 @@ function MessagesContainer({ messages, messagesEndRef, friend, props, statusAllU
                                 </Grid>
                             }
 
-                            {(messages[i].createdAt !== null) && (messages[j].createdAt !== null) &&
-                                ((messages[0].createdAt === messages[i].createdAt) ||
-                                    ((message.createdAt).toDate().getDay()) !== ((messages[j].createdAt).toDate().getDay())) &&
+                            {(messagesFiltered[i].createdAt !== null) && (messagesFiltered[j].createdAt !== null) &&
+                                ((messagesFiltered[0].createdAt === messagesFiltered[i].createdAt) ||
+                                    ((message.createdAt).toDate().getDay()) !== ((messagesFiltered[j].createdAt).toDate().getDay())) &&
                                 <div style={{
                                     color: 'grey', fontStyle: 'italic', marginTop: 50, position: 'relative', left: user.uid !== message.uid
                                         ? '75vh' : null, right: user.uid === message.uid ? '75vh' : null
@@ -113,21 +115,21 @@ function MessagesContainer({ messages, messagesEndRef, friend, props, statusAllU
                             </div>
 
                             <div>
-                                {messages[i].url && (
-                                    (messages[i].url).includes('.jpg') ||
-                                    (messages[i].url).includes('.jpeg') ||
-                                    (messages[i].url).includes('.gif') ||
-                                    (messages[i].url).includes('.png')
+                                {messagesFiltered[i].url && (
+                                    (messagesFiltered[i].url).includes('.jpg') ||
+                                    (messagesFiltered[i].url).includes('.jpeg') ||
+                                    (messagesFiltered[i].url).includes('.gif') ||
+                                    (messagesFiltered[i].url).includes('.png')
                                 )
                                     ?
                                     <>
                                         <div
                                             style={{ cursor: 'pointer', }}
-                                            onClick={() => { handleOpen(messages[i].url) }}>
+                                            onClick={() => { handleOpen(messagesFiltered[i].url) }}>
                                             <FileOpenIcon style={{ position: 'relative', top: 1, right: 3 }} />
                                             <img
                                                 style={{ width: 70, height: 70, }}
-                                                src={messages[i].url}
+                                                src={messagesFiltered[i].url}
                                             >
                                             </img>
                                         </div>
