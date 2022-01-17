@@ -26,12 +26,17 @@ import { NavLink, useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 import { CHAT_ROUTE, INCOGNITO_CHAT_ROUTE, REGISTERED_CHAT_ROUTE } from '../utils/consts';
 
 import { createStyles, makeStyles } from '@mui/styles';
+import Menulist from './Menu';
+import Chips from './Chips';
+import Users from './Users';
+import messagesContainer from './MessagesContainer';
+import MessagesContainer from './MessagesContainer';
 
 
 
 
 const Messenger = (props) => {
-   
+
     const { auth, firestore } = useContext(Context)
     const [user] = useAuthState(auth)
 
@@ -49,7 +54,7 @@ const Messenger = (props) => {
     const [url, setUrl] = useState(null)
     const [imgUrl, setImgUrl] = useState(null)
     const [open, setOpen] = useState(false);
-    let [allRegUsers, setAllRegUsers] = useState({})
+    const [allRegUsers, setAllRegUsers] = useState({})
 
     const [messages, loading1] = useCollectionData(
 
@@ -142,10 +147,6 @@ const Messenger = (props) => {
 
             let registeredAllUsers = Object.fromEntries(filtered);
 
-
-
-
-
             setAllRegUsers(registeredAllUsers)
             setRegUsers(Object.keys(registeredAllUsers))
         }
@@ -159,7 +160,7 @@ const Messenger = (props) => {
         refStatusAll.on("value", function (snapshot) {
             let statusUsers = snapshot.val()
             setStatusAllUsers(statusUsers)
-        });    
+        });
 
     }, []);
 
@@ -220,7 +221,7 @@ const Messenger = (props) => {
             url: url,
             fileName: fileName,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            chatId: chatId, 
+            chatId: chatId,
             page: props.page
         })
         setValue('')
@@ -229,18 +230,6 @@ const Messenger = (props) => {
         setUrl(null)
         setShowEmoji(false)
     }
-    const style = {
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: '90vh',
-        boxSizing: 'border-box',
-        bgcolor: 'background.paper',
-        border: 'none',
-        padding: 0,
-        boxShadow: 24,
-    };
 
     const handleEmojiShow = () => {
         setShowEmoji((v) => !v)
@@ -259,9 +248,7 @@ const Messenger = (props) => {
 
 
     // //ПЕРЕРЕНДЕ ВСЕГО БЫЛ ИЗЗА ЭТОГО ЛОАДЕРА!!!
-    // if (loading1) {
-    //     return <Loader />
-    // }
+
 
     let j
     let t
@@ -272,13 +259,6 @@ const Messenger = (props) => {
         opened && isMobile && setIsUserListOpen(true)
         !opened && isMobile && setIsUserListOpen(false)
     }, [opened])
-
-
-
-
-
-
-
 
 
     useEffect(() => {
@@ -325,44 +305,9 @@ const Messenger = (props) => {
                         // alignItems={'center'}
                         justifyContent={'center'}
                     >
+                        <Chips statusAllUsers={statusAllUsers} regUsers={regUsers} />
+                        <Menulist props={props} />
 
-                        <Stack direction="row" spacing={1} sx={{
-                            top: { xs: 229, md: -15 }, left: { xs: 2 },
-                            display: 'flex', zIndex: 1, alignContent: 'flex-start', alignItems: 'flex-start', color: 'grey', position: 'relative',
-                        }}>
-                            <Chip size='small' sx={{ background: 'transparent' }} label={`online`} avatar={<Avatar sx={{ background: '#1693eb' }}>{(Object.values(statusAllUsers).filter(value => value === 'online')).length}</Avatar>} />
-                            <Chip size='small' sx={{ background: 'transparent' }} label={`away`} avatar={<Avatar sx={{ background: '#ff6589' }}>{(Object.values(statusAllUsers).filter(value => value === 'away')).length}</Avatar>} />
-                            <Chip size='small' sx={{ background: 'transparent' }} label={`offline `} avatar={<Avatar sx={{ background: '#7fa8c5' }}>{regUsers.length - (Object.values(statusAllUsers).filter(value => value === 'online')).length -
-                                (Object.values(statusAllUsers).filter(value => value === 'away')).length}</Avatar>} />
-                        </Stack>
-
-                        <MenuList style={{ width: '95%' }}>
-                            <NavLink to={CHAT_ROUTE}>
-                                <MenuItem style={{ background: props.page === 'group' ? '#f8fdf9' : 'none' }}>
-                                    <ListItemIcon>
-                                        <FaceIcon fontSize="small" />
-                                    </ListItemIcon>
-                                    <ListItemText>Fire_Chat</ListItemText>
-                                </MenuItem>
-                            </NavLink>
-                            <NavLink to={REGISTERED_CHAT_ROUTE}>
-                                <MenuItem style={{ background: props.page === 'registered' ? '#f8fdf9' : 'none' }}>
-                                    <ListItemIcon>
-                                        <FaceRetouchingNaturalIcon fontSize="small" />
-                                    </ListItemIcon>
-                                    <ListItemText>Registered</ListItemText>
-                                </MenuItem>
-                            </NavLink>
-                            <NavLink to={INCOGNITO_CHAT_ROUTE}>
-                                <MenuItem style={{ background: props.page === 'incognito' ? '#f8fdf9' : 'none' }}>
-                                    <ListItemIcon>
-                                        <FaceRetouchingOffIcon fontSize="small" />
-                                    </ListItemIcon>
-                                    <ListItemText>Incognito</ListItemText>
-                                </MenuItem>
-                            </NavLink>
-                            <Divider />
-                        </MenuList>
                         <div style={{ width: '100%', height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', }}>
                             <Button
                                 size="small"
@@ -379,246 +324,24 @@ const Messenger = (props) => {
                             style={{ width: 350 }}
                             onClick={startPersonalChat}
                         >
-                            {allRegUsers && regUsers.length &&
-                                <Autocomplete
-                                    open={isUserListOpen}
-
-                                    id="user-select"
-                                    sx={{ maxWidth: 350, marginTop: 1, overflowX:'hidden'}}
-
-                                    // classes={{ paper: classes.paper }}
-                                    disableCloseOnSelect
-                                    options={Object.keys(allRegUsers)}
-                                    freeSolo
-
-                                    autoHighlight
-                                    getOptionLabel={(regUser) => regUser || ""}
-                                    renderOption={(props, regUser) => (
-
-                                        <Button
-                                            data-user={regUser}
-                                            disabled={allRegUsers[regUser].uid === user.uid}
-                                            key={regUser}
-                                            style={{
-                                                margin: 1,
-                                                font: 'inherit',
-                                                textTransform: 'none', width: '100%', justifyContent: 'flex-start',
-                                                background: (allRegUsers[regUser].uid === user.uid || friend === regUser) ? '#30c9d036' : (
-                                                    Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'online') && '#1693ebb5' ||
-                                                    Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'away') && '#ff6589a6' ||
-                                                    '#7fa8c57a')
-                                            }}>
-
-                                            {allRegUsers[regUser].photoURL && <Avatar
-                                                onClick={(e) => e.stopPropagation()}
-                                                src={(allRegUsers[regUser]).photoURL}
-
-                                            />}
-
-                                            <div
-                                                //   onClick={(e) => e.stopPropagation()}
-                                                data-user={regUser}
-                                                style={{
-                                                    lineHeight: '35px',
-                                                    marginLeft: 5,
-                                                    cursor: 'pointer',
-                                                    color:                                                    
-                                                        'grey'
-                                                }}
-                                            >
-                                                {allRegUsers[regUser].uid === user.uid
-                                                    ?
-
-                                                    < div
-                                                        // onClick={(e) => e.stopPropagation()}
-                                                        style={{ cursor: 'default', }}>
-                                                        {regUser} <span style={{ fontSize: 12, fontStyle: 'italic', color: '#1693ebb5' }}> - you</span> </div >
-                                                    :
-                                                    <div style={{ display: 'flex', width: 250, justifyContent: 'space-between' }} data-user={regUser} data-target="button">
-                                                        <span data-user={regUser}
-                                                        >{regUser}</span>
-                                                        <span                                                            
-                                                            data-user={regUser}
-                                                            style={{ fontSize: 10, fontStyle: 'italic', cursor: 'default' }}>
-
-                                                            {
-                                                                ((new Date().getHours() - (new Date(allRegUsers[regUser].seen).getHours())) == 0)
-                                                                    ?
-                                                                    `seen ${(new Date().getMinutes()) - (new Date(allRegUsers[regUser].seen).getMinutes()) < 5 ? 'just now' : 'min ago'} `
-                                                                    ||
-                                                                    `seen ${1440 > (new Date().getMinutes()) - (new Date(allRegUsers[regUser].seen).getMinutes()) < 2880 ? 'yesterday' : '2 days ago'} `
-                                                                    :
-                                                                    `seen at: ${new Date(allRegUsers[regUser].seen).getHours()} : ${new Date(allRegUsers[regUser].seen).getMinutes()}`
-                                                            }
-                                                        </span>
-                                                    </div>}
-                                                <div                                                  
-                                                    data-user={regUser}
-                                                >
-                                                    {messages && (t = (messages.sort((a, b) => (a.createdAt > b.createdAt) ? 1 : ((b.createdAt > a.createdAt) ? -1 : 0))
-                                                        .filter(message => (message.displayName === regUser))).pop()) && t.text}
-                                                </div>
-                                            </div>
-
-                                        </Button>
-                                    )}
-                                    renderInput={(params) => (
-                                        <TextField                                            
-                                            {...params}
-                                            label={<PersonSearchIcon />}
-                                            inputProps={{
-                                                ...params.inputProps,
-
-                                            }}
-                                        />
-                                    )}
-                                />}
+                            <Users isUserListOpen={isUserListOpen} allRegUsers={allRegUsers} user={user} friend={friend} statusAllUsers={statusAllUsers} messages={messages} regUsers={regUsers} t={t} />
                         </div>
 
                     </Grid>
 
                     <Grid container item xs={12} lg={9}
-
                         sx={{
-                            display: { xs: opened ? 'none' : 'flex', md: 'flex' },                      
+                            display: { xs: opened ? 'none' : 'flex', md: 'flex' },
                         }}
                         alignContent={'flex-start'}
                         alignItems={'center'}
                         justifyContent={'center'}
                     >
 
-
                         <Grid item sx={{ height: { xs: '75vh', md: '80vh' }, width: '100%', border: '1px solid lightgrey', overflowY: 'auto', background: '#30c9d036', }}>
 
-
-                            {messages && messages.length > 0 && messages
-                                .sort((a, b) => (a.createdAt > b.createdAt) ? 1 : ((b.createdAt > a.createdAt) ? -1 : 0))
-                                .map((message, i) =>
-                                    <div
-                                        ref={messagesEndRef}
-                                        key={i}
-                                        style={{
-                                            width: 'fit-content',
-                                            marginLeft: user.uid === message.uid ? 'auto' : '10px',
-                                        }}
-                                    >
-                                        <div style={{ display: 'none' }}>{i >= 1 ? j = i - 1 : j = 0}</div>
-
-                                        {!friend && ((props.page === 'group') || (props.page === 'registered') || (props.page === 'incognito'))
-                                            &&
-                                            ((messages[0].createdAt === messages[i].createdAt)
-                                                ||
-                                                (message.photoURL !== ((messages[j]).photoURL)))
-                                            &&
-                                            <Grid container
-                                                style={{
-                                                    marginTop: 50,                                                    
-                                                    color:
-                                                        Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'online') && 'blue' ||
-                                                        Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'away') && 'pink' ||
-                                                        'grey'
-                                                }}
-                                            >
-                                                <Avatar src={message.photoURL} />
-                                                <div
-                                                    style={{
-                                                        lineHeight: '35px',
-                                                        marginLeft: 5,
-                                                    }}
-                                                >{message.displayName != null ? message.displayName : `Incognito_${user.uid.slice(0, 3)}`}
-                                                </div>
-                                                <div style={{ fontSize: 10, fontStyle: 'italic' }}>
-                                                    {Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'online') && 'online' ||
-                                                        Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'away') && 'away' ||
-                                                        'offline'}
-                                                </div>
-
-                                            </Grid>
-                                        }
-
-                                        {(messages[i].createdAt !== null) && (messages[j].createdAt !== null) &&
-                                            ((messages[0].createdAt === messages[i].createdAt) ||
-                                                ((message.createdAt).toDate().getDay()) !== ((messages[j].createdAt).toDate().getDay())) &&
-                                            <div style={{
-                                                color: 'grey', fontStyle: 'italic', marginTop: 50, position: 'relative', left: user.uid !== message.uid
-                                                    ? '75vh' : null, right: user.uid === message.uid ? '75vh' : null
-                                            }}>
-                                                {((message.createdAt).toDate().toJSON().slice(0, 10).split('-').reverse().join('.'))}
-                                            </div>
-                                        }
-                                        <div
-                                            style={{
-                                                position: 'relative',
-                                                margin: 10,
-                                                padding: 15,
-                                                minWidth: 100,
-                                                border: '1px solid transparent',
-                                                borderRadius: 100,
-                                                backgroundColor: user.uid === message.uid ? 'lightgrey' : 'white',
-                                                width: 'fit-content',
-                                            }}
-                                        >{message.text}
-                                            <div
-                                                style={{
-                                                    position: 'absolute',
-                                                    top: 38,
-                                                    right: 16,
-                                                    fontSize: 10,
-                                                    fontStyle: 'italic',
-                                                    color: 'darkgrey'
-                                                }}
-                                            >
-
-                                                {(message.createdAt !== null) && ((message.createdAt).toDate().getHours())}
-                                                : {(message.createdAt !== null) && ((message.createdAt).toDate().getMinutes() > 9
-                                                    ?
-                                                    (message.createdAt).toDate().getMinutes()
-                                                    :
-                                                    '0' + (message.createdAt).toDate().getMinutes())}
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            {messages[i].url && (
-                                                (messages[i].url).includes('.jpg') ||
-                                                (messages[i].url).includes('.jpeg') ||
-                                                (messages[i].url).includes('.gif') ||
-                                                (messages[i].url).includes('.png')
-                                            )
-                                                ?
-                                                <>
-                                                    <div
-                                                        style={{ cursor: 'pointer', }}
-                                                        onClick={() => { handleOpen(messages[i].url) }}>
-                                                        <FileOpenIcon style={{ position: 'relative', top: 1, right: 3 }} />
-                                                        <img
-                                                            style={{ width: 70, height: 70, }}
-                                                            src={messages[i].url}
-                                                        >
-                                                        </img>
-                                                    </div>
-                                                    <div style={{ fontSize: 12 }}>{message.fileName}</div>
-                                                </>
-                                                :
-                                                //  null
-                                                message.url &&
-                                                <div
-                                                    style={{ fontSize: 12 }}                                               
-                                                >
-                                                    <a href={message.url} download>
-                                                        <FileDownloadIcon style={{ position: 'relative', top: 7 }} /> {message.fileName}
-                                                    </a>
-                                                </div>
-                                            }
-                                        </div>
-                                    </div>
-                                )}
-                            <Modal
-                                open={open}
-                                onClose={handleClose}
-                            >
-                                <Box sx={style}><img src={imgUrl} style={{ width: '100%', height: '100%' }} /></Box>
-                            </Modal>
+                            <MessagesContainer messages={messages} messagesEndRef={messagesEndRef} friend={friend} props={props} statusAllUsers={statusAllUsers} user={user}  imgUrl={imgUrl} j={j} handleOpen={handleOpen} handleClose={handleClose} open={open}/>
+{/*  */}
                         </Grid>
                         <Grid
                             container
@@ -642,7 +365,7 @@ const Messenger = (props) => {
                                         value={value}
                                         placeholder='type message'
                                         onChange={e => setValue(e.target.value)}
-                                        onKeyPress={(e) => {                                           
+                                        onKeyPress={(e) => {
                                             if (value.length && e.key === 'Enter') {
                                                 // Do code here
                                                 e.preventDefault();
