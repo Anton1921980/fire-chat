@@ -60,6 +60,11 @@ code {
  
   overflow-x: hidden !important;
 }
+.css-1xs8iq0{
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 60vh;
+}
 .css-1rwt2y5-MuiButtonBase-root-MuiButton-root{
   border: 1px solid transparent !important;
 }

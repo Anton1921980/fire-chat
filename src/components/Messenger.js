@@ -164,9 +164,7 @@ const Messenger = (props) => {
         refStatusAll.on("value", function (snapshot) {
             let statusUsers = snapshot.val()
             setStatusAllUsers(statusUsers)
-        });
-
-        console.log("allRegUsers: ", allRegUsers);
+        });    
 
     }, []);
 
@@ -303,7 +301,7 @@ const Messenger = (props) => {
     }, [regUsers])
 
 
-    console.log("allRegUsers: ", allRegUsers);
+    // console.log("allRegUsers: ", allRegUsers);
 
 
     return (
