@@ -24,18 +24,16 @@ import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural
 import FaceRetouchingOffIcon from '@mui/icons-material/FaceRetouchingOff';
 import { NavLink, useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 import { CHAT_ROUTE, INCOGNITO_CHAT_ROUTE, REGISTERED_CHAT_ROUTE } from '../utils/consts';
-import NavBar from './NavBar';
-// import {startPersonalChat} from '../utils/functions'
+
+import { createStyles, makeStyles } from '@mui/styles';
+
+
+
 
 const Messenger = (props) => {
-    // const history = useHistory()
+   
     const { auth, firestore } = useContext(Context)
     const [user] = useAuthState(auth)
-
-    // console.log("user: ", user);
-
-    // const value = useContext(Context2);
-    // console.log("value: ", value);
 
     const database = firebase.database()
 
@@ -52,9 +50,6 @@ const Messenger = (props) => {
     const [imgUrl, setImgUrl] = useState(null)
     const [open, setOpen] = useState(false);
     let [allRegUsers, setAllRegUsers] = useState({})
-
-    //if group chat chatId === null added in every group message
-    // if personal chat we have friend and chatId !==null
 
     const [messages, loading1] = useCollectionData(
 
@@ -142,7 +137,7 @@ const Messenger = (props) => {
         }
         else if (allUsers && (props.page === 'incognito')) {
             const asArray = Object.entries(allUsers);
-            //    const userFiltered= asArray.filter(key => ((key[1].uid)==user.uid))
+
             const filtered = asArray.filter(key => ((key[1].displayName).includes('Inc')));
 
             let registeredAllUsers = Object.fromEntries(filtered);
@@ -225,7 +220,7 @@ const Messenger = (props) => {
             url: url,
             fileName: fileName,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            chatId: chatId, //"создаем значение переменной во время первого создания чата складываем имена"
+            chatId: chatId, 
             page: props.page
         })
         setValue('')
@@ -303,6 +298,18 @@ const Messenger = (props) => {
 
     // console.log("allRegUsers: ", allRegUsers);
 
+    const useStyles = makeStyles({
+        paper: {      
+            zIndex:1,   
+          overflowX: "hidden",
+          maxHeight: "62vh",
+          position:"relative",
+          top:10,
+          boxSizing: "border-box"
+        }
+      });
+
+      const classes = useStyles();
 
     return (
         <>
@@ -381,26 +388,6 @@ const Messenger = (props) => {
                                 <Avatar sx={{ width: 24, height: 24 }} src={allRegUsers[friend].photoURL} />&nbsp;{friend}</div>}
                         </div>
 
-
-                        {/* <div style={{ display: 'none' }}>
-                            {userIndex = regUsers && regUsers.findIndex(item => item === user.displayName)}
-                            {regUsers && regUsers.splice(userIndex, 1)}
-                            {regUsers && regUsers.splice(0, 0, user.displayName)}
-                        </div> */}
-
-                        <div style={{ display: 'none' }}>
-                            {/* {allRegUsers && Object.entries(allRegUsers) && (userIndex = (Object.entries(allRegUsers)).findIndex(item => (item[1]).uid == user.uid))} */}
-                            {/* {console.log("Object.entries(allRegUsers): ",allRegUsers&& Object.entries(allRegUsers))} */}
-                            {/* {console.log("userIndex: ", userIndex)} */}
-
-
-                            {/* {currentUser = (Object.entries(allRegUsers))[userIndex]} */}
-
-                            {/* {Object.entries(allRegUsers) &&  (Object.entries(allRegUsers)).splice(userIndex, 1)} */}
-
-                            {/* {Object.entries(allRegUsers) && (Object.entries(allRegUsers)).splice(0, 0, (Object.entries(allRegUsers))[userIndex])} */}
-                        </div>
-
                         <div
                             style={{ width: 350 }}
                             onClick={startPersonalChat}
@@ -410,10 +397,13 @@ const Messenger = (props) => {
                                     open={isUserListOpen}
 
                                     id="user-select"
-                                    sx={{ maxWidth: 350, marginTop: 1, }}
+                                    sx={{ maxWidth: 350, marginTop: 1, overflowX:'hidden'}}
+
+                                    classes={{ paper: classes.paper }}
                                     disableCloseOnSelect
                                     options={Object.keys(allRegUsers)}
                                     freeSolo
+
                                     autoHighlight
                                     getOptionLabel={(regUser) => regUser || ""}
                                     renderOption={(props, regUser) => (
@@ -445,9 +435,7 @@ const Messenger = (props) => {
                                                     lineHeight: '35px',
                                                     marginLeft: 5,
                                                     cursor: 'pointer',
-                                                    color:
-                                                        // Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'online') && 'blue' ||
-                                                        // Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'away') && 'pink' ||
+                                                    color:                                                    
                                                         'grey'
                                                 }}
                                             >
@@ -462,8 +450,7 @@ const Messenger = (props) => {
                                                     <div style={{ display: 'flex', width: 250, justifyContent: 'space-between' }} data-user={regUser} data-target="button">
                                                         <span data-user={regUser}
                                                         >{regUser}</span>
-                                                        <span
-                                                            // onClick={(e) => e.stopPropagation()}
+                                                        <span                                                            
                                                             data-user={regUser}
                                                             style={{ fontSize: 10, fontStyle: 'italic', cursor: 'default' }}>
 
@@ -478,8 +465,7 @@ const Messenger = (props) => {
                                                             }
                                                         </span>
                                                     </div>}
-                                                <div
-                                                    //  onClick={(e) => e.stopPropagation()}
+                                                <div                                                  
                                                     data-user={regUser}
                                                 >
                                                     {messages && (t = (messages.sort((a, b) => (a.createdAt > b.createdAt) ? 1 : ((b.createdAt > a.createdAt) ? -1 : 0))
@@ -490,8 +476,7 @@ const Messenger = (props) => {
                                         </Button>
                                     )}
                                     renderInput={(params) => (
-                                        <TextField
-                                            // onClick={} 
+                                        <TextField                                            
                                             {...params}
                                             label={<PersonSearchIcon />}
                                             inputProps={{
@@ -503,16 +488,12 @@ const Messenger = (props) => {
                                 />}
                         </div>
 
-
                     </Grid>
 
                     <Grid container item xs={12} lg={9}
 
                         sx={{
-                            display: { xs: opened ? 'none' : 'flex', md: 'flex' },
-                            //  position:'relative',
-                            //  top:500,
-                            //  height: window.innerHeight - 300
+                            display: { xs: opened ? 'none' : 'flex', md: 'flex' },                      
                         }}
                         alignContent={'flex-start'}
                         alignItems={'center'}
@@ -544,8 +525,7 @@ const Messenger = (props) => {
                                             &&
                                             <Grid container
                                                 style={{
-                                                    marginTop: 50,
-                                                    //  color: (online.includes(message.displayName)) ? 'blue' : 'grey', 
+                                                    marginTop: 50,                                                    
                                                     color:
                                                         Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'online') && 'blue' ||
                                                         Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'away') && 'pink' ||
@@ -636,8 +616,7 @@ const Messenger = (props) => {
                                                 //  null
                                                 message.url &&
                                                 <div
-                                                    style={{ fontSize: 12 }}
-                                                //   onClick={() => download(message.url)}
+                                                    style={{ fontSize: 12 }}                                               
                                                 >
                                                     <a href={message.url} download>
                                                         <FileDownloadIcon style={{ position: 'relative', top: 7 }} /> {message.fileName}
@@ -676,8 +655,7 @@ const Messenger = (props) => {
                                         value={value}
                                         placeholder='type message'
                                         onChange={e => setValue(e.target.value)}
-                                        onKeyPress={(e) => {
-                                            // console.log(`Pressed keyCode ${e.key}`);
+                                        onKeyPress={(e) => {                                           
                                             if (value.length && e.key === 'Enter') {
                                                 // Do code here
                                                 e.preventDefault();
