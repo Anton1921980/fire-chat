@@ -31,7 +31,8 @@ const Messenger = (props) => {
     // const history = useHistory()
     const { auth, firestore } = useContext(Context)
     const [user] = useAuthState(auth)
-    console.log("user: ", user);
+
+    // console.log("user: ", user);
 
     // const value = useContext(Context2);
     // console.log("value: ", value);
@@ -50,9 +51,7 @@ const Messenger = (props) => {
     const [url, setUrl] = useState(null)
     const [imgUrl, setImgUrl] = useState(null)
     const [open, setOpen] = useState(false);
-
-
-    const [allRegUsers, setAllRegUsers] = useState(null)
+    let [allRegUsers, setAllRegUsers] = useState({})
 
     //if group chat chatId === null added in every group message
     // if personal chat we have friend and chatId !==null
@@ -66,16 +65,16 @@ const Messenger = (props) => {
         )
         ||
 
-        (props.page === 'registered') && 
+        (props.page === 'registered') &&
         (
             firestore.collection("messages")
-            .where("chatId", "==", null)
+                .where("chatId", "==", null)
         )
         ||
-        (props.page === 'incognito') && 
+        (props.page === 'incognito') &&
         (
             firestore.collection("messages")
-            .where("chatId", "==", null)           
+                .where("chatId", "==", null)
         )
         ||
         ((props.page === 'group')) &&
@@ -124,6 +123,7 @@ const Messenger = (props) => {
         };
 
         let allUsers = null
+
         const refUsersAll = database.ref(`/users`);
         refUsersAll.on("value", function (snapshot) {
             allUsers = snapshot.val()
@@ -142,30 +142,21 @@ const Messenger = (props) => {
         }
         else if (allUsers && (props.page === 'incognito')) {
             const asArray = Object.entries(allUsers);
-
-
-
+            //    const userFiltered= asArray.filter(key => ((key[1].uid)==user.uid))
             const filtered = asArray.filter(key => ((key[1].displayName).includes('Inc')));
 
-            const registeredAllUsers = Object.fromEntries(filtered);
+            let registeredAllUsers = Object.fromEntries(filtered);
 
 
-            // let aaa = Object.keys(registeredAllUsers)
-            // console.log("aaa: ", aaa);
 
-            // userIndex = aaa.findIndex(item => item === user.displayName)
-            // aaa.splice(userIndex, 1)
-            // aaa.splice(0, 0, user.displayName)
 
-            // // const filtered2 = aaa.filter(key => ((key[1].displayName).includes('Inc')));
-
-            // const registeredAllUsers2 = Object.fromEntries(aaa);
 
             setAllRegUsers(registeredAllUsers)
             setRegUsers(Object.keys(registeredAllUsers))
         }
         else if (allUsers) {
             setAllRegUsers(allUsers)
+
             setRegUsers(Object.keys(allUsers))
         }
 
@@ -174,6 +165,8 @@ const Messenger = (props) => {
             let statusUsers = snapshot.val()
             setStatusAllUsers(statusUsers)
         });
+
+        console.log("allRegUsers: ", allRegUsers);
 
     }, []);
 
@@ -279,7 +272,7 @@ const Messenger = (props) => {
 
     let j
     let t
-   
+
     const { opened, setOpened } = useContext(Context2);
 
     useEffect(() => {
@@ -287,8 +280,32 @@ const Messenger = (props) => {
         !opened && isMobile && setIsUserListOpen(false)
     }, [opened])
 
-    let userIndex
-console.log('allRegUsers',allRegUsers);
+
+
+
+
+
+
+
+
+    useEffect(() => {
+
+        let users = Object.entries(allRegUsers)
+        let userIndex = users && users.findIndex(item => (item[1]).uid == user.uid)
+
+        let currentUser = users && (userIndex >= 0) && (Object.entries(allRegUsers))[userIndex]
+
+        users && (userIndex >= 0) && users.splice(userIndex, 1)
+
+        users && (userIndex >= 0) && users.splice(0, 0, currentUser)
+
+        users && (userIndex >= 0) && (setAllRegUsers(Object.fromEntries(users)))
+    }, [regUsers])
+
+
+    console.log("allRegUsers: ", allRegUsers);
+
+
     return (
         <>
             <Container
@@ -365,11 +382,27 @@ console.log('allRegUsers',allRegUsers);
                             {friend && allRegUsers && <div style={{ display: 'flex', marginRight: 15, alignItems: 'center', height: 30 }}><span style={{ fontStyle: 'italic', fontSize: 12, color: 'blue', }}>Chat with:&nbsp;&nbsp; </span>
                                 <Avatar sx={{ width: 24, height: 24 }} src={allRegUsers[friend].photoURL} />&nbsp;{friend}</div>}
                         </div>
+
+
                         {/* <div style={{ display: 'none' }}>
                             {userIndex = regUsers && regUsers.findIndex(item => item === user.displayName)}
                             {regUsers && regUsers.splice(userIndex, 1)}
                             {regUsers && regUsers.splice(0, 0, user.displayName)}
                         </div> */}
+
+                        <div style={{ display: 'none' }}>
+                            {/* {allRegUsers && Object.entries(allRegUsers) && (userIndex = (Object.entries(allRegUsers)).findIndex(item => (item[1]).uid == user.uid))} */}
+                            {/* {console.log("Object.entries(allRegUsers): ",allRegUsers&& Object.entries(allRegUsers))} */}
+                            {/* {console.log("userIndex: ", userIndex)} */}
+
+
+                            {/* {currentUser = (Object.entries(allRegUsers))[userIndex]} */}
+
+                            {/* {Object.entries(allRegUsers) &&  (Object.entries(allRegUsers)).splice(userIndex, 1)} */}
+
+                            {/* {Object.entries(allRegUsers) && (Object.entries(allRegUsers)).splice(0, 0, (Object.entries(allRegUsers))[userIndex])} */}
+                        </div>
+
                         <div
                             style={{ width: 350 }}
                             onClick={startPersonalChat}
@@ -395,7 +428,7 @@ console.log('allRegUsers',allRegUsers);
                                                 margin: 1,
                                                 font: 'inherit',
                                                 textTransform: 'none', width: '100%', justifyContent: 'flex-start',
-                                                background: (allRegUsers[regUser].uid  === user.uid || friend === regUser) ? '#30c9d036' : (
+                                                background: (allRegUsers[regUser].uid === user.uid || friend === regUser) ? '#30c9d036' : (
                                                     Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'online') && '#1693ebb5' ||
                                                     Object.keys(statusAllUsers).find(key => statusAllUsers[regUser] === 'away') && '#ff6589a6' ||
                                                     '#7fa8c57a')
@@ -406,8 +439,7 @@ console.log('allRegUsers',allRegUsers);
                                                 src={(allRegUsers[regUser]).photoURL}
 
                                             />}
-                                            {/* {console.log("[regUser]: ", allRegUsers[regUser])}
-                                     {console.log("allRegUsers[regUser]: ", allRegUsers)} */}
+
                                             <div
                                                 //   onClick={(e) => e.stopPropagation()}
                                                 data-user={regUser}
@@ -427,7 +459,7 @@ console.log('allRegUsers',allRegUsers);
                                                     < div
                                                         // onClick={(e) => e.stopPropagation()}
                                                         style={{ cursor: 'default', }}>
-                                                        {regUser} <span style={{ fontSize: 10, fontStyle: 'italic' }}> - you</span> </div >
+                                                        {regUser} <span style={{ fontSize: 12, fontStyle: 'italic', color: '#1693ebb5' }}> - you</span> </div >
                                                     :
                                                     <div style={{ display: 'flex', width: 250, justifyContent: 'space-between' }} data-user={regUser} data-target="button">
                                                         <span data-user={regUser}
@@ -635,7 +667,7 @@ console.log('allRegUsers',allRegUsers);
                                 direction={'row'}
                                 position={'relative'}
                             >
-                                <Grid item xs={12} md={9}>                                
+                                <Grid item xs={12} md={9}>
                                     <TextField
                                         fullWidth
                                         variant={'outlined'}
