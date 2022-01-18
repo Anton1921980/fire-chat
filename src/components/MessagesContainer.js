@@ -1,7 +1,6 @@
 import { Avatar, Box, Grid, Modal } from '@mui/material'
 import React from 'react'
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import FileUploadIcon from '@mui/icons-material/FileUpload';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 
 
@@ -22,7 +21,6 @@ function MessagesContainer({ messages, messagesEndRef, friend, props, statusAllU
         return (        
 
             <>
-
                 {messages && messages.length > 0 && messages
                     .sort((a, b) => (a.createdAt > b.createdAt) ? 1 : ((b.createdAt > a.createdAt) ? -1 : 0))
                     .map((message, i) =>

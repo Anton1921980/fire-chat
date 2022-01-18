@@ -57,7 +57,7 @@ const Messenger = (props) => {
     const [url, setUrl] = useState(null)
     const [imgUrl, setImgUrl] = useState(null)
     const [open, setOpen] = useState(false);
-    const [allUsers, setAllUsers] = useState({})
+    let [allUsers, setAllUsers] = useState({})
     const [allRegUsers, setAllRegUsers] = useState({})
 
     const backRef = useRef(null)
@@ -144,6 +144,10 @@ const Messenger = (props) => {
         const refUsersAll = database.ref(`/users`);
         refUsersAll.on("value", function (snapshot) {
             setAllUsers(snapshot.val())
+            
+
+
+
 
             // return allUsers
         });
@@ -183,7 +187,18 @@ const Messenger = (props) => {
     }, []);
 
 
-    useEffect(() => {
+    useMemo(() => {
+
+        let users = Object.entries(allUsers)
+        let userIndex = users && users.findIndex(item => (item[1]).uid == user.uid)
+
+        let currentUser = users && (userIndex >= 0) && (Object.entries(allUsers))[userIndex]
+
+        users && (userIndex >= 0) && users.splice(userIndex, 1)
+
+        users && (userIndex >= 0) && users.splice(0, 0, currentUser)
+
+        users && (userIndex >= 0) && (allUsers=(Object.fromEntries(users)))
 
         if (allUsers && (props.page === 'registered')) {
             const asArray = Object.entries(allUsers);
@@ -217,18 +232,19 @@ const Messenger = (props) => {
             setStatusAllUsers(statusUsers)
         });
     }, [allUsers])
-    useEffect(() => {
-        let users = Object.entries(allRegUsers)
-        let userIndex = users && users.findIndex(item => (item[1]).uid == user.uid)
 
-        let currentUser = users && (userIndex >= 0) && (Object.entries(allRegUsers))[userIndex]
+    // useMemo(() => {
+    //     let users = Object.entries(allRegUsers)
+    //     let userIndex = users && users.findIndex(item => (item[1]).uid == user.uid)
 
-        users && (userIndex >= 0) && users.splice(userIndex, 1)
+    //     let currentUser = users && (userIndex >= 0) && (Object.entries(allRegUsers))[userIndex]
 
-        users && (userIndex >= 0) && users.splice(0, 0, currentUser)
+    //     users && (userIndex >= 0) && users.splice(userIndex, 1)
 
-        users && (userIndex >= 0) && (setAllRegUsers(Object.fromEntries(users)))
-    }, [regUsers])
+    //     users && (userIndex >= 0) && users.splice(0, 0, currentUser)
+
+    //     users && (userIndex >= 0) && (setAllRegUsers(Object.fromEntries(users)))
+    // }, [allRegUsers])
 
     useEffect(() => {
         scrollToBottom()
