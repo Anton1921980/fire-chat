@@ -2,7 +2,6 @@ import { Avatar, Chip, Stack } from '@mui/material'
 import React from 'react'
 
 function Chips({ statusAllUsers,regUsers}) {
-    console.log("statusAllUsers: ", statusAllUsers);
    
     return (
         

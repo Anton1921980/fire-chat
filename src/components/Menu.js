@@ -8,9 +8,9 @@ import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural
 import FaceRetouchingOffIcon from '@mui/icons-material/FaceRetouchingOff';
 
 function Menulist(props) {
-  const  propsPage=props.props.page
-    console.log("propsPage: ", propsPage);
-
+    
+  const  propsPage = props.props.page
+    
     return (
         <>
             <MenuList style={{ width: '95%', marginTop:'25px' }}>
