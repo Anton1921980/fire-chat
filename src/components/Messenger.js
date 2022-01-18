@@ -144,63 +144,63 @@ const Messenger = (props) => {
         const refUsersAll = database.ref(`/users`);
         refUsersAll.on("value", function (snapshot) {
             setAllUsers(snapshot.val())
-            
-
-
-
-
             // return allUsers
         });
 
-        // if (allUsers && (props.page === 'registered')) {
-        //     const asArray = Object.entries(allUsers);
-
-        //     const filtered = asArray.filter(key => (!(key[1].displayName).includes('Inc')));
-
-        //     const registeredAllUsers = Object.fromEntries(filtered);
-
-        //     setAllRegUsers(registeredAllUsers)
-        //     setRegUsers(Object.keys(registeredAllUsers))
-        // }
-        // else if (allUsers && (props.page === 'incognito')) {
-        //     const asArray = Object.entries(allUsers);
-
-        //     const filtered = asArray.filter(key => ((key[1].displayName).includes('Inc')));
-
-        //     let registeredAllUsers = Object.fromEntries(filtered);
-
-        //     setAllRegUsers(registeredAllUsers)
-        //     setRegUsers(Object.keys(registeredAllUsers))
-        // }
-        // else if (allUsers) {
-        //     setAllRegUsers(allUsers)
-
-        //     setRegUsers(Object.keys(allUsers))
-        // }
-
-        // const refStatusAll = database.ref(`/status`);
-        // refStatusAll.on("value", function (snapshot) {
-        //     let statusUsers = snapshot.val()
-        //     setStatusAllUsers(statusUsers)
-        // });
 
     }, []);
 
 
     useMemo(() => {
+        let users
+        let userIndex
+        let currentUser
 
-        let users = Object.entries(allUsers)
-        let userIndex = users && users.findIndex(item => (item[1]).uid == user.uid)
+        if (friend && allUsers) {
 
-        let currentUser = users && (userIndex >= 0) && (Object.entries(allUsers))[userIndex]
+            console.log("allUsers: ", allUsers);
+            console.log("friend: ", friend);
 
-        users && (userIndex >= 0) && users.splice(userIndex, 1)
+            users = allUsers && Object.entries(allUsers)
+            userIndex = users && users.findIndex(item => (
+              
+                 ((item[1]).displayName == friend)))
 
-        users && (userIndex >= 0) && users.splice(0, 0, currentUser)
+            currentUser = users && (userIndex >= 0) && (Object.entries(allUsers))[userIndex]
 
-        users && (userIndex >= 0) && (allUsers=(Object.fromEntries(users)))
+            users && (userIndex >= 0) && users.splice(userIndex, 1)
 
+            users && (userIndex >= 0) && users.splice(0, 0, currentUser)
+
+            allUsers = (users && ((userIndex >= 0)) && (Object.fromEntries(users)))
+            console.log("allUsers: ", allUsers);        
+
+        }
+ 
+
+        if (allUsers ) {
+
+        console.log("allUsers: ", allUsers);
+        console.log("friend: ", friend);
+
+            users = allUsers && Object.entries(allUsers)
+            userIndex = users && users.findIndex(item => (item[1]).uid == user.uid)
+            console.log("userIndex: ", userIndex);
+
+            currentUser = users && (userIndex >= 0) && (Object.entries(allUsers))[userIndex]
+            console.log("currentUser: ", currentUser);
+
+            users && (userIndex >= 0) && users.splice(userIndex, 1)
+
+            users && (userIndex >= 0) && users.splice(0, 0, currentUser)
+
+            allUsers = users && (userIndex >= 0) && Object.fromEntries(users)     
+     
+       
+        }
+              
         if (allUsers && (props.page === 'registered')) {
+
             const asArray = Object.entries(allUsers);
 
             const filtered = asArray.filter(key => (!(key[1].displayName).includes('Inc')));
@@ -211,6 +211,7 @@ const Messenger = (props) => {
             setRegUsers(Object.keys(registeredAllUsers))
         }
         else if (allUsers && (props.page === 'incognito')) {
+
             const asArray = Object.entries(allUsers);
 
             const filtered = asArray.filter(key => ((key[1].displayName).includes('Inc')));
@@ -221,30 +222,21 @@ const Messenger = (props) => {
             setRegUsers(Object.keys(registeredAllUsers))
         }
         else if (allUsers) {
+
             setAllRegUsers(allUsers)
 
             setRegUsers(Object.keys(allUsers))
         }
-
+   
+      
         const refStatusAll = database.ref(`/status`);
         refStatusAll.on("value", function (snapshot) {
             let statusUsers = snapshot.val()
             setStatusAllUsers(statusUsers)
         });
-    }, [allUsers])
 
-    // useMemo(() => {
-    //     let users = Object.entries(allRegUsers)
-    //     let userIndex = users && users.findIndex(item => (item[1]).uid == user.uid)
+    }, [allUsers, friend])
 
-    //     let currentUser = users && (userIndex >= 0) && (Object.entries(allRegUsers))[userIndex]
-
-    //     users && (userIndex >= 0) && users.splice(userIndex, 1)
-
-    //     users && (userIndex >= 0) && users.splice(0, 0, currentUser)
-
-    //     users && (userIndex >= 0) && (setAllRegUsers(Object.fromEntries(users)))
-    // }, [allRegUsers])
 
     useEffect(() => {
         scrollToBottom()
