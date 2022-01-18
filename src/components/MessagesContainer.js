@@ -6,10 +6,8 @@ import FileOpenIcon from '@mui/icons-material/FileOpen';
 
 
 function MessagesContainer({ messages, messagesEndRef, friend, props, statusAllUsers, user, imgUrl,j,handleOpen,handleClose,open }) {
-    console.log("props: ", props.page);
-   
-    console.log("messages: ", messages);
-    const style = {
+ 
+       const style = {
         position: 'absolute',
         top: '50%',
         left: '50%',
@@ -23,7 +21,7 @@ function MessagesContainer({ messages, messagesEndRef, friend, props, statusAllU
     };
         return (        
 
-            <Grid item sx={{ height: { xs: '75vh', md: '80vh' }, width: '100%', border: '1px solid lightgrey', background: '#25c4cc36', }}>
+            <>
 
                 {messages && messages.length > 0 && messages
                     .sort((a, b) => (a.createdAt > b.createdAt) ? 1 : ((b.createdAt > a.createdAt) ? -1 : 0))
@@ -153,8 +151,7 @@ function MessagesContainer({ messages, messagesEndRef, friend, props, statusAllU
                 >
                     <Box sx={style}><img src={imgUrl} style={{ width: '100%', height: '100%' }} /></Box>
                 </Modal>
-            </Grid>
-    
+            </>    
     )
 }
 

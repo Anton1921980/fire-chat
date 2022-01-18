@@ -57,6 +57,7 @@ const Messenger = (props) => {
     const [url, setUrl] = useState(null)
     const [imgUrl, setImgUrl] = useState(null)
     const [open, setOpen] = useState(false);
+    const [allUsers, setAllUsers] = useState({})
     const [allRegUsers, setAllRegUsers] = useState({})
 
     const backRef = useRef(null)
@@ -93,13 +94,8 @@ const Messenger = (props) => {
                 .where("page", "==", "group")
         )
     )
-    let  messages
-    (messagesAll && messagesAll.length > 0 && !friend )?  messages = messagesAll.filter(message => message.chatId == null) : messages = messagesAll
-    
-    console.log("messagesAll: ", messagesAll);
-    console.log("messages: ", messages);
-
-
+    let messages
+    (messagesAll && messagesAll.length > 0 && !friend) ? messages = messagesAll.filter(message => message.chatId == null) : messages = messagesAll
 
     useEffect(() => {
         opened && isMobile && setIsUserListOpen(true)
@@ -144,13 +140,50 @@ const Messenger = (props) => {
             }
         };
 
-        let allUsers = null
-
+        // let allUsers = null
         const refUsersAll = database.ref(`/users`);
         refUsersAll.on("value", function (snapshot) {
-            allUsers = snapshot.val()
-            return allUsers
+            setAllUsers(snapshot.val())
+
+            // return allUsers
         });
+
+        // if (allUsers && (props.page === 'registered')) {
+        //     const asArray = Object.entries(allUsers);
+
+        //     const filtered = asArray.filter(key => (!(key[1].displayName).includes('Inc')));
+
+        //     const registeredAllUsers = Object.fromEntries(filtered);
+
+        //     setAllRegUsers(registeredAllUsers)
+        //     setRegUsers(Object.keys(registeredAllUsers))
+        // }
+        // else if (allUsers && (props.page === 'incognito')) {
+        //     const asArray = Object.entries(allUsers);
+
+        //     const filtered = asArray.filter(key => ((key[1].displayName).includes('Inc')));
+
+        //     let registeredAllUsers = Object.fromEntries(filtered);
+
+        //     setAllRegUsers(registeredAllUsers)
+        //     setRegUsers(Object.keys(registeredAllUsers))
+        // }
+        // else if (allUsers) {
+        //     setAllRegUsers(allUsers)
+
+        //     setRegUsers(Object.keys(allUsers))
+        // }
+
+        // const refStatusAll = database.ref(`/status`);
+        // refStatusAll.on("value", function (snapshot) {
+        //     let statusUsers = snapshot.val()
+        //     setStatusAllUsers(statusUsers)
+        // });
+
+    }, []);
+
+
+    useEffect(() => {
 
         if (allUsers && (props.page === 'registered')) {
             const asArray = Object.entries(allUsers);
@@ -183,11 +216,7 @@ const Messenger = (props) => {
             let statusUsers = snapshot.val()
             setStatusAllUsers(statusUsers)
         });
-
-    }, []);
-
-
-
+    }, [allUsers])
     useEffect(() => {
         let users = Object.entries(allRegUsers)
         let userIndex = users && users.findIndex(item => (item[1]).uid == user.uid)
@@ -217,6 +246,7 @@ const Messenger = (props) => {
             fileName: fileName,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             chatId: chatId,
+            chatFriend: friend,
             page: props.page
         })
         setValue('')
@@ -234,11 +264,8 @@ const Messenger = (props) => {
         setValue((text) => (text += e.native))
     }
 
-
-
     function startPersonalChat(e) {
         e.preventDefault(e);
-        console.log("e: ", e.target.dataset.user)
 
         setFriend(e.target.dataset.user)
         setChatId([user.displayName, e.target.dataset.user].sort().join(''))
@@ -272,93 +299,92 @@ const Messenger = (props) => {
                     .getDownloadURL()
                     .then(imgUrl => {
                         setUrl(imgUrl)
-                        console.log("imgUrl: ", imgUrl);
                     })
             })
     }
 
 
     return (
-        <>
-            <Container
-                maxWidth="xl"
-                sx={{
-                    background: '#5890901f',
-                    height: '93vh',
-                    overflow: 'hidden'
-                }}
+
+        <Container
+            maxWidth="xl"
+            sx={{
+                background: '#5890901f',
+                height: '93vh',
+                overflow: 'hidden'
+            }}
+        >
+            <Grid container
+                // columnSpacing={' xs: 2, sm: 2 '}
+                style={{ height: window.innerHeight - 70, }}
             >
-                <Grid container
-                    // columnSpacing={' xs: 2, sm: 2 '}
-                    style={{ height: window.innerHeight - 70, }}
+                <Grid container item xs={12} lg={3}
+                    sx={{
+
+                        display: { xs: opened ? 'flex' : 'none', md: 'flex' },
+                        height: window.innerHeight - 100,
+                        // marginTop: 20,
+                        position: 'relative',
+                        bottom: 20
+
+                    }}
+                    alignContent={'flex-start'}
+                    // alignItems={'center'}
+                    justifyContent={'center'}
                 >
-                    <Grid container item xs={12} lg={3}
-                        sx={{
+                    <Chips statusAllUsers={statusAllUsers} regUsers={regUsers} />
+                    <Menulist props={props} />
 
-                            display: { xs: opened ? 'flex' : 'none', md: 'flex' },
-                            height: window.innerHeight - 100,
-                            // marginTop: 20,
-                            position: 'relative',
-                            bottom: 20
+                    <div style={{ width: '100%', height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', }}>
+                        <Button
+                            size="small"
+                            // variant='outlined'
+                            style={{ visibility: 'hidden', marginRight: 'auto', marginLeft: 10, textTransform: 'capitalize' }}
+                            ref={backRef}
+                            onClick={stopPersonalChat}><KeyboardBackspaceIcon />&nbsp;&nbsp; back
+                        </Button>
+                        {friend && allRegUsers && <div style={{ display: 'flex', marginRight: 15, alignItems: 'center', height: 30 }}><span style={{ fontStyle: 'italic', fontSize: 12, color: 'blue', }}>Chat with:&nbsp;&nbsp; </span>
+                            <Avatar sx={{ width: 24, height: 24 }} src={allRegUsers[friend].photoURL} />&nbsp;{friend}</div>}
+                    </div>
 
-                        }}
-                        alignContent={'flex-start'}
-                        // alignItems={'center'}
-                        justifyContent={'center'}
+                    <div
+                        style={{ width: 350 }}
+                        onClick={startPersonalChat}
                     >
-                        <Chips statusAllUsers={statusAllUsers} regUsers={regUsers} />
-                        <Menulist props={props} />
+                        <Users isUserListOpen={isUserListOpen} allRegUsers={allRegUsers} user={user} friend={friend} statusAllUsers={statusAllUsers} messages={messages} regUsers={regUsers} t={t} />
+                    </div>
 
-                        <div style={{ width: '100%', height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', }}>
-                            <Button
-                                size="small"
-                                // variant='outlined'
-                                style={{ visibility: 'hidden', marginRight: 'auto', marginLeft: 10, textTransform: 'capitalize' }}
-                                ref={backRef}
-                                onClick={stopPersonalChat}><KeyboardBackspaceIcon />&nbsp;&nbsp; back
-                            </Button>
-                            {friend && allRegUsers && <div style={{ display: 'flex', marginRight: 15, alignItems: 'center', height: 30 }}><span style={{ fontStyle: 'italic', fontSize: 12, color: 'blue', }}>Chat with:&nbsp;&nbsp; </span>
-                                <Avatar sx={{ width: 24, height: 24 }} src={allRegUsers[friend].photoURL} />&nbsp;{friend}</div>}
-                        </div>
+                </Grid>
 
-                        <div
-                            style={{ width: 350 }}
-                            onClick={startPersonalChat}
-                        >
-                            <Users isUserListOpen={isUserListOpen} allRegUsers={allRegUsers} user={user} friend={friend} statusAllUsers={statusAllUsers} messages={messages} regUsers={regUsers} t={t} />
-                        </div>
+                <Grid container item xs={12} lg={9}
+                    sx={{
+                        display: { xs: opened ? 'none' : 'flex', md: 'flex' },
+                    }}
+                    alignContent={'flex-start'}
+                    alignItems={'center'}
+                    justifyContent={'center'}
+                >
 
+                    <Grid item sx={{ height: { xs: '75vh', md: '80vh' }, width: '100%', border: '1px solid lightgrey', overflowY: 'auto', background: '#30c9d036', }}>
+
+                        <MessagesContainer
+                            messages={messages} messagesEndRef={messagesEndRef} friend={friend} props={props} statusAllUsers={statusAllUsers}
+                            user={user} imgUrl={imgUrl} j={j} handleOpen={handleOpen} handleClose={handleClose} open={open}
+                        />
                     </Grid>
-
-                    <Grid container item xs={12} lg={9}
-                        sx={{
-                            display: { xs: opened ? 'none' : 'flex', md: 'flex' },
-                        }}
-                        alignContent={'flex-start'}
-                        alignItems={'center'}
-                        justifyContent={'center'}
+                    <Grid
+                        container
+                        direction={'row'}
+                        style={{ width: '100%', marginTop: 15 }}
                     >
-
-                        <Grid item sx={{ height: { xs: '75vh', md: '80vh' }, width: '100%', border: '1px solid lightgrey', overflowY: 'auto', background: '#30c9d036', }}>
-
-                            <MessagesContainer
-                                messages={messages} messagesEndRef={messagesEndRef} friend={friend} props={props} statusAllUsers={statusAllUsers}
-                                user={user} imgUrl={imgUrl} j={j} handleOpen={handleOpen} handleClose={handleClose} open={open}
-                            />
-                        </Grid>
-                        <Grid
-                            container
-                            direction={'row'}
-                            style={{ width: '100%', marginTop: 15 }}
-                        >
-                            <MessagesSender props={props} user={user} value={value} setValue={setValue} handleEmojiSelect={handleEmojiSelect} handleEmojiShow={handleEmojiShow}
-                                onChange={onChange} sendMessage={sendMessage} showEmoji={showEmoji} smile={smile} url={url} fileName={fileName}
-                            />
-                        </Grid>
+                        <MessagesSender props={props} user={user} value={value} setValue={setValue} handleEmojiSelect={handleEmojiSelect} handleEmojiShow={handleEmojiShow}
+                            onChange={onChange} sendMessage={sendMessage} showEmoji={showEmoji} smile={smile} url={url} fileName={fileName}
+                        />
                     </Grid>
                 </Grid>
-            </Container>
-        </>
+            </Grid>
+        </Container>
+
     )
 }
 
