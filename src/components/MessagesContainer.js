@@ -2,9 +2,11 @@ import { Avatar, Box, Grid, Modal } from '@mui/material'
 import React from 'react'
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
+import CheckOutlinedIcon from '@mui/icons-material/CheckOutlined';
+import { grey } from '@mui/material/colors';
+import Checker from './Checker';
 
-
-function MessagesContainer({ messages, messagesEndRef, friend, props, statusAllUsers, user, imgUrl, j, handleOpen, handleClose, open }) {
+function MessagesContainer({ removeUnread, messages, messagesEndRef, friend, props, statusAllUsers, user, imgUrl, j, handleOpen, handleClose, open }) {
 
     const style = {
         position: 'absolute',
@@ -18,6 +20,13 @@ function MessagesContainer({ messages, messagesEndRef, friend, props, statusAllU
         padding: 0,
         boxShadow: 24,
     };
+    // const [visible, setVisible] = useState(true);
+    // useEffect(() => {
+    //     setTimeout(() => {
+    //       setVisible(false);
+    //     }, props.delay);
+    //   }, [props.delay]);
+
     return (
 
         <>
@@ -77,17 +86,7 @@ function MessagesContainer({ messages, messagesEndRef, friend, props, statusAllU
                             </div>
                         }
 
-                        <div
-                            style={{
-                                width: '100px',
-                                height: '50px',
-                                display: message.unread ? 'block' : 'none',
-                                backgroundColor:  user.uid === message.uid ?'green':'red',
-                                width: 'fit-content',
-                            }}
-                        >
-                            Unread
-                        </div>
+
 
                         <div
                             style={{
@@ -101,7 +100,7 @@ function MessagesContainer({ messages, messagesEndRef, friend, props, statusAllU
                                 width: 'fit-content',
                             }}
 
-                        >{message.text} {message.createdAt > "user last online" && "unread messages"}
+                        >{message.text}
 
                             <div
                                 style={{
@@ -121,50 +120,72 @@ function MessagesContainer({ messages, messagesEndRef, friend, props, statusAllU
                                     :
                                     '0' + (message.createdAt).toDate().getMinutes())}
                             </div>
-                        </div>
-                        <div>
-                            {messages[i].url && (
-                                (messages[i].url).includes('.jpg') ||
-                                (messages[i].url).includes('.jpeg') ||
-                                (messages[i].url).includes('.gif') ||
-                                (messages[i].url).includes('.png')
-                            )
-                                ?
-                                <>
-                                    <div
-                                        style={{ cursor: 'pointer', }}
-                                        onClick={() => { handleOpen(messages[i].url) }}>
-                                        <FileOpenIcon style={{ position: 'relative', top: 1, right: 3 }} />
-                                        <img
-                                            style={{ width: 70, height: 70, }}
-                                            src={messages[i].url}
-                                        >
-                                        </img>
-                                    </div>
-                                    <div style={{ fontSize: 12 }}>{message.fileName}</div>
-                                </>
-                                :
-                                //  null
-                                message.url &&
-                                <div
-                                    style={{ fontSize: 12 }}
-                                >
-                                    <a href={message.url} download>
-                                        <FileDownloadIcon style={{ position: 'relative', top: 7 }} /> {message.fileName}
-                                    </a>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                )}
-            <Modal
-                open={open}
-                onClose={handleClose}
-            >
-                <Box sx={style}><img src={imgUrl} style={{ width: '100%', height: '100%' }} /></Box>
-            </Modal>
-        </>
-    )
-}
+                            
+                                {message.unread && removeUnread===false && 
+                                    // <div
+                                    //     sx={{
+                                    //         position: 'absolute',
+                                    //         width: 100,
+                                    //         height: 50,
+                                    //         backgroundColor: user.uid === message.uid ? 'green' : 'red',
+                                    //         bottom:'90%',
+                                    //         color:'grey',
+                                           
+                                    //     }}
+                                    // >
+                                    //    <CheckOutlinedIcon sx={{ color:user.uid === message.uid ? 'green' : 'blue',}}/>
+                                    //    <CheckOutlinedIcon sx={{ color:user.uid === message.uid ? 'green' : 'blue', position: 'relative', right: 10}}/>
+                                    // </div>
 
-export default MessagesContainer
+
+<Checker message={ message} user={user} delay={"3000"}/>
+
+                                }
+
+                            </div>
+                            <div>
+                                {messages[i].url && (
+                                    (messages[i].url).includes('.jpg') ||
+                                    (messages[i].url).includes('.jpeg') ||
+                                    (messages[i].url).includes('.gif') ||
+                                    (messages[i].url).includes('.png')
+                                )
+                                    ?
+                                    <>
+                                        <div
+                                            style={{ cursor: 'pointer', }}
+                                            onClick={() => { handleOpen(messages[i].url) }}>
+                                            <FileOpenIcon style={{ position: 'relative', top: 1, right: 3 }} />
+                                            <img
+                                                style={{ width: 70, height: 70, }}
+                                                src={messages[i].url}
+                                            >
+                                            </img>
+                                        </div>
+                                        <div style={{ fontSize: 12 }}>{message.fileName}</div>
+                                    </>
+                                    :
+                                    //  null
+                                    message.url &&
+                                    <div
+                                        style={{ fontSize: 12 }}
+                                    >
+                                        <a href={message.url} download>
+                                            <FileDownloadIcon style={{ position: 'relative', top: 7 }} /> {message.fileName}
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                )}
+                        <Modal
+                            open={open}
+                            onClose={handleClose}
+                        >
+                            <Box sx={style}><img src={imgUrl} style={{ width: '100%', height: '100%' }} /></Box>
+                        </Modal>
+                    </>
+                )
+            }
+
+            export default MessagesContainer

@@ -41,6 +41,8 @@ const Messenger = (props) => {
     const [open, setOpen] = useState(false);
     let [allUsers, setAllUsers] = useState({})
     const [allRegUsers, setAllRegUsers] = useState({})
+    const [unreadMessages, setUnreadMessages] = useState([])
+    const [removeUnread, setRemoveUnread] = useState(false)
 
     const backRef = useRef(null)
     const messagesEndRef = useRef(null)
@@ -48,6 +50,7 @@ const Messenger = (props) => {
     let file
     let j
     let t
+
 
     const [messagesAll, loading] = useCollectionData(
 
@@ -148,8 +151,8 @@ const Messenger = (props) => {
 
         if (friend && allUsers) {
 
-            console.log("allUsers: ", allUsers);
-            console.log("friend: ", friend);
+            // console.log("allUsers: ", allUsers);
+            // console.log("friend: ", friend);
 
             users = allUsers && Object.entries(allUsers)
             userIndex = users && users.findIndex(item => (
@@ -169,8 +172,8 @@ const Messenger = (props) => {
 
         if (allUsers) {
 
-            console.log("allUsers: ", allUsers);
-            console.log("friend: ", friend);
+            // console.log("allUsers: ", allUsers);
+            // console.log("friend: ", friend);
 
             users = allUsers && Object.entries(allUsers)
             userIndex = users && users.findIndex(item => (item[1]).uid == user.uid)
@@ -241,7 +244,7 @@ const Messenger = (props) => {
     //получил сообщения которые френд не увидел, как чтобы ему они отобразились отправить их в базу отдельным массивом 
     // если у него поменялся статус на онлайн отправить их первыми и профильтровать массив сообщ выделить
 
-    const [unread, setUnread] = useState(false)
+    // const [unread, setUnread] = useState(false)
     //отправить в самом сообщении поле unread setUnread true/false которое буде меняться от времени когда он зашел в наш чат!?
 
 
@@ -254,23 +257,24 @@ const Messenger = (props) => {
         const filtered = asArray.filter(key => (key[1].displayName) == friend);
 
         const friendObj = friend && (Object.fromEntries(filtered))[friend]
-        console.log("friendObj: ", friendObj);
+        // console.log("friendObj: ", friendObj);
 
         const friendSeen = friend && friendObj['seen']
-        console.log("friendSeen: ", new Date(friendSeen));
+        // console.log("friendSeen: ", new Date(friendSeen));
 
-        
+
         let filteredMessages
-        let unreadMessages
+
         (friend && messages) && (
             filteredMessages = messages && messages.filter(message => (((message.createdAt) && (message.createdAt).toDate())) > new Date(friendSeen)))
-            //тут должен быть время юзер ласт сиин то есть время когда я біл перед єтим оно перезаписалось когда я сам вошел
-        console.log("filteredMessages: ", filteredMessages);
-      
-        unreadMessages = filteredMessages && filteredMessages.map(message => { message['unread'] = true })
+        //тут должен быть время юзер ласт сиин то есть время когда я біл перед єтим оно перезаписалось когда я сам вошел
 
-        unreadMessages && unreadMessages.length && (filteredMessages.map(message => {
-            console.log("message: ", message);
+        setUnreadMessages(filteredMessages)
+        filteredMessages && filteredMessages.length && (filteredMessages.map(message => {
+
+            message['unread'] = true
+            // console.log("message: ", message);
+
             firestore
                 .collection("messages")
                 .where('createdAt', '>', `${new Date(friendSeen)}`)
@@ -280,28 +284,25 @@ const Messenger = (props) => {
                         // doc.data() is never undefined for query doc snapshots
                         console.log(doc.id, " => ", doc.data());
                         firestore
-                        .collection("messages")
-                        .doc(doc.id)
-                        .update({ unread: "true" });
+                            .collection("messages")
+                            .doc(doc.id)
+                            .update({ unread: "true" });
                     });
-                })     
+                })
         }
         )
         )
-        console.log("setUnread: ", unread);
+        // console.log("setUnread: ", unread);
 
-        console.log("filteredMessages: ", filteredMessages);
+        // console.log("filteredMessages: ", filteredMessages);
 
     }, [messages, friend]);
 
-//работает теперь надо чтобі когда френд откріл чат убрать єтот unread у него и у меня то есть через базу реалтайм, например он нажал на френда и через 5 сек
+    //работает теперь надо чтобі когда френд откріл чат убрать єтот unread у него и у меня то есть через базу реалтайм, например он нажал на френда и через 5 сек
 
 
 
 
-    useEffect(() => {
-        scrollToBottom()
-    }, [messages]);
 
 
     const sendMessage = async () => {
@@ -374,6 +375,22 @@ const Messenger = (props) => {
     }
 
 
+   
+    useEffect(() => {
+        scrollToBottom()
+    
+    }, [messages, unreadMessages]);
+
+    // useEffect(() => {
+
+    //     const timeout = setTimeout(() => {
+    //         setRemoveUnread(true)
+    //     }, 5000);
+    //     return () => clearTimeout(timeout);
+
+    // }, [x]);
+
+
     return (
 
         <Container
@@ -415,7 +432,7 @@ const Messenger = (props) => {
                         style={{ width: 350 }}
                         onClick={startPersonalChat}
                     >
-                        <Users isUserListOpen={isUserListOpen} allRegUsers={allRegUsers} user={user} friend={friend} statusAllUsers={statusAllUsers} messages={messages} regUsers={regUsers} t={t} />
+                        <Users removeUnread={removeUnread} unreadMessages={unreadMessages} isUserListOpen={isUserListOpen} allRegUsers={allRegUsers} user={user} friend={friend} statusAllUsers={statusAllUsers} messages={messages} regUsers={regUsers} t={t} />
                     </div>
 
                 </Grid>
@@ -432,6 +449,7 @@ const Messenger = (props) => {
                     <Grid item sx={{ height: { xs: '75vh', md: '80vh' }, width: '100%', border: '1px solid lightgrey', overflowY: 'auto', background: '#30c9d036', }}>
 
                         <MessagesContainer
+                            removeUnread={removeUnread} delay="10000"
                             messages={messages} messagesEndRef={messagesEndRef} friend={friend} props={props} statusAllUsers={statusAllUsers}
                             user={user} imgUrl={imgUrl} j={j} handleOpen={handleOpen} handleClose={handleClose} open={open}
                         />

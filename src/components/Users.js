@@ -1,8 +1,10 @@
 import { Autocomplete, Avatar, Button, Hidden, TextField } from '@mui/material'
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import React from 'react'
+import CheckerUser from './CheckerUser';
 
-function Users({ isUserListOpen, allRegUsers, user, friend, statusAllUsers, regUsers, messages, t, ...props }) {
+function Users({ isUserListOpen, allRegUsers, user, friend, statusAllUsers, regUsers, messages, unreadMessages, t, ...props }) {
+    // console.log("unreadMessages: ", unreadMessages);
 
     return (
         <>
@@ -35,11 +37,12 @@ function Users({ isUserListOpen, allRegUsers, user, friend, statusAllUsers, regU
                                     '#7fa8c57a')
                             }}>
 
-                            {allRegUsers[regUser].photoURL && <Avatar
-                                onClick={(e) => e.stopPropagation()}
-                                src={(allRegUsers[regUser]).photoURL}
+                            {allRegUsers[regUser].photoURL &&
+                                <Avatar
+                                    onClick={(e) => e.stopPropagation()}
+                                    src={(allRegUsers[regUser]).photoURL}
 
-                            />}
+                                />}
 
                             <div
                                 //   onClick={(e) => e.stopPropagation()}
@@ -58,11 +61,14 @@ function Users({ isUserListOpen, allRegUsers, user, friend, statusAllUsers, regU
                                     < div
                                         // onClick={(e) => e.stopPropagation()}
                                         style={{ cursor: 'default', }}>
-                                        {regUser} <span style={{ fontSize: 12, fontStyle: 'italic', color: '#1693ebb5' }}> - you</span> </div >
+                                        {regUser} <span style={{ fontSize: 12, fontStyle: 'italic', color: '#1693ebb5' }}> - you</span>
+
+                                    </div >
                                     :
                                     <div style={{ display: 'flex', width: 250, justifyContent: 'space-between' }} data-user={regUser} data-target="button">
                                         <span data-user={regUser}
                                         >{regUser}</span>
+
                                         <span
                                             data-user={regUser}
                                             style={{ fontSize: 10, fontStyle: 'italic', cursor: 'default' }}>
@@ -77,6 +83,12 @@ function Users({ isUserListOpen, allRegUsers, user, friend, statusAllUsers, regU
                                                     `seen at: ${new Date(allRegUsers[regUser].seen).getHours()} : ${new Date(allRegUsers[regUser].seen).getMinutes()}`
                                             }
                                         </span>
+                                        {
+                                            friend && (allRegUsers[regUser].displayName == friend) && unreadMessages && unreadMessages.length && (unreadMessages[0]).displayName == friend &&
+
+                                            // <Avatar sx={{ bgcolor: 'blue', marginTop:0, left: '92%',width: 25, height: 25 ,fontSize:12,position:'absolute' }}> {unreadMessages.length}</Avatar>
+                                            <CheckerUser unreadMessages={unreadMessages} delay={"5000"} />
+                                        }
                                     </div>}
                                 <div
                                     style={{ overflow: 'hidden' }}
