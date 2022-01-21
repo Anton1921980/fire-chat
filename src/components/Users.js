@@ -21,11 +21,11 @@ function Users({ isUserListOpen, allRegUsers, user, friend, statusAllUsers, regU
 
                         <Button
                             data-user={regUser}
-                            disabled={allRegUsers[regUser].uid === user.uid}
+                            disabled={user.uid && allRegUsers[regUser].uid === user.uid}
                             key={regUser}
                             style={{
-                                maxHeight:70,
-                                overflow:'hidden',
+                                maxHeight: 70,
+                                overflow: 'hidden',
                                 margin: 1,
                                 font: 'inherit',
                                 textTransform: 'none', width: '100%', justifyContent: 'flex-start',
@@ -79,15 +79,15 @@ function Users({ isUserListOpen, allRegUsers, user, friend, statusAllUsers, regU
                                         </span>
                                     </div>}
                                 <div
-                                style={{overflow:'hidden'}}
+                                    style={{ overflow: 'hidden' }}
                                     data-user={regUser}
                                 >
                                     {messages && (t = (messages.sort((a, b) => (a.createdAt > b.createdAt) ? 1 : ((b.createdAt > a.createdAt) ? -1 : 0))
                                         .filter(message => (message.displayName === regUser))).pop()) &&
                                         //  t&&t.length&&(t.length>30)?                                       
-                                          `${t['text'].slice(0, 30)}`
+                                        `${t['text'].slice(0, 30)}`
                                         //   :t.text
-                                          }
+                                    }
                                 </div>
                             </div>
 

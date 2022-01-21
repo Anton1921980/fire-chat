@@ -3,37 +3,19 @@ import { Context } from '../index'
 import { Context2 } from '../App'
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollectionData } from "react-firebase-hooks/firestore"
-import { Autocomplete, Avatar, Button, Chip, Container, Divider, Grid, ListItemIcon, ListItemText, MenuItem, MenuList, Modal, TextField, Typography, } from '@mui/material';
-import Stack from '@mui/material/Stack';
+import { Avatar, Button, Container, Grid, } from '@mui/material';
 import Loader from './Loader';
 import firebase from 'firebase';
 import 'firebase/auth'
 import 'firebase/database';
-import SendRoundedIcon from '@mui/icons-material/SendRounded';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import FileUploadIcon from '@mui/icons-material/FileUpload';
-import FileOpenIcon from '@mui/icons-material/FileOpen';
-import { Box, display } from '@mui/system';
 import 'emoji-mart/css/emoji-mart.css'
-import { Picker } from 'emoji-mart'
 import smile from '../img/smile.png'
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
-import PersonSearchIcon from '@mui/icons-material/PersonSearch';
-import FaceIcon from '@mui/icons-material/Face';
-import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
-import FaceRetouchingOffIcon from '@mui/icons-material/FaceRetouchingOff';
-import { NavLink, useHistory } from 'react-router-dom/cjs/react-router-dom.min';
-import { CHAT_ROUTE, INCOGNITO_CHAT_ROUTE, REGISTERED_CHAT_ROUTE } from '../utils/consts';
-
-import { createStyles, makeStyles } from '@mui/styles';
 import Menulist from './Menu';
 import Chips from './Chips';
 import Users from './Users';
-import messagesContainer from './MessagesContainer';
 import MessagesContainer from './MessagesContainer';
 import MessagesSender from './MessagesSender';
-
-
 
 
 const Messenger = (props) => {
@@ -94,8 +76,19 @@ const Messenger = (props) => {
                 .where("page", "==", "group")
         )
     )
-    let messages
-    (messagesAll && messagesAll.length > 0 && !friend) ? messages = messagesAll.filter(message => message.chatId == null) : messages = messagesAll
+    //     let messages
+    //     // (messagesAll && messagesAll.length > 0 && !friend) ? messages = messagesAll.filter(message => message.chatId == null) : messages = messagesAll
+
+    //   if  (messagesAll && messagesAll.length > 0 && !friend) {
+    //     messages = messagesAll.filter(message => message.chatId == null)  
+    //   }
+    //   else{
+    //     messages = messagesAll
+
+    //   }
+
+
+
 
     useEffect(() => {
         opened && isMobile && setIsUserListOpen(true)
@@ -140,13 +133,10 @@ const Messenger = (props) => {
             }
         };
 
-        // let allUsers = null
         const refUsersAll = database.ref(`/users`);
         refUsersAll.on("value", function (snapshot) {
             setAllUsers(snapshot.val())
-            // return allUsers
         });
-
 
     }, []);
 
@@ -163,8 +153,8 @@ const Messenger = (props) => {
 
             users = allUsers && Object.entries(allUsers)
             userIndex = users && users.findIndex(item => (
-              
-                 ((item[1]).displayName == friend)))
+
+                ((item[1]).displayName == friend)))
 
             currentUser = users && (userIndex >= 0) && (Object.entries(allUsers))[userIndex]
 
@@ -173,32 +163,27 @@ const Messenger = (props) => {
             users && (userIndex >= 0) && users.splice(0, 0, currentUser)
 
             allUsers = (users && ((userIndex >= 0)) && (Object.fromEntries(users)))
-            console.log("allUsers: ", allUsers);        
-
+            // console.log("allUsers: ", allUsers);
         }
- 
 
-        if (allUsers ) {
 
-        console.log("allUsers: ", allUsers);
-        console.log("friend: ", friend);
+        if (allUsers) {
+
+            console.log("allUsers: ", allUsers);
+            console.log("friend: ", friend);
 
             users = allUsers && Object.entries(allUsers)
             userIndex = users && users.findIndex(item => (item[1]).uid == user.uid)
-            console.log("userIndex: ", userIndex);
 
             currentUser = users && (userIndex >= 0) && (Object.entries(allUsers))[userIndex]
-            console.log("currentUser: ", currentUser);
 
             users && (userIndex >= 0) && users.splice(userIndex, 1)
 
             users && (userIndex >= 0) && users.splice(0, 0, currentUser)
 
-            allUsers = users && (userIndex >= 0) && Object.fromEntries(users)     
-     
-       
+            allUsers = users && (userIndex >= 0) && Object.fromEntries(users)
         }
-              
+
         if (allUsers && (props.page === 'registered')) {
 
             const asArray = Object.entries(allUsers);
@@ -224,11 +209,10 @@ const Messenger = (props) => {
         else if (allUsers) {
 
             setAllRegUsers(allUsers)
-
             setRegUsers(Object.keys(allUsers))
         }
-   
-      
+
+
         const refStatusAll = database.ref(`/status`);
         refStatusAll.on("value", function (snapshot) {
             let statusUsers = snapshot.val()
@@ -236,6 +220,83 @@ const Messenger = (props) => {
         });
 
     }, [allUsers, friend])
+
+
+
+
+    let messages
+    // (messagesAll && messagesAll.length > 0 && !friend) ? messages = messagesAll.filter(message => message.chatId == null) : messages = messagesAll
+
+    if (messagesAll && messagesAll.length > 0 && !friend) {
+        messages = messagesAll.filter(message => message.chatId == null)
+    }
+    else {
+        messages = messagesAll
+
+
+    }
+
+    // const [unread, setUnread]= useState(false)
+
+    //получил сообщения которые френд не увидел, как чтобы ему они отобразились отправить их в базу отдельным массивом 
+    // если у него поменялся статус на онлайн отправить их первыми и профильтровать массив сообщ выделить
+
+    const [unread, setUnread] = useState(false)
+    //отправить в самом сообщении поле unread setUnread true/false которое буде меняться от времени когда он зашел в наш чат!?
+
+
+    //  во время отправки сообщения если френд не онлайн цепляю анрид 
+    //он заходит видит юзеров там мигатет есть анрид и количестввоS
+    //вібирает френда  и чатид надо убрать анрид
+    useEffect(() => {
+        const asArray = Object.entries(allUsers);
+
+        const filtered = asArray.filter(key => (key[1].displayName) == friend);
+
+        const friendObj = friend && (Object.fromEntries(filtered))[friend]
+        console.log("friendObj: ", friendObj);
+
+        const friendSeen = friend && friendObj['seen']
+        console.log("friendSeen: ", new Date(friendSeen));
+
+        
+        let filteredMessages
+        let unreadMessages
+        (friend && messages) && (
+            filteredMessages = messages && messages.filter(message => (((message.createdAt) && (message.createdAt).toDate())) > new Date(friendSeen)))
+            //тут должен быть время юзер ласт сиин то есть время когда я біл перед єтим оно перезаписалось когда я сам вошел
+        console.log("filteredMessages: ", filteredMessages);
+      
+        unreadMessages = filteredMessages && filteredMessages.map(message => { message['unread'] = true })
+
+        unreadMessages && unreadMessages.length && (filteredMessages.map(message => {
+            console.log("message: ", message);
+            firestore
+                .collection("messages")
+                .where('createdAt', '>', `${new Date(friendSeen)}`)
+                .get()
+                .then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                        // doc.data() is never undefined for query doc snapshots
+                        console.log(doc.id, " => ", doc.data());
+                        firestore
+                        .collection("messages")
+                        .doc(doc.id)
+                        .update({ unread: "true" });
+                    });
+                })     
+        }
+        )
+        )
+        console.log("setUnread: ", unread);
+
+        console.log("filteredMessages: ", filteredMessages);
+
+    }, [messages, friend]);
+
+//работает теперь надо чтобі когда френд откріл чат убрать єтот unread у него и у меня то есть через базу реалтайм, например он нажал на френда и через 5 сек
+
+
 
 
     useEffect(() => {
@@ -253,6 +314,7 @@ const Messenger = (props) => {
             url: url,
             fileName: fileName,
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            unread: false,
             chatId: chatId,
             chatFriend: friend,
             page: props.page
@@ -323,21 +385,16 @@ const Messenger = (props) => {
             }}
         >
             <Grid container
-                // columnSpacing={' xs: 2, sm: 2 '}
                 style={{ height: window.innerHeight - 70, }}
             >
                 <Grid container item xs={12} lg={3}
                     sx={{
-
                         display: { xs: opened ? 'flex' : 'none', md: 'flex' },
                         height: window.innerHeight - 100,
-                        // marginTop: 20,
                         position: 'relative',
                         bottom: 20
-
                     }}
                     alignContent={'flex-start'}
-                    // alignItems={'center'}
                     justifyContent={'center'}
                 >
                     <Chips statusAllUsers={statusAllUsers} regUsers={regUsers} />
@@ -346,7 +403,6 @@ const Messenger = (props) => {
                     <div style={{ width: '100%', height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', }}>
                         <Button
                             size="small"
-                            // variant='outlined'
                             style={{ visibility: 'hidden', marginRight: 'auto', marginLeft: 10, textTransform: 'capitalize' }}
                             ref={backRef}
                             onClick={stopPersonalChat}><KeyboardBackspaceIcon />&nbsp;&nbsp; back
