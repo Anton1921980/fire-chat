@@ -2,11 +2,13 @@ import { Avatar, Box, Grid, Modal } from '@mui/material'
 import React from 'react'
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
+import CheckOutlinedIcon from '@mui/icons-material/CheckOutlined';
+import { grey } from '@mui/material/colors';
+import Checker from './Checker';
 
+function MessagesContainer({ removeUnread, messages, messagesEndRef, friend, props, statusAllUsers, user, imgUrl, j, handleOpen, handleClose, open }) {
 
-function MessagesContainer({ messages, messagesEndRef, friend, props, statusAllUsers, user, imgUrl,j,handleOpen,handleClose,open }) {
- 
-       const style = {
+    const style = {
         position: 'absolute',
         top: '50%',
         left: '50%',
@@ -18,96 +20,129 @@ function MessagesContainer({ messages, messagesEndRef, friend, props, statusAllU
         padding: 0,
         boxShadow: 24,
     };
-        return (        
+    // const [visible, setVisible] = useState(true);
+    // useEffect(() => {
+    //     setTimeout(() => {
+    //       setVisible(false);
+    //     }, props.delay);
+    //   }, [props.delay]);
 
-            <>
-                {messages && messages.length > 0 && messages
-                    .sort((a, b) => (a.createdAt > b.createdAt) ? 1 : ((b.createdAt > a.createdAt) ? -1 : 0))
-                    .map((message, i) =>
-                        <div
-                            ref={messagesEndRef}
-                            key={i}
-                            style={{
-                                width: 'fit-content',
-                                marginLeft: user.uid === message.uid ? 'auto' : '10px',
-                            }}
-                        >
-                            <div style={{ display: 'none' }}>{i >= 1 ? j = i - 1 : j = 0}</div>
+    return (
 
-                            {!friend && ((props.page =='group') || (props.page == 'registered') || (props.page == 'incognito'))
-                                &&
-                                ((messages[0].createdAt === messages[i].createdAt)
-                                    ||
-                                    (message.photoURL !== ((messages[j]).photoURL)))
-                                &&
-                                <Grid container
-                                    style={{
-                                        marginTop: 50,
-                                        color:
-                                            Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'online') && 'blue' ||
-                                            Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'away') && 'pink' ||
-                                            'grey'
-                                    }}
-                                >
-                                    <Avatar src={message.photoURL} />
-                                    <div
-                                        style={{
-                                            lineHeight: '35px',
-                                            marginLeft: 5,
-                                        }}
-                                    >{message.displayName != null ? message.displayName : `Incognito_${user.uid.slice(0, 3)}`}
-                                    </div>
-                                    <div style={{ fontSize: 10, fontStyle: 'italic' }}>
-                                        {Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'online') && 'online' ||
-                                            Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'away') && 'away' ||
-                                            'offline'}
-                                    </div>
+        <>
+            {messages && messages.length > 0 && messages
+                .sort((a, b) => (a.createdAt > b.createdAt) ? 1 : ((b.createdAt > a.createdAt) ? -1 : 0))
+                .map((message, i) =>
+                    <div
+                        ref={messagesEndRef}
+                        key={i}
+                        style={{
+                            width: 'fit-content',
+                            marginLeft: user.uid === message.uid ? 'auto' : '10px',
+                        }}
+                    >
+                        <div style={{ display: 'none' }}>{i >= 1 ? j = i - 1 : j = 0}</div>
 
-                                </Grid>
-                            }
-
-                            {(messages[i].createdAt !== null) && (messages[j].createdAt !== null) &&
-                                ((messages[0].createdAt === messages[i].createdAt) ||
-                                    ((message.createdAt).toDate().getDay()) !== ((messages[j].createdAt).toDate().getDay())) &&
-                                <div style={{
-                                    color: 'grey', fontStyle: 'italic', marginTop: 50, position: 'relative', left: user.uid !== message.uid
-                                        ? '75vh' : null, right: user.uid === message.uid ? '75vh' : null
-                                }}>
-                                    {((message.createdAt).toDate().toJSON().slice(0, 10).split('-').reverse().join('.'))}
-                                </div>
-                            }
-                            <div
+                        {!friend && ((props.page == 'group') || (props.page == 'registered') || (props.page == 'incognito'))
+                            &&
+                            ((messages[0].createdAt === messages[i].createdAt)
+                                ||
+                                (message.photoURL !== ((messages[j]).photoURL)))
+                            &&
+                            <Grid container
                                 style={{
-                                    position: 'relative',
-                                    margin: 10,
-                                    padding: 15,
-                                    minWidth: 100,
-                                    border: '1px solid transparent',
-                                    borderRadius: 100,
-                                    backgroundColor: user.uid === message.uid ? 'lightgrey' : 'white',
-                                    width: 'fit-content',
+                                    marginTop: 50,
+                                    color:
+                                        Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'online') && 'blue' ||
+                                        Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'away') && 'pink' ||
+                                        'grey'
                                 }}
-                            >{message.text}
+                            >
+                                <Avatar src={message.photoURL} />
                                 <div
                                     style={{
-                                        position: 'absolute',
-                                        top: 38,
-                                        right: 16,
-                                        fontSize: 10,
-                                        fontStyle: 'italic',
-                                        color: 'darkgrey'
+                                        lineHeight: '35px',
+                                        marginLeft: 5,
                                     }}
-                                >
-
-                                    {(message.createdAt !== null) && ((message.createdAt).toDate().getHours())}
-                                    : {(message.createdAt !== null) && ((message.createdAt).toDate().getMinutes() > 9
-                                        ?
-                                        (message.createdAt).toDate().getMinutes()
-                                        :
-                                        '0' + (message.createdAt).toDate().getMinutes())}
+                                >{message.displayName != null ? message.displayName : `Incognito_${user.uid.slice(0, 3)}`}
                                 </div>
-                            </div>
+                                <div style={{ fontSize: 10, fontStyle: 'italic' }}>
+                                    {Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'online') && 'online' ||
+                                        Object.keys(statusAllUsers).find(key => statusAllUsers[message.displayName] === 'away') && 'away' ||
+                                        'offline'}
+                                </div>
 
+                            </Grid>
+                        }
+
+                        {(messages[i].createdAt !== null) && (messages[j].createdAt !== null) &&
+                            ((messages[0].createdAt === messages[i].createdAt) ||
+                                ((message.createdAt).toDate().getDay()) !== ((messages[j].createdAt).toDate().getDay())) &&
+                            <div style={{
+                                color: 'grey', fontStyle: 'italic', marginTop: 50, position: 'relative', left: user.uid !== message.uid
+                                    ? '75vh' : null, right: user.uid === message.uid ? '75vh' : null
+                            }}>
+                                {((message.createdAt).toDate().toJSON().slice(0, 10).split('-').reverse().join('.'))}
+                            </div>
+                        }
+
+
+
+                        <div
+                            style={{
+                                position: 'relative',
+                                margin: 10,
+                                padding: 15,
+                                minWidth: 100,
+                                border: '1px solid transparent',
+                                borderRadius: 100,
+                                backgroundColor: user.uid === message.uid ? 'lightgrey' : 'white',
+                                width: 'fit-content',
+                            }}
+
+                        >{message.text}
+
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    top: 38,
+                                    right: 16,
+                                    fontSize: 10,
+                                    fontStyle: 'italic',
+                                    color: 'darkgrey'
+                                }}
+                            >
+
+                                {(message.createdAt !== null) && ((message.createdAt).toDate().getHours())}
+                                : {(message.createdAt !== null) && ((message.createdAt).toDate().getMinutes() > 9
+                                    ?
+                                    (message.createdAt).toDate().getMinutes()
+                                    :
+                                    '0' + (message.createdAt).toDate().getMinutes())}
+                            </div>
+                            
+                                {message.unread && removeUnread===false && 
+                                    // <div
+                                    //     sx={{
+                                    //         position: 'absolute',
+                                    //         width: 100,
+                                    //         height: 50,
+                                    //         backgroundColor: user.uid === message.uid ? 'green' : 'red',
+                                    //         bottom:'90%',
+                                    //         color:'grey',
+                                           
+                                    //     }}
+                                    // >
+                                    //    <CheckOutlinedIcon sx={{ color:user.uid === message.uid ? 'green' : 'blue',}}/>
+                                    //    <CheckOutlinedIcon sx={{ color:user.uid === message.uid ? 'green' : 'blue', position: 'relative', right: 10}}/>
+                                    // </div>
+
+
+<Checker message={ message} user={user} delay={"3000"}/>
+
+                                }
+
+                            </div>
                             <div>
                                 {messages[i].url && (
                                     (messages[i].url).includes('.jpg') ||
@@ -142,15 +177,15 @@ function MessagesContainer({ messages, messagesEndRef, friend, props, statusAllU
                                 }
                             </div>
                         </div>
-                    )}
-                <Modal
-                    open={open}
-                    onClose={handleClose}
-                >
-                    <Box sx={style}><img src={imgUrl} style={{ width: '100%', height: '100%' }} /></Box>
-                </Modal>
-            </>    
-    )
-}
+                )}
+                        <Modal
+                            open={open}
+                            onClose={handleClose}
+                        >
+                            <Box sx={style}><img src={imgUrl} style={{ width: '100%', height: '100%' }} /></Box>
+                        </Modal>
+                    </>
+                )
+            }
 
-export default MessagesContainer
+            export default MessagesContainer
