@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import CheckOutlinedIcon from '@mui/icons-material/CheckOutlined';
 
-function Checker({ delay,  user, message }) {
+function Checker({ delay, user, message }) {
 
     const [visible, setVisible] = useState(true);
 

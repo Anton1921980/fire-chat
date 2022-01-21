@@ -263,7 +263,45 @@ const Messenger = (props) => {
         // console.log("friendSeen: ", new Date(friendSeen));
 
 
-        let filteredMessages
+
+
+        
+
+let allUnseenMessages
+(messages) && (
+    allUnseenMessages = messages && messages.filter(message => (message.chatFriend==user.displayName)))
+    
+    // allUnseenMessages && allUnseenMessages.map(message=>()=>{
+
+    // })
+  
+function getCountsSorted(arr) {
+    var counts = new Map();
+
+    for (var i in arr) {
+        if (counts.has(arr[i])) {
+            counts.set(arr[i], counts.get(arr[i]) + 1);
+        } else {
+            counts.set(arr[i], 1);
+        }
+    }
+
+    return Array.from(counts).sort(function(a, b) {
+        return a[1] < b[1];
+    }).map(function(entry) {
+        var ret = {};
+        ret[entry[0]] = entry[1];
+        return ret;
+    });
+}
+
+
+
+console.log(getCountsSorted(allUnseenMessages));
+
+
+        
+        let filteredMessages        
 
         (friend && messages) && (
             filteredMessages = messages && messages.filter(message => (((message.createdAt) && (message.createdAt).toDate())) > new Date(friendSeen)))
