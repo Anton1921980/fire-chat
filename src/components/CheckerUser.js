@@ -3,7 +3,8 @@ import { Avatar } from '@mui/material';
 
 
 
-function CheckerUser({ delay, unreadMessages, unreadMessagesGroup }) {
+function CheckerUser({ delay, unreadMessages, unreadMessagesGroup, read }) {
+   
 
     const [visible, setVisible] = useState(true);
 
@@ -18,7 +19,7 @@ function CheckerUser({ delay, unreadMessages, unreadMessagesGroup }) {
 
     }, [delay, unreadMessages, unreadMessagesGroup])
 
-    return visible && (unreadNumber || (unreadMessages && unreadMessages.length)) ?
+    return visible && (unreadNumber&&!read || (unreadMessages && unreadMessages.length)) ?
 
         <Avatar sx={{ bgcolor: 'blue', marginTop: 0, left: '92%', width: 25, height: 25, fontSize: 12, position: 'absolute' }}> {unreadMessages && unreadMessages.length}{unreadNumber}</Avatar>
         :

@@ -44,6 +44,7 @@ const Messenger = (props) => {
     const [unreadMessages, setUnreadMessages] = useState([])
     const [removeUnread, setRemoveUnread] = useState(false)
     const [unreadNumbers, setUnreadNumbers] = useState([])
+    const [read, setRead] = useState(null)
 
     const backRef = useRef(null)
     const messagesEndRef = useRef(null)
@@ -377,7 +378,7 @@ const Messenger = (props) => {
                 return ret;
             });
         }
-    }, [user, allUsers]);
+    }, [user, allUsers,read]);
 
     // console.log('unreadNumbers', unreadNumbers);
 
@@ -418,6 +419,7 @@ const Messenger = (props) => {
 
         setFriend(e.target.dataset.user)
         setChatId([user.displayName, e.target.dataset.user].sort().join(''))
+        setRead(e.target.dataset.user)
         backRef.current.style.visibility = 'visible'
     }
 
@@ -510,7 +512,7 @@ const Messenger = (props) => {
                         style={{ width: 350 }}
                         onClick={startPersonalChat}
                     >
-                        <Users unreadNumbers={unreadNumbers} removeUnread={removeUnread} unreadMessages={unreadMessages} isUserListOpen={isUserListOpen} allRegUsers={allRegUsers} user={user} friend={friend} statusAllUsers={statusAllUsers} messages={messages} regUsers={regUsers} t={t} />
+                        <Users read ={read} unreadNumbers={unreadNumbers} removeUnread={removeUnread} unreadMessages={unreadMessages} isUserListOpen={isUserListOpen} allRegUsers={allRegUsers} user={user} friend={friend} statusAllUsers={statusAllUsers} messages={messages} regUsers={regUsers} t={t} />
                     </div>
 
                 </Grid>
