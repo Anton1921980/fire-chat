@@ -3,7 +3,7 @@ import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import React from 'react'
 import CheckerUser from './CheckerUser';
 
-function Users({ unreadNumbers, isUserListOpen, allRegUsers, user, friend, statusAllUsers, regUsers, messages, unreadMessages, t, ...props }) {
+function Users({ read, unreadNumbers, isUserListOpen, allRegUsers, user, friend, statusAllUsers, regUsers, messages, unreadMessages, t, ...props }) {
 
 
     let unreadNumbers2
@@ -94,12 +94,13 @@ function Users({ unreadNumbers, isUserListOpen, allRegUsers, user, friend, statu
                                             friend ? (allRegUsers[regUser].displayName == friend) && unreadMessages && unreadMessages.length && (unreadMessages[0]).displayName == friend &&
 
 
-                                                <CheckerUser unreadMessages={unreadMessages} delay={"5000"} />
+                                                <CheckerUser unreadMessages={unreadMessages} delay={"5000"}  />
                                                 :
                                               
                                                 <CheckerUser
                                                     unreadMessagesGroup={unreadNumbers2 = (unreadNumbers && unreadNumbers.length && unreadNumbers.find(number => ((Object.keys(number) == regUser))))}
                                                     delay={"100000"}
+                                                    read={read==regUser&&read}
                                                 />
                                         }
 
