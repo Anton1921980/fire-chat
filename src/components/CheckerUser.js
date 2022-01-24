@@ -3,11 +3,11 @@ import { Avatar } from '@mui/material';
 
 
 
-function CheckerUser({ delay, unreadMessages, }) {
-    // console.log("delay: ", delay);
-    // console.log("unreadMessages: ", unreadMessages);
+function CheckerUser({ delay, unreadMessages, unreadMessagesGroup }) {
 
     const [visible, setVisible] = useState(true);
+
+    const unreadNumber =  (typeof (unreadMessagesGroup) === 'object') && Object.values(unreadMessagesGroup)[0]
 
     useEffect(() => {
         const timeout = setTimeout(() => {
@@ -16,15 +16,14 @@ function CheckerUser({ delay, unreadMessages, }) {
 
         return () => clearTimeout(timeout);
 
-    }, [delay,unreadMessages]);
+    }, [delay, unreadMessages, unreadMessagesGroup])
 
-    return visible ?
+    return visible && (unreadNumber || (unreadMessages && unreadMessages.length)) ?
 
-        <Avatar sx={{ bgcolor: 'blue', marginTop: 0, left: '92%', width: 25, height: 25, fontSize: 12, position: 'absolute' }}> {unreadMessages.length}</Avatar>
-        // <div>222</div>
+        <Avatar sx={{ bgcolor: 'blue', marginTop: 0, left: '92%', width: 25, height: 25, fontSize: 12, position: 'absolute' }}> {unreadMessages && unreadMessages.length}{unreadNumber}</Avatar>
         :
-        <div/>;
-};
+        <div />
+}
 
 
 
