@@ -3,12 +3,18 @@ import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import React from 'react'
 import CheckerUser from './CheckerUser';
 
-function Users({ isUserListOpen, allRegUsers, user, friend, statusAllUsers, regUsers, messages, unreadMessages, t, ...props }) {
-    // console.log("unreadMessages: ", unreadMessages);
+function Users({ unreadNumbers, isUserListOpen, allRegUsers, user, friend, statusAllUsers, regUsers, messages, unreadMessages, t, ...props }) {
+
+
+    let unreadNumbers2
+
+
+    // console.log("unreadNumbers2: ", unreadNumbers2 = unreadNumbers && unreadNumbers.length && ((Object.values(unreadNumbers.filter(number => (Object.keys(number) == 'Аnton Molchanovskyi'))))[0])['Аnton Molchanovskyi'])
+
 
     return (
         <>
-            {allRegUsers && regUsers.length &&
+            {allRegUsers && regUsers.length && user.uid && user.uid != null &&
                 <Autocomplete
                     open={isUserListOpen}
                     id="user-select"
@@ -23,7 +29,7 @@ function Users({ isUserListOpen, allRegUsers, user, friend, statusAllUsers, regU
 
                         <Button
                             data-user={regUser}
-                            disabled={user.uid && allRegUsers[regUser].uid === user.uid}
+                            disabled={allRegUsers[regUser].uid === user.uid}
                             key={regUser}
                             style={{
                                 maxHeight: 70,
@@ -82,13 +88,23 @@ function Users({ isUserListOpen, allRegUsers, user, friend, statusAllUsers, regU
                                                     :
                                                     `seen at: ${new Date(allRegUsers[regUser].seen).getHours()} : ${new Date(allRegUsers[regUser].seen).getMinutes()}`
                                             }
-                                        </span>
-                                        {
-                                            friend && (allRegUsers[regUser].displayName == friend) && unreadMessages && unreadMessages.length && (unreadMessages[0]).displayName == friend &&
+                                        </span>                                   
 
-                                            // <Avatar sx={{ bgcolor: 'blue', marginTop:0, left: '92%',width: 25, height: 25 ,fontSize:12,position:'absolute' }}> {unreadMessages.length}</Avatar>
-                                            <CheckerUser unreadMessages={unreadMessages} delay={"5000"} />
+                                        {
+                                            friend ? (allRegUsers[regUser].displayName == friend) && unreadMessages && unreadMessages.length && (unreadMessages[0]).displayName == friend &&
+
+
+                                                <CheckerUser unreadMessages={unreadMessages} delay={"5000"} />
+                                                :
+                                              
+                                                <CheckerUser
+                                                    unreadMessagesGroup={unreadNumbers2 = (unreadNumbers && unreadNumbers.length && unreadNumbers.find(number => ((Object.keys(number) == regUser))))}
+                                                    delay={"100000"}
+                                                />
                                         }
+
+
+
                                     </div>}
                                 <div
                                     style={{ overflow: 'hidden' }}

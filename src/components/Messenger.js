@@ -43,6 +43,7 @@ const Messenger = (props) => {
     const [allRegUsers, setAllRegUsers] = useState({})
     const [unreadMessages, setUnreadMessages] = useState([])
     const [removeUnread, setRemoveUnread] = useState(false)
+    const [unreadNumbers, setUnreadNumbers] = useState([])
 
     const backRef = useRef(null)
     const messagesEndRef = useRef(null)
@@ -113,7 +114,7 @@ const Messenger = (props) => {
         refPhoto.set(user.photoURL != null ? user.photoURL : 'https://banner2.cleanpng.com/20180505/rse/kisspng-emoji-domain-emojipedia-dark-skin-detective-5aed9ba2ed0164.8229006115255213149708.jpg')
 
         const refSeen = database.ref(user.displayName == null ? `/users/${nullName}/seen` : `/users/${user.displayName}/seen`);
-        refSeen.set(firebase.database.ServerValue.TIMESTAMP)
+        // refSeen.set(firebase.database.ServerValue.TIMESTAMP)
 
         const refStatus = database.ref(user.displayName == null ? `/status/${nullName}` : `/status/${user.displayName}`);
         refStatus.set('online')
@@ -132,7 +133,7 @@ const Messenger = (props) => {
             }
             else {
                 refStatus.set('online');
-                refSeen.set(firebase.database.ServerValue.TIMESTAMP)
+                // refSeen.set(firebase.database.ServerValue.TIMESTAMP) // если не будет смені при онлайн то можно брать seen для непрочитаніх собщений
             }
         };
 
@@ -254,57 +255,23 @@ const Messenger = (props) => {
     useEffect(() => {
         const asArray = Object.entries(allUsers);
 
+
         const filtered = asArray.filter(key => (key[1].displayName) == friend);
 
         const friendObj = friend && (Object.fromEntries(filtered))[friend]
+
         // console.log("friendObj: ", friendObj);
 
         const friendSeen = friend && friendObj['seen']
+
         // console.log("friendSeen: ", new Date(friendSeen));
 
 
 
-
-        
-
-let allUnseenMessages
-(messages) && (
-    allUnseenMessages = messages && messages.filter(message => (message.chatFriend==user.displayName)))
-    
-    // allUnseenMessages && allUnseenMessages.map(message=>()=>{
-
-    // })
-  
-function getCountsSorted(arr) {
-    var counts = new Map();
-
-    for (var i in arr) {
-        if (counts.has(arr[i])) {
-            counts.set(arr[i], counts.get(arr[i]) + 1);
-        } else {
-            counts.set(arr[i], 1);
-        }
-    }
-
-    return Array.from(counts).sort(function(a, b) {
-        return a[1] < b[1];
-    }).map(function(entry) {
-        var ret = {};
-        ret[entry[0]] = entry[1];
-        return ret;
-    });
-}
-
-
-
-console.log(getCountsSorted(allUnseenMessages));
-
-
-        
-        let filteredMessages        
+        let filteredMessages
 
         (friend && messages) && (
-            filteredMessages = messages && messages.filter(message => (((message.createdAt) && (message.createdAt).toDate())) > new Date(friendSeen)))
+            filteredMessages = messages && messages.filter(message => (((message.createdAt) && ((message.createdAt).toDate() > new Date(friendSeen))))))
         //тут должен быть время юзер ласт сиин то есть время когда я біл перед єтим оно перезаписалось когда я сам вошел
 
         setUnreadMessages(filteredMessages)
@@ -338,8 +305,81 @@ console.log(getCountsSorted(allUnseenMessages));
 
     //работает теперь надо чтобі когда френд откріл чат убрать єтот unread у него и у меня то есть через базу реалтайм, например он нажал на френда и через 5 сек
 
+    useEffect(() => {
+        console.log("user: ", user);
+        const asArray2 = Object.entries(allUsers);
+
+        const filteredUser = user.displayName && asArray2.filter(key => (key[1].displayName) == user.displayName);
+        console.log("filteredUser: ", filteredUser);
+
+        const userObj = filteredUser && filteredUser.length && user.displayName && (Object.fromEntries(filteredUser))[user.displayName]
 
 
+        const userSeen = userObj && userObj['seen']
+        console.log("userSeen: ", new Date(userSeen));
+
+
+        let allUnseenMessages
+        let messagesUser = []
+
+        firestore
+            .collection("messages")
+            .where('chatFriend', '==', `${user.displayName}`)
+            // .where ('createdAt', '>', `${friendSeen}`)
+            .get()
+            .then((querySnapshot) => {
+
+                if (querySnapshot) {
+                    querySnapshot.forEach((doc) => {
+                        // doc.data() is never undefined for query doc snapshots
+                        // console.log(doc.id, " => ", doc.data())
+                        messagesUser.push(doc.data())
+                        // messagesUser.map(message => console.log('message', message))
+                    })
+                }
+
+            }).then(() => {//array is empty without ()=>
+                console.log("messagesUser: ", messagesUser)
+
+                allUnseenMessages = messagesUser.filter(message => new Date(userSeen) < (message.createdAt).toDate())
+
+                console.log("allUnseenMessages1: ", allUnseenMessages)
+
+                setUnreadNumbers(getCountsSorted(allUnseenMessages))
+
+
+
+            },
+
+            )
+
+        // console.log("allUnseenMessages: ", allUnseenMessages);
+        // allUnseenMessages && allUnseenMessages.map(message=>()=>{
+
+        // })
+
+        function getCountsSorted(arr) {
+            var counts = new Map();
+
+            for (var i in arr) {
+                if (counts.has(arr[i].displayName)) {
+                    counts.set(arr[i].displayName, counts.get(arr[i].displayName) + 1);
+                } else {
+                    counts.set(arr[i].displayName, 1);
+                }
+            }
+
+            return Array.from(counts).sort(function (a, b) {
+                return a[1] < b[1];
+            }).map(function (entry) {
+                var ret = {};
+                ret[entry[0]] = entry[1];
+                return ret;
+            });
+        }
+    }, [user, allUsers]);
+
+    // console.log('unreadNumbers', unreadNumbers);
 
 
 
@@ -413,10 +453,10 @@ console.log(getCountsSorted(allUnseenMessages));
     }
 
 
-   
+
     useEffect(() => {
         scrollToBottom()
-    
+
     }, [messages, unreadMessages]);
 
     // useEffect(() => {
@@ -470,7 +510,7 @@ console.log(getCountsSorted(allUnseenMessages));
                         style={{ width: 350 }}
                         onClick={startPersonalChat}
                     >
-                        <Users removeUnread={removeUnread} unreadMessages={unreadMessages} isUserListOpen={isUserListOpen} allRegUsers={allRegUsers} user={user} friend={friend} statusAllUsers={statusAllUsers} messages={messages} regUsers={regUsers} t={t} />
+                        <Users unreadNumbers={unreadNumbers} removeUnread={removeUnread} unreadMessages={unreadMessages} isUserListOpen={isUserListOpen} allRegUsers={allRegUsers} user={user} friend={friend} statusAllUsers={statusAllUsers} messages={messages} regUsers={regUsers} t={t} />
                     </div>
 
                 </Grid>
